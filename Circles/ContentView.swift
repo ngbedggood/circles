@@ -37,7 +37,7 @@ struct ContentView: View {
             .animation(.easeOut, value: dragOffset)
             .gesture(dragGesture)
             .frame(height: 740)
-            .padding()
+            .padding(40)
         
     }
 }
