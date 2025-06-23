@@ -17,11 +17,11 @@ struct ContentView: View {
 
     //Dummy data
     @State private var cards = [
-        CardData(date: "20th June 2025", completed: false),
-        CardData(date: "21st June 2025", completed: false),
-        CardData(date: "22nd June 2025", completed: false),
-        CardData(date: "23rd June 2025", completed: false),
-        CardData(date: "24th June 2025", completed: false),
+        CardData(date: "20th June 2025", color: nil),
+        CardData(date: "21st June 2025", color: nil),
+        CardData(date: "22nd June 2025", color: nil),
+        CardData(date: "23rd June 2025", color: nil),
+        CardData(date: "24th June 2025", color: nil),
     ]
     
     @State private var selection = 0
