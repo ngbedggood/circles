@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct CardView: View {
-    let date: Date
-    
+    @Binding var card: CardData
+
     let colors: [Color] = [.blue, .green, .yellow, .orange, .red]
     @State private var expandedCircleIndex: Int? = nil
     @State private var isVisible = true
@@ -23,7 +23,7 @@ struct CardView: View {
                 .fill((Color.brown).opacity(0.2))
             
             VStack {
-                Text(date.formatted(date: .abbreviated, time:.omitted))
+                Text(card.date)
                     .font(.title)
                     .fontWeight(.bold)
                     .zIndex(1)
@@ -104,5 +104,13 @@ struct CardView: View {
 }
 
 #Preview {
-    CardView(date: Date())
+    struct PreviewWrapper: View {
+            @State private var card = CardData(date: "24th June 2025", completed: false)
+
+            var body: some View {
+                CardView(card: $card)
+            }
+        }
+
+        return PreviewWrapper()
 }
