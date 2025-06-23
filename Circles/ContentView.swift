@@ -14,31 +14,33 @@ struct ContentView: View {
     @State private var dayOffset: Int = 0  // Number of days from today
     
     let date = Date()
+
+    //Dummy data
+    @State private var cards = [
+        CardData(date: "20th June 2025", completed: false),
+        CardData(date: "21st June 2025", completed: false),
+        CardData(date: "22nd June 2025", completed: false),
+        CardData(date: "23rd June 2025", completed: false),
+        CardData(date: "24th June 2025", completed: false),
+    ]
+    
+    @State private var selection = 0
     
     var body: some View {
         
-        let dragGesture = DragGesture()
-            .updating($dragOffset) { value, state, _ in
-                state = value.translation.width
-            }
-            .onEnded { value in
-                let threshold: CGFloat = 50
-                if value.translation.width < -threshold {
-                    dayOffset += 1
-                } else if value.translation.width > threshold {
-                    dayOffset -= 1
+        TabView(selection: $selection) {
+            ForEach(cards.indices, id: \.self) { index in
+                    CardView(card: $cards[index])
+                        .frame(height: 740)
+                        .background(RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10))
+                        .padding(40)
+                        .tag(index)
                 }
             }
-
-        let displayDate = Calendar.current.date(byAdding: .day, value: dayOffset, to: Date())!
-
-        CardView(date: displayDate)
-            .offset(x: dragOffset)
-            .animation(.easeOut, value: dragOffset)
-            .gesture(dragGesture)
-            .frame(height: 740)
-            .padding(40)
-        
+        .tabViewStyle(.page(indexDisplayMode: .never)) //snap pages
+        .onAppear {
+            selection = cards.count - 1
+        }
     }
 }
 
