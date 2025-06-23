@@ -7,8 +7,12 @@
 
 import Foundation
 
+enum CardColor {
+    case red, yellow, orange, green, blue
+}
+
 struct CardData: Identifiable {
     let id = UUID()
-    let date: String
-    let completed: Bool
+    var date: String
+    var color: CardColor?  // can be nil
 }
