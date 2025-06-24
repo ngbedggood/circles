@@ -9,6 +9,9 @@ import SwiftUI
 
 struct SocialCardView: View {
     
+    @State private var selectedFriend: FriendColor? = nil
+    let me = FriendColor(name: "Me", color: .gray)
+    
     let radius: CGFloat = 100
     var isPreview: Bool = false
     var socialCard: SocialCard
@@ -25,6 +28,12 @@ struct SocialCardView: View {
                 
                 
                 ZStack {
+                    
+                    let isMeSelected = selectedFriend?.id == me.id
+                    let someoneElseSelected = selectedFriend != nil && !isMeSelected
+                    let meOffset = isMeSelected ? CGSize.zero : CGSize(width: 0, height: -radius * (someoneElseSelected ? 3.0 : 1.0))
+                    let meScale: CGFloat = isMeSelected ? 3.0 : (someoneElseSelected ? 0.5 : 1.0)
+                    
                     Circle()
                         .fill(personalCard.color?.swiftUIColor ?? .gray)
                     .frame(width: 80, height: 80)
@@ -33,14 +42,27 @@ struct SocialCardView: View {
                             .foregroundColor(.white)
                             .fontWeight(.bold)
                     )
-                    .offset(x: 0, y: -radius)
-                    .zIndex(1)
+                    .offset(meOffset)
+                    .scaleEffect(meScale)
+                    .zIndex(isMeSelected ? 1 : 0)
+                    .onTapGesture {
+                        withAnimation(.spring()) {
+                            selectedFriend = isMeSelected ? nil : me
+                        }
+                    }
+                
                     
                     ForEach(Array(socialCard.friends.enumerated()), id: \.element.id) { index, friend in
+                        let isSelected = (selectedFriend?.id == friend.id)
+                        let someoneSelected = selectedFriend != nil
                         let totalSpots = socialCard.friends.count + 1
+                        
                         let angle = Angle(degrees: Double(index + 1) / Double(totalSpots) * 360)
-                        let x = radius * CGFloat(sin(angle.radians))
-                        let y = -radius * CGFloat(cos(angle.radians))
+                        let effectiveRadius = isSelected ? 0 : (someoneSelected ? radius * 1.5 : radius)
+                        
+                        let x = isSelected ? 0 : effectiveRadius * CGFloat(sin(angle.radians))
+                        let y = isSelected ? 0 : -effectiveRadius * CGFloat(cos(angle.radians))
+                        let scale: CGFloat = isSelected ? 3.0 : (someoneSelected ? 0.5 : 1.0)
 
                         ZStack {
                             Circle()
@@ -50,10 +72,18 @@ struct SocialCardView: View {
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
                         }
+                        .scaleEffect(scale)
                         .offset(x: x, y: y)
                         .onTapGesture {
-                            
+                        withAnimation(.spring()) {
+                            if selectedFriend?.id == friend.id {
+                               selectedFriend = nil // Deselect if tapped again
+                           } else {
+                               selectedFriend = friend
+                           }
                         }
+                    }
+                       .zIndex(isSelected ? 1 : 0)
                     }
                 }
                 
