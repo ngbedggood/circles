@@ -9,15 +9,15 @@ import Foundation
 import SwiftUI
 
 enum CardColor {
-    case red, yellow, orange, green, blue, none
+    case gray, yellow, orange, green, teal, none
     
     var swiftUIColor: Color {
             switch self {
-            case .red: return .red
+            case .gray: return .gray
             case .yellow: return .yellow
             case .orange: return .orange
             case .green: return .green
-            case .blue: return .blue
+            case .teal: return .teal
             case .none: return .gray
             }
         }
@@ -27,6 +27,7 @@ struct PersonalCard: Identifiable {
     let id = UUID()
     var date: String
     var color: CardColor?  // can be nil
+    var note: String
 }
 
 struct FriendColor: Identifiable {

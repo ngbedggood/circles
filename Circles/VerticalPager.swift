@@ -21,7 +21,7 @@ struct VerticalPager: View {
                     .padding(20)
                     .tag(0)
                 if personalCard.color != nil {
-                    SocialCardView(card: socialCard, selfColor: personalCard.color ?? .none)
+                    SocialCardView(socialCard: socialCard, personalCard: personalCard)
                         .background(RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10))
                         .padding(20)
                         .tag(1)
@@ -33,9 +33,6 @@ struct VerticalPager: View {
             .offset(x: (geo.size.width - geo.size.height) / 2,
                     y: (geo.size.height - geo.size.width) / 2)
             .tabViewStyle(.page(indexDisplayMode: .never))
-            .onChange(of: verticalIndex) { newValue in
-                print("verticalIndex changed to:", newValue)
-            }
             
         }
     }
@@ -43,7 +40,7 @@ struct VerticalPager: View {
 
 #Preview {
     struct PreviewWrapper: View {
-        @State private var personalCard = PersonalCard(date: "24th June 2025", color: nil)
+        @State private var personalCard = PersonalCard(date: "24th June 2025", color: nil, note: "Hello World.")
         @State private var socialCard = SocialCard(date: "24th June 2025", friends: [FriendColor(name: "Jack", color: .green)])
         @State private var verticalIndex = 0
         

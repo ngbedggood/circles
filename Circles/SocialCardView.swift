@@ -11,8 +11,8 @@ struct SocialCardView: View {
     
     let radius: CGFloat = 100
     var isPreview: Bool = false
-    var card: SocialCard
-    var selfColor: CardColor
+    var socialCard: SocialCard
+    var personalCard: PersonalCard
     
     var body: some View {
         ZStack {
@@ -21,12 +21,12 @@ struct SocialCardView: View {
             VStack {
                 Image(systemName: "arrowshape.up.fill")
                     .foregroundStyle(.white)
-                    .offset(y:-286)
+                    .offset(y:-280)
                 
                 
                 ZStack {
                     Circle()
-                        .fill(selfColor.swiftUIColor)
+                        .fill(personalCard.color?.swiftUIColor ?? .gray)
                     .frame(width: 80, height: 80)
                     .overlay(
                         Text("Me")
@@ -36,8 +36,8 @@ struct SocialCardView: View {
                     .offset(x: 0, y: -radius)
                     .zIndex(1)
                     
-                    ForEach(Array(card.friends.enumerated()), id: \.element.id) { index, friend in
-                        let totalSpots = card.friends.count + 1
+                    ForEach(Array(socialCard.friends.enumerated()), id: \.element.id) { index, friend in
+                        let totalSpots = socialCard.friends.count + 1
                         let angle = Angle(degrees: Double(index + 1) / Double(totalSpots) * 360)
                         let x = radius * CGFloat(sin(angle.radians))
                         let y = -radius * CGFloat(cos(angle.radians))
@@ -51,8 +51,18 @@ struct SocialCardView: View {
                                 .foregroundColor(.white)
                         }
                         .offset(x: x, y: y)
+                        .onTapGesture {
+                            
+                        }
                     }
                 }
+                
+                Text(personalCard.date)
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .zIndex(1)
+                    .foregroundColor(.black)
+                    .offset(y: 276) //hacky fix for now
             }
             .rotationEffect(isPreview ? .zero : .degrees(-90))
         }
@@ -62,10 +72,11 @@ struct SocialCardView: View {
 
 #Preview {
     struct PreviewWrapper: View {
-        @State private var card = SocialCard(date: "24th June 2025", friends: [FriendColor(name: "Jack", color: .green), FriendColor(name: "Jill", color: .blue)])
+        @State private var socialCard = SocialCard(date: "24th June 2025", friends: [FriendColor(name: "Jack", color: .green), FriendColor(name: "Jill", color: .teal)])
+        @State private var personalCard = PersonalCard(date: "24th June 2025", color: .teal, note: "I'm feeling a bit eh today...")
 
             var body: some View {
-                SocialCardView(isPreview: true, card: card, selfColor: .none)
+                SocialCardView(isPreview: true, socialCard: socialCard, personalCard: personalCard)
             }
         }
 
