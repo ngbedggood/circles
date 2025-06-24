@@ -18,15 +18,16 @@ struct VerticalPager: View {
             TabView(selection: $verticalIndex) {
                 PersonalCardView(card: $personalCard)
                     .background(RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10))
-                    .padding(40)
+                    .padding(20)
                     .tag(0)
                 if personalCard.color != nil {
-                    SocialCardView(card: socialCard)
+                    SocialCardView(card: socialCard, selfColor: personalCard.color ?? .none)
                         .background(RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10))
                         .padding(40)
                         .tag(1)
                 }
             }
+            
             .rotationEffect(.degrees(90)) // make tabview scroll vertical
             .frame(width: geo.size.height, height: geo.size.width) // swap width/height
             .offset(x: (geo.size.width - geo.size.height) / 2,
