@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct CardView: View {
-    @Binding var card: CardData
+struct PersonalCardView: View {
+    @Binding var card: PersonalCard
 
     @State private var expandedCircleIndex: Int? = nil
     @State private var isVisible = true
@@ -121,10 +121,10 @@ struct CardView: View {
 
 #Preview {
     struct PreviewWrapper: View {
-            @State private var card = CardData(date: "24th June 2025", color: nil)
+        @State private var card = PersonalCard(date: "24th June 2025", color: nil)
 
             var body: some View {
-                CardView(card: $card)
+                PersonalCardView(card: $card)
             }
         }
 
