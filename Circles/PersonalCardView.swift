@@ -29,22 +29,23 @@ struct PersonalCardView: View {
                     .zIndex(1)
                     .foregroundColor(card.color == nil ? .black : .white)
                     .animation(.easeInOut, value: card.color)
-                    .offset(y: -200) //hacky fix for now
+                    .offset(y: -170) //hacky fix for now
                 
                 Spacer()
                 
                 ZStack {
-                    if card.color == nil || card.color == .red {
+                    
+                    if card.color == nil || card.color == .gray {
                         Circle()
-                            .fill(Color.red)
+                            .fill(Color.gray)
                             .frame(width: expanded ? 120 : 80, height: expanded ? 120 : 80)
                             .zIndex(isFront[4] ? 1 : 0)
-                            .scaleEffect(card.color == .red ? 20 : 1)
+                            .scaleEffect(card.color == .gray ? 20 : 1)
                             .offset(x: 0, y: expanded ? 240 : 0)
                             .animation(.easeInOut, value: expanded)
                             .animation(.easeInOut, value: isFront[4])
                             .onTapGesture {
-                                card.color = .red
+                                card.color = .gray
                                 isFront[4] = true
                             }
                     }
@@ -88,17 +89,17 @@ struct PersonalCardView: View {
                                 isFront[1] = true
                             }
                     }
-                    if card.color == nil || card.color == .blue {
+                    if card.color == nil || card.color == .teal {
                         Circle()
-                            .fill(Color.blue)
+                            .fill(Color.teal)
                             .frame(width: expanded ? 120 : 80, height: expanded ? 120 : 80)
                             .zIndex(isFront[0] ? 1 : 0)
-                            .scaleEffect(card.color == .blue ? 20 : 1)
+                            .scaleEffect(card.color == .teal ? 20 : 1)
                             .offset(x: 0, y: expanded ? -240 : 0)
                             .animation(.easeInOut, value: expanded)
                             .animation(.easeInOut, value: isFront[0])
                             .onTapGesture {
-                                card.color = .blue
+                                card.color = .teal
                                 isFront[0] = true
                             }
                     }
@@ -114,8 +115,25 @@ struct PersonalCardView: View {
                                 }
                                 verticalIndex = 0
                             }
-                        }
                     }
+                    
+                    TextField("What makes you feel that way today?", text: $card.note, axis: .vertical)
+                        .lineLimit(8, reservesSpace: true)
+                        .foregroundColor(.black)
+                        .font(.system(size: 16))
+                        .padding(16)
+                        .background(.white)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.white, lineWidth:2)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .opacity(card.color != .none ? 1.0 : 0.0)
+                        .animation(.easeInOut, value: card.color)
+                        .zIndex(card.color == .none ? 0 : 1)
+                        .frame(width: 310)
+                    
+                }
                 Spacer()
                 ZStack {
                     Text("Select your mood before seeing your friends below")
@@ -128,19 +146,18 @@ struct PersonalCardView: View {
                         .opacity(card.color != .none ? 1.0 : 0.0)
                         .animation(.easeInOut, value: card.color)
                 }
-                .offset(y:200)
-                
+                .offset(y:170)
             }
-            .padding(40)
             .rotationEffect(isPreview ? .zero : .degrees(-90))
         }
+        //.padding(20)
         .clipShape(RoundedRectangle(cornerRadius: 20))
     }
 }
 
 #Preview {
     struct PreviewWrapper: View {
-        @State private var card = PersonalCard(date: "24th June 2025", color: nil)
+        @State private var card = PersonalCard(date: "24th June 2025", color: nil, note: "I'm feelin great!!!")
         @State private var verticalIndex = 0
 
             var body: some View {
