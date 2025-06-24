@@ -15,7 +15,7 @@ struct PersonalCardView: View {
     @State private var isVisible = true
     @State private var isFront = Array(repeating: false, count: 5)
     @State private var expanded: Bool = false
-    @State private var selected: Bool = false
+    @Binding var verticalIndex: Int
 
     var body: some View {
         ZStack {
@@ -54,7 +54,7 @@ struct PersonalCardView: View {
                             .frame(width: expanded ? 100 : 80, height: expanded ? 100 : 80)
                             .zIndex(isFront[3] ? 1 : 0)
                             .scaleEffect(card.color == .orange ? 20 : 1)
-                            .offset(x: 0, y: expanded ? 120 : 0)
+                            .offset(x: 0, y: expanded ? 110 : 0)
                             .animation(.easeInOut, value: expanded)
                             .animation(.easeInOut, value: isFront[3])
                             .onTapGesture {
@@ -80,7 +80,7 @@ struct PersonalCardView: View {
                             .frame(width: expanded ? 100 : 80, height: expanded ? 100 : 80)
                             .zIndex(isFront[1] ? 1 : 0)
                             .scaleEffect(card.color == .green ? 20 : 1)
-                            .offset(x: 0, y: expanded ? -120 : 0)
+                            .offset(x: 0, y: expanded ? -110 : 0)
                             .animation(.easeInOut, value: expanded)
                             .animation(.easeInOut, value: isFront[1])
                             .onTapGesture {
@@ -112,10 +112,24 @@ struct PersonalCardView: View {
                                 withAnimation {
                                     isVisible = false
                                 }
+                                verticalIndex = 0
                             }
                         }
                     }
                 Spacer()
+                ZStack {
+                    Text("Select your mood before seeing your friends below")
+                        .font(.caption)
+                        .foregroundStyle(.gray)
+                        .opacity(card.color == .none ? 1.0 : 0.0)
+                        .animation(.easeInOut, value: card.color)
+                    Image(systemName: "arrowshape.down.fill")
+                        .foregroundStyle(.white)
+                        .opacity(card.color != .none ? 1.0 : 0.0)
+                        .animation(.easeInOut, value: card.color)
+                }
+                .offset(y:200)
+                
             }
             .padding(40)
             .rotationEffect(isPreview ? .zero : .degrees(-90))
@@ -127,9 +141,10 @@ struct PersonalCardView: View {
 #Preview {
     struct PreviewWrapper: View {
         @State private var card = PersonalCard(date: "24th June 2025", color: nil)
+        @State private var verticalIndex = 0
 
             var body: some View {
-                PersonalCardView(isPreview: true, card: $card)
+                PersonalCardView(isPreview: true, card: $card, verticalIndex: $verticalIndex)
             }
         }
 
