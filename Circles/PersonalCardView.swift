@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct PersonalCardView: View {
+    var isPreview: Bool = false
     @Binding var card: PersonalCard
 
     @State private var expandedCircleIndex: Int? = nil
@@ -27,7 +28,7 @@ struct PersonalCardView: View {
                     .fontWeight(.bold)
                     .zIndex(1)
                     .foregroundColor(card.color == nil ? .black : .white)
-                Spacer()
+                    .animation(.easeInOut, value: card.color)
                     ZStack {
                         if card.color == nil || card.color == .red {
                             Circle()
@@ -110,10 +111,10 @@ struct PersonalCardView: View {
                                 }
                         }
                     }
-                //}
                 Spacer()
             }
             .padding(40)
+            .rotationEffect(isPreview ? .zero : .degrees(-90))
         }
         .clipShape(RoundedRectangle(cornerRadius: 20))
     }
@@ -124,7 +125,7 @@ struct PersonalCardView: View {
         @State private var card = PersonalCard(date: "24th June 2025", color: nil)
 
             var body: some View {
-                PersonalCardView(card: $card)
+                PersonalCardView(isPreview: true, card: $card)
             }
         }
 
