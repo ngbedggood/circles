@@ -24,7 +24,7 @@ struct ContentView: View {
         SocialCard(date: "20th June 2025", friends: [FriendColor(name: "Jack", color: .green), FriendColor(name: "John", color: .red), FriendColor(name: "Mary", color: .red)]),
         SocialCard(date: "20th June 2025", friends: [FriendColor(name: "Jack", color: .green), FriendColor(name: "John", color: .orange), FriendColor(name: "Mary", color: .red)]),
         SocialCard(date: "20th June 2025", friends: [FriendColor(name: "Jack", color: .yellow), FriendColor(name: "John", color: .yellow), FriendColor(name: "Mary", color: .green)]),
-        SocialCard(date: "20th June 2025", friends: [FriendColor(name: "Jack", color: .blue), FriendColor(name: "John", color: .yellow), FriendColor(name: "Mary", color: .blue)]),
+        SocialCard(date: "20th June 2025", friends: [FriendColor(name: "Jack", color: .blue), FriendColor(name: "John", color: .yellow), FriendColor(name: "Mary", color: .blue), FriendColor(name: "Tessa", color: .green)]),
     ]
     
     @State private var horizontalIndex = 0

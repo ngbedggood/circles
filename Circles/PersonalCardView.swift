@@ -29,86 +29,90 @@ struct PersonalCardView: View {
                     .zIndex(1)
                     .foregroundColor(card.color == nil ? .black : .white)
                     .animation(.easeInOut, value: card.color)
-                    ZStack {
-                        if card.color == nil || card.color == .red {
-                            Circle()
-                                .fill(Color.red)
-                                .frame(width: 100, height: 100)
-                                .zIndex(isFront[4] ? 1 : 0)
-                                .scaleEffect(card.color == .red ? 20 : 1)
-                                .offset(x: 0, y: expanded ? 240 : 0)
-                                .animation(.easeInOut, value: expanded)
-                                .animation(.easeInOut, value: isFront[4])
-                                .onTapGesture {
-                                    card.color = .red
-                                    isFront[4] = true
+                    .offset(y: -200) //hacky fix for now
+                
+                Spacer()
+                
+                ZStack {
+                    if card.color == nil || card.color == .red {
+                        Circle()
+                            .fill(Color.red)
+                            .frame(width: expanded ? 120 : 80, height: expanded ? 120 : 80)
+                            .zIndex(isFront[4] ? 1 : 0)
+                            .scaleEffect(card.color == .red ? 20 : 1)
+                            .offset(x: 0, y: expanded ? 240 : 0)
+                            .animation(.easeInOut, value: expanded)
+                            .animation(.easeInOut, value: isFront[4])
+                            .onTapGesture {
+                                card.color = .red
+                                isFront[4] = true
+                            }
+                    }
+                    if card.color == nil || card.color == .orange {
+                        Circle()
+                            .fill(Color.orange)
+                            .frame(width: expanded ? 100 : 80, height: expanded ? 100 : 80)
+                            .zIndex(isFront[3] ? 1 : 0)
+                            .scaleEffect(card.color == .orange ? 20 : 1)
+                            .offset(x: 0, y: expanded ? 120 : 0)
+                            .animation(.easeInOut, value: expanded)
+                            .animation(.easeInOut, value: isFront[3])
+                            .onTapGesture {
+                                card.color = .orange
+                                isFront[3] = true
+                            }
+                    }
+                    if card.color == nil || card.color == .yellow {
+                        Circle()
+                            .fill(Color.yellow)
+                            .frame(width: 80, height: 80)
+                            .zIndex(isFront[2] ? 1 : 0)
+                            .scaleEffect(card.color == .yellow ? 20 : 1)
+                            .animation(.easeInOut, value: isFront[2])
+                            .onTapGesture {
+                                card.color = .yellow
+                                isFront[2] = true
+                            }
+                    }
+                    if card.color == nil || card.color == .green {
+                        Circle()
+                            .fill(Color.green)
+                            .frame(width: expanded ? 100 : 80, height: expanded ? 100 : 80)
+                            .zIndex(isFront[1] ? 1 : 0)
+                            .scaleEffect(card.color == .green ? 20 : 1)
+                            .offset(x: 0, y: expanded ? -120 : 0)
+                            .animation(.easeInOut, value: expanded)
+                            .animation(.easeInOut, value: isFront[1])
+                            .onTapGesture {
+                                card.color = .green
+                                isFront[1] = true
+                            }
+                    }
+                    if card.color == nil || card.color == .blue {
+                        Circle()
+                            .fill(Color.blue)
+                            .frame(width: expanded ? 120 : 80, height: expanded ? 120 : 80)
+                            .zIndex(isFront[0] ? 1 : 0)
+                            .scaleEffect(card.color == .blue ? 20 : 1)
+                            .offset(x: 0, y: expanded ? -240 : 0)
+                            .animation(.easeInOut, value: expanded)
+                            .animation(.easeInOut, value: isFront[0])
+                            .onTapGesture {
+                                card.color = .blue
+                                isFront[0] = true
+                            }
+                    }
+                    if card.color == nil && isVisible == true {
+                        Circle()
+                            .fill(Color.brown.opacity(0.1))
+                            .frame(width: 80, height: 80)
+                            .animation(.easeInOut, value: expanded)
+                            .onTapGesture {
+                                expanded = true
+                                withAnimation {
+                                    isVisible = false
                                 }
-                        }
-                        if card.color == nil || card.color == .orange {
-                            Circle()
-                                .fill(Color.orange)
-                                .frame(width: 100, height: 100)
-                                .zIndex(isFront[3] ? 1 : 0)
-                                .scaleEffect(card.color == .orange ? 20 : 1)
-                                .offset(x: 0, y: expanded ? 120 : 0)
-                                .animation(.easeInOut, value: expanded)
-                                .animation(.easeInOut, value: isFront[3])
-                                .onTapGesture {
-                                    card.color = .orange
-                                    isFront[3] = true
-                                }
-                        }
-                        if card.color == nil || card.color == .yellow {
-                            Circle()
-                                .fill(Color.yellow)
-                                .frame(width: 100, height: 100)
-                                .zIndex(isFront[2] ? 1 : 0)
-                                .scaleEffect(card.color == .yellow ? 20 : 1)
-                                .animation(.easeInOut, value: isFront[2])
-                                .onTapGesture {
-                                    card.color = .yellow
-                                    isFront[2] = true
-                                }
-                        }
-                        if card.color == nil || card.color == .green {
-                            Circle()
-                                .fill(Color.green)
-                                .frame(width: 100, height: 100)
-                                .zIndex(isFront[1] ? 1 : 0)
-                                .scaleEffect(card.color == .green ? 20 : 1)
-                                .offset(x: 0, y: expanded ? -120 : 0)
-                                .animation(.easeInOut, value: expanded)
-                                .animation(.easeInOut, value: isFront[1])
-                                .onTapGesture {
-                                    card.color = .green
-                                    isFront[1] = true
-                                }
-                        }
-                        if card.color == nil || card.color == .blue {
-                            Circle()
-                                .fill(Color.blue)
-                                .frame(width: 100, height: 100)
-                                .zIndex(isFront[0] ? 1 : 0)
-                                .scaleEffect(card.color == .blue ? 20 : 1)
-                                .offset(x: 0, y: expanded ? -240 : 0)
-                                .animation(.easeInOut, value: expanded)
-                                .animation(.easeInOut, value: isFront[0])
-                                .onTapGesture {
-                                    card.color = .blue
-                                    isFront[0] = true
-                                }
-                        }
-                        if card.color == nil && isVisible == true {
-                            Circle()
-                                .fill(Color.brown.opacity(0.1))
-                                .frame(width: 100, height: 100)
-                                .animation(.easeInOut, value: expanded)
-                                .onTapGesture {
-                                    expanded = true
-                                    withAnimation {
-                                        isVisible = false
-                                    }
-                                }
+                            }
                         }
                     }
                 Spacer()
