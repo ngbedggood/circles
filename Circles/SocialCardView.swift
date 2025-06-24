@@ -18,34 +18,40 @@ struct SocialCardView: View {
         ZStack {
             RoundedRectangle(cornerRadius: 20)
                 .fill((Color.brown).opacity(0.2))
-            
-            ZStack {
-                Circle()
-                    .fill(selfColor.swiftUIColor)
-                .frame(width: 80, height: 80)
-                .overlay(
-                    Text("Me")
-                        .foregroundColor(.white)
-                        .fontWeight(.bold)
-                )
-                .offset(x: 0, y: -radius)
-                .zIndex(1)
+            VStack {
+                Image(systemName: "arrowshape.up.fill")
+                    .foregroundStyle(.white)
+                    .offset(y:-286)
                 
-                ForEach(Array(card.friends.enumerated()), id: \.element.id) { index, friend in
-                    let totalSpots = card.friends.count + 1
-                    let angle = Angle(degrees: Double(index + 1) / Double(totalSpots) * 360)
-                    let x = radius * CGFloat(sin(angle.radians))
-                    let y = -radius * CGFloat(cos(angle.radians))
-
-                    ZStack {
-                        Circle()
-                            .fill((friend.color ?? .none).swiftUIColor)
-                            .frame(width: 80, height: 80)
-                        Text(friend.name)
-                            .fontWeight(.bold)
+                
+                ZStack {
+                    Circle()
+                        .fill(selfColor.swiftUIColor)
+                    .frame(width: 80, height: 80)
+                    .overlay(
+                        Text("Me")
                             .foregroundColor(.white)
+                            .fontWeight(.bold)
+                    )
+                    .offset(x: 0, y: -radius)
+                    .zIndex(1)
+                    
+                    ForEach(Array(card.friends.enumerated()), id: \.element.id) { index, friend in
+                        let totalSpots = card.friends.count + 1
+                        let angle = Angle(degrees: Double(index + 1) / Double(totalSpots) * 360)
+                        let x = radius * CGFloat(sin(angle.radians))
+                        let y = -radius * CGFloat(cos(angle.radians))
+
+                        ZStack {
+                            Circle()
+                                .fill((friend.color ?? .none).swiftUIColor)
+                                .frame(width: 80, height: 80)
+                            Text(friend.name)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                        }
+                        .offset(x: x, y: y)
                     }
-                    .offset(x: x, y: y)
                 }
             }
             .rotationEffect(isPreview ? .zero : .degrees(-90))

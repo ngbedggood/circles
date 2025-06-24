@@ -16,14 +16,14 @@ struct VerticalPager: View {
     var body: some View {
         GeometryReader { geo in
             TabView(selection: $verticalIndex) {
-                PersonalCardView(card: $personalCard)
+                PersonalCardView(card: $personalCard, verticalIndex: $verticalIndex)
                     .background(RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10))
                     .padding(20)
                     .tag(0)
                 if personalCard.color != nil {
                     SocialCardView(card: socialCard, selfColor: personalCard.color ?? .none)
                         .background(RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10))
-                        .padding(40)
+                        .padding(20)
                         .tag(1)
                 }
             }
