@@ -43,7 +43,6 @@ struct PersonalCardView: View {
                 Spacer()
 
                 ZStack {
-
                     if card.color == nil || card.color == .gray {
                         Circle()
                             .fill(Color.gray)
@@ -166,7 +165,9 @@ struct PersonalCardView: View {
                     .animation(.easeInOut, value: isFocused)
 
                 }
+                
                 Spacer()
+                
                 ZStack {
                     Text("Select today's mood before seeing your friends below")
                         .font(.caption)

@@ -19,19 +19,6 @@ enum CardColor {
             case .green: return .green
             case .teal: return .teal
             case .none: return .gray
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            // format the line breaks away please
         }
     }
 }
