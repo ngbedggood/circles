@@ -19,12 +19,14 @@ struct ContentView: View {
         PersonalCard(date: "23rd June 2025", color: nil, note: ""),
         PersonalCard(date: "24th June 2025", color: nil, note: ""),
     ]
+    
+    // Dummy Data
     var socialCards = [
-        SocialCard(date: "20th June 2025", friends: [FriendColor(name: "Jack", color: .teal), FriendColor(name: "John", color: .yellow), FriendColor(name: "Mary", color: .yellow)]),
-        SocialCard(date: "20th June 2025", friends: [FriendColor(name: "Jack", color: .green), FriendColor(name: "John", color: .gray), FriendColor(name: "Mary", color: .gray)]),
-        SocialCard(date: "20th June 2025", friends: [FriendColor(name: "Jack", color: .green), FriendColor(name: "John", color: .orange), FriendColor(name: "Mary", color: .gray)]),
-        SocialCard(date: "20th June 2025", friends: [FriendColor(name: "Jack", color: .yellow), FriendColor(name: "John",  color: .yellow), FriendColor(name: "Mary", color: .green)]),
-        SocialCard(date: "20th June 2025", friends: [FriendColor(name: "Jack", color: .teal), FriendColor(name: "John", color: .yellow), FriendColor(name: "Mary", color: .teal), FriendColor(name: "Tessa", color: .green)]),
+        SocialCard(date: "20th June 2025", friends: [FriendColor(name: "Jack", color: .teal, note: "I'm feeling great!"), FriendColor(name: "John", color: .yellow, note: "I'm feeling great!"), FriendColor(name: "Mary", color: .yellow, note: "I'm alright!")]),
+        SocialCard(date: "20th June 2025", friends: [FriendColor(name: "Jack", color: .green, note: "I'm feeling great!"), FriendColor(name: "John", color: .gray, note: "I'm feeling great!"), FriendColor(name: "Mary", color: .gray, note: "My plant passed away...")]),
+        SocialCard(date: "20th June 2025", friends: [FriendColor(name: "Jack", color: .green, note: "Today is the day!"), FriendColor(name: "John", color: .orange, note: "I'm feeling great!"), FriendColor(name: "Mary", color: .gray, note: "I'm feeling a bit lonely right now..")]),
+        SocialCard(date: "20th June 2025", friends: [FriendColor(name: "Jack", color: .yellow, note: "Something is a bit off"), FriendColor(name: "John",  color: .yellow, note: "I'm feeling great!"), FriendColor(name: "Mary", color: .green, note: "I'm feeling great!")]),
+        SocialCard(date: "20th June 2025", friends: [FriendColor(name: "Jack", color: .teal, note: "I'm feeling great!"), FriendColor(name: "John", color: .yellow, note: "I'm feeling great!"), FriendColor(name: "Mary", color: .teal, note: "I'm feeling great!"), FriendColor(name: "Tessa", color: .green, note: "I'm excited for the weekend!")]),
     ]
     
     @State private var horizontalIndex = 0

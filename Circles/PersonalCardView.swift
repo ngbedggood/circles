@@ -48,6 +48,7 @@ struct PersonalCardView: View {
                                 card.color = .gray
                                 isFront[4] = true
                             }
+                            .shadow(color: .black.opacity(0.2), radius: 4)
                     }
                     if card.color == nil || card.color == .orange {
                         Circle()
@@ -62,6 +63,7 @@ struct PersonalCardView: View {
                                 card.color = .orange
                                 isFront[3] = true
                             }
+                            .shadow(color: .black.opacity(0.2), radius: 4)
                     }
                     if card.color == nil || card.color == .yellow {
                         Circle()
@@ -74,6 +76,7 @@ struct PersonalCardView: View {
                                 card.color = .yellow
                                 isFront[2] = true
                             }
+                            .shadow(color: .black.opacity(0.2), radius: 4)
                     }
                     if card.color == nil || card.color == .green {
                         Circle()
@@ -88,6 +91,7 @@ struct PersonalCardView: View {
                                 card.color = .green
                                 isFront[1] = true
                             }
+                            .shadow(color: .black.opacity(0.2), radius: 4)
                     }
                     if card.color == nil || card.color == .teal {
                         Circle()
@@ -102,6 +106,7 @@ struct PersonalCardView: View {
                                 card.color = .teal
                                 isFront[0] = true
                             }
+                            .shadow(color: .black.opacity(0.2), radius: 4)
                     }
                     if card.color == nil && isVisible == true {
                         Circle()

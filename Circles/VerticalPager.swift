@@ -41,7 +41,7 @@ struct VerticalPager: View {
 #Preview {
     struct PreviewWrapper: View {
         @State private var personalCard = PersonalCard(date: "24th June 2025", color: nil, note: "Hello World.")
-        @State private var socialCard = SocialCard(date: "24th June 2025", friends: [FriendColor(name: "Jack", color: .green)])
+        @State private var socialCard = SocialCard(date: "24th June 2025", friends: [FriendColor(name: "Jack", color: .green, note: "I'm feeling great!")])
         @State private var verticalIndex = 0
         
             var body: some View {
