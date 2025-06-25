@@ -26,7 +26,7 @@ enum CardColor {
 struct PersonalCard: Identifiable {
     let id = UUID()
     var date: String
-    var color: CardColor?  // can be nil
+    var color: CardColor?
     var note: String
 }
 

@@ -11,7 +11,7 @@ struct ContentView: View {
 
     let date = Date()
 
-    //Dummy data
+    // Dummy data
     @State private var personalCards = [
         PersonalCard(date: "20th June 2025", color: nil, note: ""),
         PersonalCard(date: "21st June 2025", color: nil, note: ""),

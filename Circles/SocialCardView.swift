@@ -121,7 +121,7 @@ struct SocialCardView: View {
                         .fontWeight(.bold)
                         .zIndex(1)
                         .foregroundColor(.black)
-                        .offset(y: 320)  //hacky fix for now
+                        .offset(y: 320)  // hacky fix for now
                 }
 
             }

@@ -165,9 +165,9 @@ struct PersonalCardView: View {
                     .animation(.easeInOut, value: isFocused)
 
                 }
-                
+
                 Spacer()
-                
+
                 ZStack {
                     Text("Select today's mood before seeing your friends below")
                         .font(.caption)
@@ -183,7 +183,6 @@ struct PersonalCardView: View {
             }
             .rotationEffect(isPreview ? .zero : .degrees(-90))
         }
-        //.padding(20)
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .onTapGesture {  // Still useful for general tap-to-dismiss
             self.hideKeyboard()
