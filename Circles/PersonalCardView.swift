@@ -12,11 +12,7 @@ struct PersonalCardView: View {
     private func hideKeyboard() {
         print("Attempting to hide keyboard...")
         UIApplication.shared.sendAction(
-            #selector(UIResponder.resignFirstResponder),
-            to: nil,
-            from: nil,
-            for: nil
-        )
+            #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 
     @FocusState private var isFocused: Bool
@@ -51,10 +47,7 @@ struct PersonalCardView: View {
                     if card.color == nil || card.color == .gray {
                         Circle()
                             .fill(Color.gray)
-                            .frame(
-                                width: expanded ? 120 : 80,
-                                height: expanded ? 120 : 80
-                            )
+                            .frame(width: expanded ? 120 : 80, height: expanded ? 120 : 80)
                             .zIndex(isFront[4] ? 1 : 0)
                             .scaleEffect(card.color == .gray ? 20 : 1)
                             .offset(x: 0, y: expanded ? 240 : 0)
@@ -69,10 +62,7 @@ struct PersonalCardView: View {
                     if card.color == nil || card.color == .orange {
                         Circle()
                             .fill(Color.orange)
-                            .frame(
-                                width: expanded ? 100 : 80,
-                                height: expanded ? 100 : 80
-                            )
+                            .frame(width: expanded ? 100 : 80, height: expanded ? 100 : 80)
                             .zIndex(isFront[3] ? 1 : 0)
                             .scaleEffect(card.color == .orange ? 20 : 1)
                             .offset(x: 0, y: expanded ? 110 : 0)
@@ -100,13 +90,8 @@ struct PersonalCardView: View {
                     if card.color == nil || card.color == .green {
                         Circle()
                             .fill(Color.green)
-                            .frame(
-                                width: expanded ? 100 : 80,
-                                height: expanded ? 100 : 80
-                            ).zIndex(
-                                isFront[1] ? 1 : 0
-                            )
-
+                            .frame(width: expanded ? 100 : 80, height: expanded ? 100 : 80)
+                            .zIndex(isFront[1] ? 1 : 0)
                             .scaleEffect(card.color == .green ? 20 : 1)
                             .offset(x: 0, y: expanded ? -110 : 0)
                             .animation(.easeInOut, value: expanded)
@@ -120,10 +105,7 @@ struct PersonalCardView: View {
                     if card.color == nil || card.color == .teal {
                         Circle()
                             .fill(Color.teal)
-                            .frame(
-                                width: expanded ? 120 : 80,
-                                height: expanded ? 120 : 80
-                            )
+                            .frame(width: expanded ? 120 : 80, height: expanded ? 120 : 80)
                             .zIndex(isFront[0] ? 1 : 0)
                             .scaleEffect(card.color == .teal ? 20 : 1)
                             .offset(x: 0, y: expanded ? -240 : 0)
@@ -150,9 +132,7 @@ struct PersonalCardView: View {
                     }
 
                     TextField(
-                        "What makes you feel that way today?",
-                        text: $card.note,
-                        axis: .vertical
+                        "What makes you feel that way today?", text: $card.note, axis: .vertical
                     )
                     .foregroundColor(.black)
                     .font(.system(size: 16))
@@ -177,11 +157,8 @@ struct PersonalCardView: View {
                         ToolbarItem(placement: .keyboard) {
                             Button("Done") {
                                 UIApplication.shared.sendAction(
-                                    #selector(UIResponder.resignFirstResponder),
-                                    to: nil,
-                                    from: nil,
-                                    for: nil
-                                )
+                                    #selector(UIResponder.resignFirstResponder), to: nil, from: nil,
+                                    for: nil)
                             }
                         }
                     }
@@ -217,18 +194,11 @@ struct PersonalCardView: View {
 #Preview {
     struct PreviewWrapper: View {
         @State private var card = PersonalCard(
-            date: "24th June 2025",
-            color: nil,
-            note: "I'm feelin great!!!"
-        )
+            date: "24th June 2025", color: nil, note: "I'm feelin great!!!")
         @State private var verticalIndex = 0
 
         var body: some View {
-            PersonalCardView(
-                isPreview: true,
-                card: $card,
-                verticalIndex: $verticalIndex
-            )
+            PersonalCardView(isPreview: true, card: $card, verticalIndex: $verticalIndex)
         }
     }
 

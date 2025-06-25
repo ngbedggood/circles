@@ -25,104 +25,40 @@ struct ContentView: View {
         SocialCard(
             date: "20th June 2025",
             friends: [
-                FriendColor(
-                    name: "Jack",
-                    color: .teal,
-                    note: "I'm feeling great!"
-                ),
-                FriendColor(
-                    name: "John",
-                    color: .yellow,
-                    note: "I'm feeling great!"
-                ),
+                FriendColor(name: "Jack", color: .teal, note: "I'm feeling great!"),
+                FriendColor(name: "John", color: .yellow, note: "I'm feeling great!"),
                 FriendColor(name: "Mary", color: .yellow, note: "I'm alright!"),
-            ]
-        ),
+            ]),
         SocialCard(
             date: "20th June 2025",
             friends: [
-                FriendColor(
-                    name: "Jack",
-                    color: .green,
-                    note: "I'm feeling great!"
-                ),
-                FriendColor(
-                    name: "John",
-                    color: .gray,
-                    note: "I'm feeling great!"
-                ),
-                FriendColor(
-                    name: "Mary",
-                    color: .gray,
-                    note: "My plant passed away..."
-                ),
-            ]
-        ),
+                FriendColor(name: "Jack", color: .green, note: "I'm feeling great!"),
+                FriendColor(name: "John", color: .gray, note: "I'm feeling great!"),
+                FriendColor(name: "Mary", color: .gray, note: "My plant passed away..."),
+            ]),
         SocialCard(
             date: "20th June 2025",
             friends: [
+                FriendColor(name: "Jack", color: .green, note: "Today is the day!"),
+                FriendColor(name: "John", color: .orange, note: "I'm feeling great!"),
                 FriendColor(
-                    name: "Jack",
-                    color: .green,
-                    note: "Today is the day!"
-                ),
-                FriendColor(
-                    name: "John",
-                    color: .orange,
-                    note: "I'm feeling great!"
-                ),
-                FriendColor(
-                    name: "Mary",
-                    color: .gray,
-                    note: "I'm feeling a bit lonely right now.."
-                ),
-            ]
-        ),
+                    name: "Mary", color: .gray, note: "I'm feeling a bit lonely right now.."),
+            ]),
         SocialCard(
             date: "20th June 2025",
             friends: [
-                FriendColor(
-                    name: "Jack",
-                    color: .yellow,
-                    note: "Something is a bit off"
-                ),
-                FriendColor(
-                    name: "John",
-                    color: .yellow,
-                    note: "I'm feeling great!"
-                ),
-                FriendColor(
-                    name: "Mary",
-                    color: .green,
-                    note: "I'm feeling great!"
-                ),
-            ]
-        ),
+                FriendColor(name: "Jack", color: .yellow, note: "Something is a bit off"),
+                FriendColor(name: "John", color: .yellow, note: "I'm feeling great!"),
+                FriendColor(name: "Mary", color: .green, note: "I'm feeling great!"),
+            ]),
         SocialCard(
             date: "20th June 2025",
             friends: [
-                FriendColor(
-                    name: "Jack",
-                    color: .teal,
-                    note: "I'm feeling great!"
-                ),
-                FriendColor(
-                    name: "John",
-                    color: .yellow,
-                    note: "I'm feeling great!"
-                ),
-                FriendColor(
-                    name: "Mary",
-                    color: .teal,
-                    note: "I'm feeling great!"
-                ),
-                FriendColor(
-                    name: "Tessa",
-                    color: .green,
-                    note: "I'm excited for the weekend!"
-                ),
-            ]
-        ),
+                FriendColor(name: "Jack", color: .teal, note: "I'm feeling great!"),
+                FriendColor(name: "John", color: .yellow, note: "I'm feeling great!"),
+                FriendColor(name: "Mary", color: .teal, note: "I'm feeling great!"),
+                FriendColor(name: "Tessa", color: .green, note: "I'm excited for the weekend!"),
+            ]),
     ]
 
     @State private var horizontalIndex = 0
@@ -133,8 +69,7 @@ struct ContentView: View {
             TabView(selection: $horizontalIndex) {
                 ForEach(personalCards.indices, id: \.self) { index in
                     VerticalPager(
-                        personalCard: $personalCards[index],
-                        socialCard: socialCards[index],
+                        personalCard: $personalCards[index], socialCard: socialCards[index],
                         verticalIndex: $verticalIndex
                     )
                     .tag(index)

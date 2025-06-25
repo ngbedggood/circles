@@ -16,28 +16,19 @@ struct VerticalPager: View {
     var body: some View {
         GeometryReader { geo in
             TabView(selection: $verticalIndex) {
-                PersonalCardView(
-                    card: $personalCard,
-                    verticalIndex: $verticalIndex
-                )
-                .background(
-                    RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(
-                        radius: 10
-                    )
-                )
-                .padding(20)
-                .tag(0)
-                if personalCard.color != nil {
-                    SocialCardView(
-                        socialCard: socialCard,
-                        personalCard: personalCard
-                    )
+                PersonalCardView(card: $personalCard, verticalIndex: $verticalIndex)
                     .background(
-                        RoundedRectangle(cornerRadius: 20).fill(Color.white)
-                            .shadow(radius: 10)
+                        RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
                     )
                     .padding(20)
-                    .tag(1)
+                    .tag(0)
+                if personalCard.color != nil {
+                    SocialCardView(socialCard: socialCard, personalCard: personalCard)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
+                        )
+                        .padding(20)
+                        .tag(1)
                 }
             }
 
@@ -56,28 +47,15 @@ struct VerticalPager: View {
 #Preview {
     struct PreviewWrapper: View {
         @State private var personalCard = PersonalCard(
-            date: "24th June 2025",
-            color: nil,
-            note: "Hello World."
-        )
+            date: "24th June 2025", color: nil, note: "Hello World.")
         @State private var socialCard = SocialCard(
             date: "24th June 2025",
-            friends: [
-                FriendColor(
-                    name: "Jack",
-                    color: .green,
-                    note: "I'm feeling great!"
-                )
-            ]
-        )
+            friends: [FriendColor(name: "Jack", color: .green, note: "I'm feeling great!")])
         @State private var verticalIndex = 0
 
         var body: some View {
             VerticalPager(
-                personalCard: $personalCard,
-                socialCard: socialCard,
-                verticalIndex: $verticalIndex
-            )
+                personalCard: $personalCard, socialCard: socialCard, verticalIndex: $verticalIndex)
         }
     }
 

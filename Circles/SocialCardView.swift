@@ -30,18 +30,14 @@ struct SocialCardView: View {
                 ZStack {
                     GeometryReader { geometry in
                         let center = CGPoint(
-                            x: geometry.size.width / 2,
-                            y: geometry.size.height / 2
-                        )
+                            x: geometry.size.width / 2, y: geometry.size.height / 2)
 
                         let isMeSelected = selectedFriend?.id == me.id
-                        let someoneElseSelected =
-                            selectedFriend != nil && !isMeSelected
+                        let someoneElseSelected = selectedFriend != nil && !isMeSelected
                         let meY = center.y
                         let meX = center.x
                         let meScale: CGFloat =
-                            isMeSelected
-                            ? 3.0 : (someoneElseSelected ? 0.1 : 1.2)
+                            isMeSelected ? 3.0 : (someoneElseSelected ? 0.1 : 1.2)
 
                         // Personal circle
                         Circle()
@@ -49,11 +45,7 @@ struct SocialCardView: View {
                             .frame(width: 80, height: 80)
                             .overlay(
                                 Text(isMeSelected ? personalCard.note : "Me")
-                                    .font(
-                                        isMeSelected
-                                            ? .system(size: 6)
-                                            : .system(size: 24)
-                                    )
+                                    .font(isMeSelected ? .system(size: 6) : .system(size: 24))
                                     .foregroundColor(.white)
                                     .fontWeight(isMeSelected ? .regular : .bold)
                                     .padding(12)
@@ -72,49 +64,32 @@ struct SocialCardView: View {
                             }
                         // Social circles
                         let totalSpots = socialCard.friends.count
-                        ForEach(
-                            Array(socialCard.friends.enumerated()),
-                            id: \.element.id
-                        ) { index, friend in
+                        ForEach(Array(socialCard.friends.enumerated()), id: \.element.id) {
+                            index, friend in
                             let isSelected = (selectedFriend?.id == friend.id)
                             let someoneSelected = selectedFriend != nil
 
-                            let angle = Angle(
-                                degrees: Double(index) / Double(totalSpots)
-                                    * 360
-                            )
+                            let angle = Angle(degrees: Double(index) / Double(totalSpots) * 360)
                             let effectiveRadius =
-                                isSelected
-                                ? 0 : (someoneSelected ? radius * 1.5 : radius)
+                                isSelected ? 0 : (someoneSelected ? radius * 1.5 : radius)
 
                             let x =
                                 center.x
-                                + (isSelected
-                                    ? 0
-                                    : effectiveRadius
-                                        * CGFloat(sin(angle.radians)))
+                                + (isSelected ? 0 : effectiveRadius * CGFloat(sin(angle.radians)))
                             let y =
                                 center.y
-                                - (isSelected
-                                    ? 0
-                                    : effectiveRadius
-                                        * CGFloat(cos(angle.radians)))
-                            let scale: CGFloat =
-                                isSelected ? 3.0 : (someoneSelected ? 0.5 : 1.0)
+                                - (isSelected ? 0 : effectiveRadius * CGFloat(cos(angle.radians)))
+                            let scale: CGFloat = isSelected ? 3.0 : (someoneSelected ? 0.5 : 1.0)
 
                             Circle()
                                 .fill((friend.color ?? .none).swiftUIColor)
                                 .frame(width: 80, height: 80)
                                 .overlay(
                                     Text(
-                                        selectedFriend?.id == friend.id
-                                            ? friend.note : friend.name
+                                        selectedFriend?.id == friend.id ? friend.note : friend.name
                                     )
                                     .foregroundColor(.white)
-                                    .fontWeight(
-                                        selectedFriend?.id == friend.id
-                                            ? .regular : .bold
-                                    )
+                                    .fontWeight(selectedFriend?.id == friend.id ? .regular : .bold)
                                     .padding(12)
                                 )
                                 .multilineTextAlignment(.center)
@@ -160,31 +135,17 @@ struct SocialCardView: View {
         @State private var socialCard = SocialCard(
             date: "24th June 2025",
             friends: [
-                FriendColor(
-                    name: "Jack",
-                    color: .green,
-                    note: "I'm feeling great!"
-                ),
-                FriendColor(
-                    name: "Greg",
-                    color: .teal,
-                    note: "I'm alright, just a bit tired!"
-                ),
-            ]
-        )
+                FriendColor(name: "Jack", color: .green, note: "I'm feeling great!"),
+                FriendColor(name: "Greg", color: .teal, note: "I'm alright, just a bit tired!"),
+            ])
         @State private var personalCard = PersonalCard(
-            date: "24th June 2025",
-            color: .teal,
+            date: "24th June 2025", color: .teal,
             note:
                 "I'm feeling a bit eh today... I'm alright, just a bit tired! Today might just be fine. This is a testtesttestetststs!!!!"
         )
 
         var body: some View {
-            SocialCardView(
-                isPreview: true,
-                socialCard: socialCard,
-                personalCard: personalCard
-            )
+            SocialCardView(isPreview: true, socialCard: socialCard, personalCard: personalCard)
         }
     }
 
