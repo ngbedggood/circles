@@ -8,14 +8,19 @@
 import SwiftUI
 
 struct PersonalCardView: View {
-    
+
     private func hideKeyboard() {
         print("Attempting to hide keyboard...")
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        UIApplication.shared.sendAction(
+            #selector(UIResponder.resignFirstResponder),
+            to: nil,
+            from: nil,
+            for: nil
+        )
     }
-    
+
     @FocusState private var isFocused: Bool
-    
+
     var isPreview: Bool = false
     @Binding var card: PersonalCard
 
@@ -29,7 +34,7 @@ struct PersonalCardView: View {
         ZStack {
             RoundedRectangle(cornerRadius: 20)
                 .fill((Color.brown).opacity(0.2))
-            
+
             VStack {
                 Text(card.date)
                     .font(.title)
@@ -37,16 +42,19 @@ struct PersonalCardView: View {
                     .zIndex(1)
                     .foregroundColor(card.color == nil ? .black : .white)
                     .animation(.easeInOut, value: card.color)
-                    .offset(y: -170) //hacky fix for now
-                
+                    .offset(y: -170)  //hacky fix for now
+
                 Spacer()
-                
+
                 ZStack {
-                    
+
                     if card.color == nil || card.color == .gray {
                         Circle()
                             .fill(Color.gray)
-                            .frame(width: expanded ? 120 : 80, height: expanded ? 120 : 80)
+                            .frame(
+                                width: expanded ? 120 : 80,
+                                height: expanded ? 120 : 80
+                            )
                             .zIndex(isFront[4] ? 1 : 0)
                             .scaleEffect(card.color == .gray ? 20 : 1)
                             .offset(x: 0, y: expanded ? 240 : 0)
@@ -61,7 +69,10 @@ struct PersonalCardView: View {
                     if card.color == nil || card.color == .orange {
                         Circle()
                             .fill(Color.orange)
-                            .frame(width: expanded ? 100 : 80, height: expanded ? 100 : 80)
+                            .frame(
+                                width: expanded ? 100 : 80,
+                                height: expanded ? 100 : 80
+                            )
                             .zIndex(isFront[3] ? 1 : 0)
                             .scaleEffect(card.color == .orange ? 20 : 1)
                             .offset(x: 0, y: expanded ? 110 : 0)
@@ -89,8 +100,13 @@ struct PersonalCardView: View {
                     if card.color == nil || card.color == .green {
                         Circle()
                             .fill(Color.green)
-                            .frame(width: expanded ? 100 : 80, height: expanded ? 100 : 80)
-                            .zIndex(isFront[1] ? 1 : 0)
+                            .frame(
+                                width: expanded ? 100 : 80,
+                                height: expanded ? 100 : 80
+                            ).zIndex(
+                                isFront[1] ? 1 : 0
+                            )
+
                             .scaleEffect(card.color == .green ? 20 : 1)
                             .offset(x: 0, y: expanded ? -110 : 0)
                             .animation(.easeInOut, value: expanded)
@@ -104,7 +120,10 @@ struct PersonalCardView: View {
                     if card.color == nil || card.color == .teal {
                         Circle()
                             .fill(Color.teal)
-                            .frame(width: expanded ? 120 : 80, height: expanded ? 120 : 80)
+                            .frame(
+                                width: expanded ? 120 : 80,
+                                height: expanded ? 120 : 80
+                            )
                             .zIndex(isFront[0] ? 1 : 0)
                             .scaleEffect(card.color == .teal ? 20 : 1)
                             .offset(x: 0, y: expanded ? -240 : 0)
@@ -129,37 +148,46 @@ struct PersonalCardView: View {
                                 verticalIndex = 0
                             }
                     }
-                    
-                    TextField("What makes you feel that way today?", text: $card.note, axis: .vertical)
-                        .foregroundColor(.black)
-                        .font(.system(size: 16))
-                        .padding(16)
-                        .background(.white)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white, lineWidth:2)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                        .opacity(card.color != .none ? 1.0 : 0.0)
-                        .animation(.easeInOut, value: card.color)
-                        .zIndex(card.color == .none ? 0 : 1)
-                        .frame(width: 310)
-                        .focused($isFocused)
-                        .onSubmit {
-                            print("Done button on keyboard tapped!")
-                            isFocused = false
-                        }
-                        // Weird way to be able to dismiss keyboard when using axis: .vertical modifier
-                        .toolbar {
-                            ToolbarItem(placement: .keyboard) {
-                                Button("Done") {
-                                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                                }
+
+                    TextField(
+                        "What makes you feel that way today?",
+                        text: $card.note,
+                        axis: .vertical
+                    )
+                    .foregroundColor(.black)
+                    .font(.system(size: 16))
+                    .padding(16)
+                    .background(.white)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.white, lineWidth: 2)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .opacity(card.color != .none ? 1.0 : 0.0)
+                    .animation(.easeInOut, value: card.color)
+                    .zIndex(card.color == .none ? 0 : 1)
+                    .frame(width: 310)
+                    .focused($isFocused)
+                    .onSubmit {
+                        print("Done button on keyboard tapped!")
+                        isFocused = false
+                    }
+                    // Weird way to be able to dismiss keyboard when using axis: .vertical modifier
+                    .toolbar {
+                        ToolbarItem(placement: .keyboard) {
+                            Button("Done") {
+                                UIApplication.shared.sendAction(
+                                    #selector(UIResponder.resignFirstResponder),
+                                    to: nil,
+                                    from: nil,
+                                    for: nil
+                                )
                             }
                         }
-                        .offset(y: isFocused ? -90 : 0)
-                        .animation(.easeInOut, value: isFocused)
-                    
+                    }
+                    .offset(y: isFocused ? -90 : 0)
+                    .animation(.easeInOut, value: isFocused)
+
                 }
                 Spacer()
                 ZStack {
@@ -173,28 +201,36 @@ struct PersonalCardView: View {
                         .opacity(card.color != .none ? 1.0 : 0.0)
                         .animation(.easeInOut, value: card.color)
                 }
-                .offset(y:170)
+                .offset(y: 170)
             }
             .rotationEffect(isPreview ? .zero : .degrees(-90))
         }
         //.padding(20)
         .clipShape(RoundedRectangle(cornerRadius: 20))
-        .onTapGesture { // Still useful for general tap-to-dismiss
+        .onTapGesture {  // Still useful for general tap-to-dismiss
             self.hideKeyboard()
         }
-        
+
     }
 }
 
 #Preview {
     struct PreviewWrapper: View {
-        @State private var card = PersonalCard(date: "24th June 2025", color: nil, note: "I'm feelin great!!!")
+        @State private var card = PersonalCard(
+            date: "24th June 2025",
+            color: nil,
+            note: "I'm feelin great!!!"
+        )
         @State private var verticalIndex = 0
 
-            var body: some View {
-                PersonalCardView(isPreview: true, card: $card, verticalIndex: $verticalIndex)
-            }
+        var body: some View {
+            PersonalCardView(
+                isPreview: true,
+                card: $card,
+                verticalIndex: $verticalIndex
+            )
         }
+    }
 
-        return PreviewWrapper()
+    return PreviewWrapper()
 }

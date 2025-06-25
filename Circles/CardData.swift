@@ -10,17 +10,17 @@ import SwiftUI
 
 enum CardColor {
     case gray, yellow, orange, green, teal, none
-    
+
     var swiftUIColor: Color {
-            switch self {
+        switch self {
             case .gray: return .gray
             case .yellow: return .yellow
             case .orange: return .orange
             case .green: return .green
             case .teal: return .teal
             case .none: return .gray
-            }
         }
+    }
 }
 
 struct PersonalCard: Identifiable {

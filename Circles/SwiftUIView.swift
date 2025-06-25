@@ -17,12 +17,12 @@ struct SwiftUIView: View {
                 .fill(.gray)
                 .frame(width: 100, height: 100)
                 .offset(x: 0, y: 0)
-                .scaleEffect(1.2*scale)
+                .scaleEffect(1.2 * scale)
             Circle()
                 .fill(.orange)
                 .frame(width: 100, height: 100)
                 .offset(x: 10, y: -10)
-                .scaleEffect(1.1*scale)
+                .scaleEffect(1.1 * scale)
             Circle()
                 .fill(.yellow)
                 .frame(width: 100, height: 100)
@@ -32,7 +32,7 @@ struct SwiftUIView: View {
                 .fill(.green)
                 .frame(width: 100, height: 100)
                 .offset(x: 30, y: -30)
-                .scaleEffect(0.9*scale)
+                .scaleEffect(0.9 * scale)
             Circle()
                 .fill(.teal)
                 .overlay(
@@ -42,11 +42,10 @@ struct SwiftUIView: View {
                 )
                 .frame(width: 100, height: 100)
                 .offset(x: 40, y: -40)
-                .scaleEffect(0.8*scale)
-                
-            
+                .scaleEffect(0.8 * scale)
+
         }
-       
+
     }
 }
 
