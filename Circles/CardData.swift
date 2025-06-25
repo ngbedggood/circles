@@ -13,12 +13,18 @@ enum CardColor {
 
     var swiftUIColor: Color {
         switch self {
-            case .gray: return .gray
-            case .yellow: return .yellow
-            case .orange: return .orange
-            case .green: return .green
-            case .teal: return .teal
-            case .none: return .gray
+        case .gray: return .gray
+        case .yellow: return .yellow
+        case .orange: return .orange
+        case .green: return .green
+        case .teal: return .teal
+        case .none: return .gray
+        
+            
+            
+            
+            
+            
         }
     }
 }
