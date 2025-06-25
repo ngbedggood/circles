@@ -34,6 +34,7 @@ struct FriendColor: Identifiable {
     let id = UUID()
     var name: String
     var color: CardColor?
+    var note: String
 }
 
 struct SocialCard: Identifiable {
