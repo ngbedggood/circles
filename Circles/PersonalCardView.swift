@@ -9,6 +9,8 @@ import SwiftUI
 
 struct PersonalCardView: View {
 
+    @EnvironmentObject var am: AuthManager
+
     private func hideKeyboard() {
         print("Attempting to hide keyboard...")
         UIApplication.shared.sendAction(
@@ -39,6 +41,9 @@ struct PersonalCardView: View {
                     .foregroundColor(card.color == nil ? .black : .white)
                     .animation(.easeInOut, value: card.color)
                     .offset(y: -170)  //hacky fix for now
+                    .onTapGesture {
+                        am.signOut()
+                    }
 
                 Spacer()
 

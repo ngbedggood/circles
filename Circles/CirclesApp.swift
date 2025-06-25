@@ -5,10 +5,22 @@
 //  Created by Nathaniel Bedggood on 22/06/2025.
 //
 
+import FirebaseCore
 import SwiftUI
+
+class AppDelegate: NSObject, UIApplicationDelegate {
+  func application(_ application: UIApplication,
+                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+    FirebaseApp.configure()
+    return true
+  }
+}
 
 @main
 struct CirclesApp: App {
+
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @StateObject var am = AuthManager()
 
     init() {
         UIView.appearance().overrideUserInterfaceStyle = .light
@@ -17,6 +29,7 @@ struct CirclesApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(am)
         }
     }
 }

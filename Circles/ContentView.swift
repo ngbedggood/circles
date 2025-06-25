@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
 
-    let date = Date()
+    @EnvironmentObject var am: AuthManager
 
     // Dummy data
     @State private var personalCards = [
@@ -63,28 +63,40 @@ struct ContentView: View {
 
     @State private var horizontalIndex = 0
     @State private var verticalIndex = 0
+    @State private var isLoggedIn: Bool = true
 
     var body: some View {
         ZStack {
-            TabView(selection: $horizontalIndex) {
-                ForEach(personalCards.indices, id: \.self) { index in
-                    VerticalPager(
-                        personalCard: $personalCards[index], socialCard: socialCards[index],
-                        verticalIndex: $verticalIndex
-                    )
-                    .tag(index)
+
+            if am.isAuthenticated {
+                TabView(selection: $horizontalIndex) {
+                    ForEach(personalCards.indices, id: \.self) { index in
+                        VerticalPager(
+                            personalCard: $personalCards[index], socialCard: socialCards[index],
+                            verticalIndex: $verticalIndex
+                        )
+                        .tag(index)
+                    }
                 }
+                .ignoresSafeArea(.keyboard)
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .onAppear {
+                    horizontalIndex = personalCards.count - 1
+                }
+                .gesture(verticalIndex == 0 ? DragGesture() : nil)
+
+            } else {
+                LoginView()
+                    .background(
+                        RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
+                    )
+                    .padding(20)
             }
-            .ignoresSafeArea(.keyboard)
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .onAppear {
-                horizontalIndex = personalCards.count - 1
-            }
-            .gesture(verticalIndex == 0 ? DragGesture() : nil)
         }
     }
 }
 
 #Preview {
     ContentView()
+        .environmentObject(AuthManager())
 }
