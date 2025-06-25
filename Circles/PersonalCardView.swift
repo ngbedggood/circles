@@ -8,6 +8,14 @@
 import SwiftUI
 
 struct PersonalCardView: View {
+    
+    private func hideKeyboard() {
+        print("Attempting to hide keyboard...")
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+    
+    @FocusState private var isFocused: Bool
+    
     var isPreview: Bool = false
     @Binding var card: PersonalCard
 
@@ -123,7 +131,6 @@ struct PersonalCardView: View {
                     }
                     
                     TextField("What makes you feel that way today?", text: $card.note, axis: .vertical)
-                        .lineLimit(8, reservesSpace: true)
                         .foregroundColor(.black)
                         .font(.system(size: 16))
                         .padding(16)
@@ -137,11 +144,26 @@ struct PersonalCardView: View {
                         .animation(.easeInOut, value: card.color)
                         .zIndex(card.color == .none ? 0 : 1)
                         .frame(width: 310)
+                        .focused($isFocused)
+                        .onSubmit {
+                            print("Done button on keyboard tapped!")
+                            isFocused = false
+                        }
+                        // Weird way to be able to dismiss keyboard when using axis: .vertical modifier
+                        .toolbar {
+                            ToolbarItem(placement: .keyboard) {
+                                Button("Done") {
+                                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                                }
+                            }
+                        }
+                        .offset(y: isFocused ? -90 : 0)
+                        .animation(.easeInOut, value: isFocused)
                     
                 }
                 Spacer()
                 ZStack {
-                    Text("Select your mood before seeing your friends below")
+                    Text("Select today's mood before seeing your friends below")
                         .font(.caption)
                         .foregroundStyle(.gray)
                         .opacity(card.color == .none ? 1.0 : 0.0)
@@ -157,6 +179,10 @@ struct PersonalCardView: View {
         }
         //.padding(20)
         .clipShape(RoundedRectangle(cornerRadius: 20))
+        .onTapGesture { // Still useful for general tap-to-dismiss
+            self.hideKeyboard()
+        }
+        
     }
 }
 

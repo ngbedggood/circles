@@ -46,11 +46,11 @@ struct SocialCardView: View {
                                 Text(isMeSelected ? personalCard.note : "Me")
                                     .font(isMeSelected ? .system(size: 6) : .system(size: 24))
                                     .foregroundColor(.white)
-                                    .fontWeight(.bold)
+                                    .fontWeight(isMeSelected ? .regular : .bold)
+                                    .padding(12)
                             )
                             .multilineTextAlignment(.center)
                             .minimumScaleFactor(0.2) // Shrinks font if needed
-                            .padding(20)
                             .clipShape(Circle())
                             .position(x: meX, y: meY)
                             .scaleEffect(meScale)
@@ -80,7 +80,8 @@ struct SocialCardView: View {
                             .overlay(
                                 Text(selectedFriend?.id == friend.id ? friend.note : friend.name)
                                     .foregroundColor(.white)
-                                    .fontWeight(.bold)
+                                    .fontWeight(selectedFriend?.id == friend.id ? .regular : .bold)
+                                    .padding(12)
                             )
                             .multilineTextAlignment(.center)
                             .minimumScaleFactor(0.2) // Shrinks font if needed

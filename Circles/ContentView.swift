@@ -40,6 +40,7 @@ struct ContentView: View {
                         .tag(index)
                 }
             }
+            .ignoresSafeArea(.keyboard)
             .tabViewStyle(.page(indexDisplayMode: .never))
             .onAppear {
                 horizontalIndex = personalCards.count - 1
