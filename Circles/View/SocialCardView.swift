@@ -15,7 +15,8 @@ struct SocialCardView: View {
     let radius: CGFloat = 100
     var isPreview: Bool = false
     var socialCard: SocialCard
-    var personalCard: PersonalCard
+    var dailyMood: DailyMood?
+    var date: Date = .now
 
     var body: some View {
         ZStack {
@@ -41,10 +42,10 @@ struct SocialCardView: View {
 
                         // Personal circle
                         Circle()
-                            .fill(personalCard.color?.swiftUIColor ?? .gray)
+                            .fill(.gray)
                             .frame(width: 80, height: 80)
                             .overlay(
-                                Text(isMeSelected ? personalCard.note : "Me")
+                                Text(isMeSelected ? "No note" : "Me")
                                     .font(isMeSelected ? .system(size: 6) : .system(size: 24))
                                     .foregroundColor(.white)
                                     .fontWeight(isMeSelected ? .regular : .bold)
@@ -116,7 +117,7 @@ struct SocialCardView: View {
 
                         }
                     }
-                    Text(personalCard.date)
+                    Text("Test Date")
                         .font(.title)
                         .fontWeight(.bold)
                         .zIndex(1)
@@ -138,14 +139,11 @@ struct SocialCardView: View {
                 FriendColor(name: "Jack", color: .green, note: "I'm feeling great!"),
                 FriendColor(name: "Greg", color: .teal, note: "I'm alright, just a bit tired!"),
             ])
-        @State private var personalCard = PersonalCard(
-            date: "24th June 2025", color: .teal,
-            note:
-                "I'm feeling a bit eh today... I'm alright, just a bit tired! Today might just be fine. This is a testtesttestetststs!!!!"
-        )
+        var dailyMood: DailyMood = DailyMood(
+            id: "2025-06-24", mood: .teal, noteContent: "This is a test!", createdAt: .now)
 
         var body: some View {
-            SocialCardView(isPreview: true, socialCard: socialCard, personalCard: personalCard)
+            SocialCardView(isPreview: true, socialCard: socialCard, dailyMood: dailyMood)
         }
     }
 

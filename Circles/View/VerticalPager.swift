@@ -9,27 +9,33 @@ import SwiftUI
 
 struct VerticalPager: View {
 
-    @Binding var personalCard: PersonalCard
+    var date: Date
+    var dailyMood: DailyMood?
     var socialCard: SocialCard
     @Binding var verticalIndex: Int
 
     var body: some View {
+        let _ = print("After dailyMoodForDate: \(dailyMood?.mood?.rawValue ?? "nil")")
         GeometryReader { geo in
             TabView(selection: $verticalIndex) {
-                PersonalCardView(card: $personalCard, verticalIndex: $verticalIndex)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
-                    )
-                    .padding(20)
-                    .tag(0)
-                if personalCard.color != nil {
-                    SocialCardView(socialCard: socialCard, personalCard: personalCard)
+                PersonalCardView(
+                    date: date,
+                    dailyMood: dailyMood ?? nil,
+                    verticalIndex: $verticalIndex
+                )
+                .background(
+                    RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
+                )
+                .padding(20)
+                .tag(0)
+                /*if let mood = dailyMood {
+                    SocialCardView(socialCard: socialCard, dailyMood: dailyMood)
                         .background(
                             RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
                         )
                         .padding(20)
                         .tag(1)
-                }
+                }*/
             }
 
             .rotationEffect(.degrees(90))  // make tabview scroll vertical
@@ -39,23 +45,27 @@ struct VerticalPager: View {
                 y: (geo.size.height - geo.size.width) / 2
             )
             .tabViewStyle(.page(indexDisplayMode: .never))
-
+            //.background(dailyMood?.mood?.color ?? .black)
         }
     }
 }
 
 #Preview {
     struct PreviewWrapper: View {
-        @State private var personalCard = PersonalCard(
-            date: "24th June 2025", color: nil, note: "Hello World.")
+        var dailyMood: DailyMood = DailyMood(
+            id: "2025-06-24", mood: .teal, noteContent: "This is a test!", createdAt: .now)
         @State private var socialCard = SocialCard(
             date: "24th June 2025",
             friends: [FriendColor(name: "Jack", color: .green, note: "I'm feeling great!")])
         @State private var verticalIndex = 0
+        var date = Calendar.current.startOfDay(for: Date())
 
         var body: some View {
             VerticalPager(
-                personalCard: $personalCard, socialCard: socialCard, verticalIndex: $verticalIndex)
+                date: date,
+                dailyMood: dailyMood,
+                socialCard: socialCard,
+                verticalIndex: $verticalIndex)
         }
     }
 

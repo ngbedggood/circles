@@ -10,15 +10,33 @@ import FirebaseAuth
 import Foundation
 
 class AuthManager: ObservableObject {
+    @Published var currentUser: User?  // Firebase user object
     @Published var isAuthenticated: Bool = false
     @Published var errorMsg: String?
+
+    // The AuthManager owns the instance of FirestoreManager, all data flows through here.
+    let fm = FirestoreManager()
 
     init() {
         // Listen for authentication state changes
         Auth.auth().addStateDidChangeListener { [weak self] _, user in
             DispatchQueue.main.async {
-                self?.isAuthenticated = (user != nil)
-                print("Auth state changed. isAuthenticated: \(self?.isAuthenticated ?? false)")
+                guard let self = self else { return }
+                self.currentUser = user
+                self.isAuthenticated = (user != nil)  // If 'user' is not nil, they're authenticated.
+                self.errorMsg = nil
+
+                if let uid = user?.uid {
+                    // If we have a UID then start downloading the logged in users notes
+                    print("User \(uid) logged in. Starting Firestore past moods listener.")
+                    self.fm.loadPastMoods(forUserId: uid)
+                    self.fm.isLoading = false  // But here seems to work with having the content view listent to the flag???
+                } else {
+                    // If no one is logged in/authenticated then detach all Firestore listeners and clear data.
+                    self.fm.detachAllListeners()
+                    print("User logged out or not authenticated. Detaching Firestore listeners.")
+                }
+
             }
         }
     }

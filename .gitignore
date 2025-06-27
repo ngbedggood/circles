@@ -7,6 +7,9 @@
 ## User settings
 xcuserdata/
 
+## Preview content
+Preview\ Content/
+
 ## Obj-C/Swift specific
 *.hmap
 
