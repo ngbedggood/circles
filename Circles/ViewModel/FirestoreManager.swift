@@ -132,13 +132,11 @@ class FirestoreManager: ObservableObject {
     
     func loadPastMoods(forUserId userId: String) {
         PastMoodsListener?.remove()
-        self.isLoading = true // This is fine outside, as it's the start of the process
 
         let today = Calendar.current.startOfDay(for: Date())
 
         guard let startDate = Calendar.current.date(byAdding: .day, value: -(howManyDaysToRetrieve - 1), to: today) else {
             self.errorMsg = "Failed to calculate start date for moods."
-            self.isLoading = false // This is also okay, it's an immediate error
             print("Could not calculate start date for past moods.")
             return
         }
@@ -155,7 +153,6 @@ class FirestoreManager: ObservableObject {
                     print("[\(Date())] ERROR: Firestore query failed: \(error.localizedDescription)")
                     DispatchQueue.main.async { // Ensure error state update is on main thread
                         self.errorMsg = "Failed to load moods: \(error.localizedDescription)"
-                        self.isLoading = false // Set loading to false on error
                     }
                     return
                 }
@@ -164,17 +161,13 @@ class FirestoreManager: ObservableObject {
                 for document in querySnapshot?.documents ?? [] {
                     do {
                         let dailyMood = try document.data(as: DailyMood.self)
-                        // Ensure you're getting the documentID for the key here
-                        // If your DailyMood's `id` is `@DocumentID`, it will be auto-populated
                         fetchedMoods[document.documentID] = dailyMood
-                        //print("[\(Date())] Decoded DailyMood for document ID '\(document.documentID)'. Mood: \(dailyMood.mood?.rawValue ?? "NIL in DailyMood Object")")
 
                     } catch {
                         print("[\(Date())] Failed to decode DailyMood for document ID '\(document.documentID)': \(error.localizedDescription)")
                         if let decodingError = error as? DecodingError {
                             print("  - Decoding Error Details: \(decodingError)")
                         }
-                        // Consider putting errorMessage update here in main.async too if you want immediate UI feedback on partial errors
                     }
                 }
 
@@ -182,6 +175,7 @@ class FirestoreManager: ObservableObject {
                     self.pastMoods = fetchedMoods
                     self.isLoading = false
                     print("[\(Date())] Loaded \(self.pastMoods.count) moods for the last 7 days for user \(userId).")
+                    print("isLoading is now: \(self.isLoading)")
                 }
             }
     }

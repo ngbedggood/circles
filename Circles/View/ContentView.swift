@@ -11,15 +11,6 @@ struct ContentView: View {
 
     @EnvironmentObject var am: AuthManager
 
-    // Dummy data
-    @State private var personalCards = [
-        PersonalCard(date: "20th June 2025", color: nil, note: ""),
-        PersonalCard(date: "21st June 2025", color: nil, note: ""),
-        PersonalCard(date: "22nd June 2025", color: nil, note: ""),
-        PersonalCard(date: "23rd June 2025", color: nil, note: ""),
-        PersonalCard(date: "24th June 2025", color: nil, note: ""),
-    ]
-
     // Dummy Data
     var socialCards = [
         SocialCard(
@@ -91,7 +82,7 @@ struct ContentView: View {
         dates.append(today)
 
         // Add past dates
-        for i in 0..<pastDays {
+        for i in 0..<pastDays - 1 {
             if let pastDate = calendar.date(byAdding: .day, value: -(i + 1), to: today) {
                 dates.insert(pastDate, at: 0)  // Insert at the beginning to keep chronological order
             }
@@ -101,55 +92,47 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            if am.isAuthenticated {
-                if am.fm.isLoading == true {
-                    LoadingView()
-                        .background(
-                            RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
-                        )
-                        .padding(20)
-                } else {
-                    TabView(selection: $horizontalIndex) {
-                        ForEach(0..<pastDays, id: \.self) { i in
-                            let date = datesToDisplay[i]
-                            let dateId = DailyMood.dateId(from: date)
-                            let dailyMood = am.fm.pastMoods[dateId]
-
-                            let _ = print(
-                                "Before dailyMoodForDate: \(dailyMood?.mood?.rawValue ?? "nil")")
-
-                            VerticalPager(
-                                date: date,
-                                dailyMood: dailyMood,
-                                socialCard: socialCards[i],
-                                verticalIndex: $verticalIndex
-                            )
-                            .tag(i)
-                        }
-                    }
-                    .ignoresSafeArea(.keyboard)
-                    .tabViewStyle(.page(indexDisplayMode: .never))
-                    .onAppear {
-                        horizontalIndex = pastDays - 1
-                    }
-                    .gesture(verticalIndex == 0 ? DragGesture() : nil)
-                    // Weird way to be able to dismiss keyboard when using axis: .vertical modifier
-                    .toolbar {
-                        ToolbarItem(placement: .keyboard) {
-                            Button("Done") {
-                                UIApplication.shared.sendAction(
-                                    #selector(UIResponder.resignFirstResponder), to: nil, from: nil,
-                                    for: nil)
-                            }
-                        }
-                    }
-                }
-            } else {
+            if !am.isAuthenticated {
                 LoginView()
                     .background(
                         RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
                     )
                     .padding(20)
+            } else {
+                ZStack {
+                    if am.isFirestoreLoading {
+                        LoadingView()
+                            .background(
+                                RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
+                            )
+                            .padding(20)
+                            .transition(.opacity)
+                    } else {
+                        TabView(selection: $horizontalIndex) {
+                            ForEach(0..<pastDays, id: \.self) { i in
+                                let date = datesToDisplay[i]
+                                let dateId = DailyMood.dateId(from: date)
+                                let dailyMood = am.fm.pastMoods[dateId]
+
+                                VerticalPager(
+                                    date: date,
+                                    dailyMood: dailyMood,
+                                    socialCard: socialCards[i],
+                                    verticalIndex: $verticalIndex
+                                )
+                                .tag(i)
+                            }
+                        }
+                        .transition(.opacity)
+                        .ignoresSafeArea(.keyboard)
+                        .tabViewStyle(.page(indexDisplayMode: .never))
+                        .onAppear {
+                            horizontalIndex = pastDays - 1
+                        }
+                        .gesture(verticalIndex == 0 ? DragGesture() : nil)
+                    }
+                }
+                .animation(.easeInOut(duration: 1.5), value: am.isFirestoreLoading)
             }
         }
     }

@@ -16,8 +16,17 @@ class AuthManager: ObservableObject {
 
     // The AuthManager owns the instance of FirestoreManager, all data flows through here.
     let fm = FirestoreManager()
+    @Published var isFirestoreLoading = true
+    private var cancellables = Set<AnyCancellable>()
 
     init() {
+        
+        // How to bubble up flags in nested objects
+        fm.$isLoading
+            .receive(on: RunLoop.main)
+            .assign(to: \.isFirestoreLoading, on: self)
+            .store(in: &cancellables)
+        
         // Listen for authentication state changes
         Auth.auth().addStateDidChangeListener { [weak self] _, user in
             DispatchQueue.main.async {
@@ -30,7 +39,7 @@ class AuthManager: ObservableObject {
                     // If we have a UID then start downloading the logged in users notes
                     print("User \(uid) logged in. Starting Firestore past moods listener.")
                     self.fm.loadPastMoods(forUserId: uid)
-                    self.fm.isLoading = false  // But here seems to work with having the content view listent to the flag???
+                   
                 } else {
                     // If no one is logged in/authenticated then detach all Firestore listeners and clear data.
                     self.fm.detachAllListeners()
@@ -74,6 +83,7 @@ class AuthManager: ObservableObject {
     func signOut() {
         do {
             try Auth.auth().signOut()
+            fm.detachAllListeners()
             print("User signed out.")  // Listener handles updating isAuthenticated state
         } catch let signOutError as NSError {
             self.errorMsg = signOutError.localizedDescription
