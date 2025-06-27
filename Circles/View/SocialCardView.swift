@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SocialCardView: View {
-    
+
     func formattedDate(from date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "d MMM y"
@@ -51,11 +51,16 @@ struct SocialCardView: View {
                             .fill(dailyMood?.mood?.color ?? .gray)
                             .frame(width: 80, height: 80)
                             .overlay(
-                                Text(isMeSelected ? (dailyMood?.noteContent?.isEmpty == true ? "No note" : dailyMood?.noteContent ?? "No note") : "Me")
-                                    .font(isMeSelected ? .system(size: 6) : .system(size: 24))
-                                    .foregroundColor(.white)
-                                    .fontWeight(isMeSelected ? .regular : .bold)
-                                    .padding(12)
+                                Text(
+                                    isMeSelected
+                                        ? (dailyMood?.noteContent?.isEmpty == true
+                                            ? "No note" : dailyMood?.noteContent ?? "No note")
+                                        : "Me"
+                                )
+                                .font(isMeSelected ? .system(size: 6) : .system(size: 24))
+                                .foregroundColor(.white)
+                                .fontWeight(isMeSelected ? .regular : .bold)
+                                .padding(12)
                             )
                             .multilineTextAlignment(.center)
                             .minimumScaleFactor(0.2)
@@ -150,7 +155,8 @@ struct SocialCardView: View {
             id: "2025-06-24", mood: .teal, noteContent: "This is a test!", createdAt: .now)
 
         var body: some View {
-            SocialCardView(isPreview: true, date: date, socialCard: socialCard, dailyMood: dailyMood)
+            SocialCardView(
+                isPreview: true, date: date, socialCard: socialCard, dailyMood: dailyMood)
         }
     }
 
