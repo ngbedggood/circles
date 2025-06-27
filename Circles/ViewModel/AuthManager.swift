@@ -20,13 +20,13 @@ class AuthManager: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     init() {
-        
+
         // How to bubble up flags in nested objects
         fm.$isLoading
             .receive(on: RunLoop.main)
             .assign(to: \.isFirestoreLoading, on: self)
             .store(in: &cancellables)
-        
+
         // Listen for authentication state changes
         Auth.auth().addStateDidChangeListener { [weak self] _, user in
             DispatchQueue.main.async {
@@ -39,7 +39,7 @@ class AuthManager: ObservableObject {
                     // If we have a UID then start downloading the logged in users notes
                     print("User \(uid) logged in. Starting Firestore past moods listener.")
                     self.fm.loadPastMoods(forUserId: uid)
-                   
+
                 } else {
                     // If no one is logged in/authenticated then detach all Firestore listeners and clear data.
                     self.fm.detachAllListeners()

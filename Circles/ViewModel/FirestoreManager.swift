@@ -5,14 +5,14 @@
 //  Created by Nathaniel Bedggood on 25/06/2025.
 //
 
-// The purpoe of the FirestoreManager is to communicate with the Firestore database to complete CRUD operations. Methods are laid out for use by the app's logic.
+// The purpose of the FirestoreManager is to communicate with the Firestore database to complete CRUD operations. Methods are laid out for use by the app's logic.
 
 import FirebaseAuth
 import FirebaseFirestore
 import Foundation
 
 class FirestoreManager: ObservableObject {
-    
+
     let howManyDaysToRetrieve: Int = 7
 
     private let db = Firestore.firestore()
@@ -25,7 +25,7 @@ class FirestoreManager: ObservableObject {
     // This allows a "subscription" to Firestore. Will be managed to stop listening when user logs out.
     private var DailyMoodsListener: ListenerRegistration?
     private var PastMoodsListener: ListenerRegistration?
-    
+
     private var errorMsg: String = ""
 
     // Save daily mood
@@ -129,13 +129,16 @@ class FirestoreManager: ObservableObject {
             throw error
         }
     }
-    
+
     func loadPastMoods(forUserId userId: String) {
         PastMoodsListener?.remove()
 
         let today = Calendar.current.startOfDay(for: Date())
 
-        guard let startDate = Calendar.current.date(byAdding: .day, value: -(howManyDaysToRetrieve - 1), to: today) else {
+        guard
+            let startDate = Calendar.current.date(
+                byAdding: .day, value: -(howManyDaysToRetrieve - 1), to: today)
+        else {
             self.errorMsg = "Failed to calculate start date for moods."
             print("Could not calculate start date for past moods.")
             return
@@ -150,8 +153,9 @@ class FirestoreManager: ObservableObject {
                 guard let self = self else { return }
 
                 if let error = error {
-                    print("[\(Date())] ERROR: Firestore query failed: \(error.localizedDescription)")
-                    DispatchQueue.main.async { // Ensure error state update is on main thread
+                    print(
+                        "[\(Date())] ERROR: Firestore query failed: \(error.localizedDescription)")
+                    DispatchQueue.main.async {  // Ensure error state update is on main thread
                         self.errorMsg = "Failed to load moods: \(error.localizedDescription)"
                     }
                     return
@@ -164,7 +168,9 @@ class FirestoreManager: ObservableObject {
                         fetchedMoods[document.documentID] = dailyMood
 
                     } catch {
-                        print("[\(Date())] Failed to decode DailyMood for document ID '\(document.documentID)': \(error.localizedDescription)")
+                        print(
+                            "[\(Date())] Failed to decode DailyMood for document ID '\(document.documentID)': \(error.localizedDescription)"
+                        )
                         if let decodingError = error as? DecodingError {
                             print("  - Decoding Error Details: \(decodingError)")
                         }
@@ -174,7 +180,9 @@ class FirestoreManager: ObservableObject {
                 DispatchQueue.main.async {
                     self.pastMoods = fetchedMoods
                     self.isLoading = false
-                    print("[\(Date())] Loaded \(self.pastMoods.count) moods for the last 7 days for user \(userId).")
+                    print(
+                        "[\(Date())] Loaded \(self.pastMoods.count) moods for the last 7 days for user \(userId)."
+                    )
                     print("isLoading is now: \(self.isLoading)")
                 }
             }
@@ -186,7 +194,7 @@ class FirestoreManager: ObservableObject {
         DailyMoodsListener?.remove()
         DailyMoodsListener = nil
         self.dailyMoods = []
-        
+
         PastMoodsListener?.remove()
         PastMoodsListener = nil
         self.pastMoods = [:]
