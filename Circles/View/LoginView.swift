@@ -30,6 +30,7 @@ struct LoginView: View {
                     .foregroundStyle(.black)
 
                 TextField("Email", text: $email)
+                    .textInputAutocapitalization(.never)
                     .frame(height: 24)
                     .foregroundColor(.black)
                     .font(.system(size: 16))
@@ -45,6 +46,7 @@ struct LoginView: View {
                 HStack {
                     if isPasswordVisible {
                         TextField("Password", text: $password)
+                            .textInputAutocapitalization(.never)
                             .frame(height: 24)
                             .foregroundColor(.black)
                             .font(.system(size: 16))
@@ -83,6 +85,7 @@ struct LoginView: View {
                 if let errorMsg = am.errorMsg {
                     Text(errorMsg)
                         .font(.caption)
+                        .foregroundStyle(.gray)
                 }
 
                 Spacer()
