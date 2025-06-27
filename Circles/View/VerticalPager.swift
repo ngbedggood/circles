@@ -15,7 +15,6 @@ struct VerticalPager: View {
     @Binding var verticalIndex: Int
 
     var body: some View {
-        let _ = print("After dailyMoodForDate: \(dailyMood?.mood?.rawValue ?? "nil")")
         GeometryReader { geo in
             TabView(selection: $verticalIndex) {
                 PersonalCardView(
@@ -45,7 +44,6 @@ struct VerticalPager: View {
                 y: (geo.size.height - geo.size.width) / 2
             )
             .tabViewStyle(.page(indexDisplayMode: .never))
-            //.background(dailyMood?.mood?.color ?? .black)
         }
     }
 }

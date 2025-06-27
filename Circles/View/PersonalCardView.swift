@@ -10,11 +10,37 @@ import SwiftUI
 struct PersonalCardView: View {
 
     @EnvironmentObject var am: AuthManager
-
-    private func hideKeyboard() {
-        print("Attempting to hide keyboard...")
-        UIApplication.shared.sendAction(
-            #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    
+    private var cardColor: Color {
+        // If the user has selected a mood in this session, use that color.
+        if let userSelectedMood = currentMood {
+            return userSelectedMood.color
+        }
+        // Otherwise, use the color from the data passed into the view.
+        return dailyMood?.mood?.color ?? .brown.opacity(0.2)
+    }
+    
+    private func saveEntry() {
+        guard let userId = am.currentUser?.uid else {
+            print("Error: User not logged in. Cannot save note.")
+            return
+        }
+        let newNote = note
+        Task {
+            do {
+                try await am.fm.saveDailyMood(
+                    date: date,
+                    mood: currentMood ?? MoodColor.none,
+                    content: newNote,
+                    forUserID: userId
+                )
+                print("Daily entry forsaved successfully")
+            } catch {
+                print(
+                    "Error saving daily entry: \(error.localizedDescription)"
+                )
+            }
+        }
     }
 
     @FocusState private var isFocused: Bool
@@ -31,7 +57,7 @@ struct PersonalCardView: View {
     @State private var note: String = ""
     @State private var isMoodSelectionVisible: Bool = true
 
-    @State private var setColor: Color
+    //@State private var setColor: Color
 
     let df = DateFormatter()
 
@@ -41,13 +67,6 @@ struct PersonalCardView: View {
         self._verticalIndex = verticalIndex
         self.isPreview = isPreview
 
-        /*print("PersonalCardView init for date: \(date)")
-            if let mood = dailyMood {
-                print("dailyMood received: ID=\(mood.id), Mood=\(mood.mood?.rawValue ?? "nil"), Note=\(mood.noteContent ?? "nil")")
-            } else {
-                print("dailyMood received: nil (no data for this date)")
-            }
-*/
         // Initialize @State properties directly from the passed-in dailyMood
         // If dailyMood is nil, currentMood will be nil, and note will be ""
         _currentMood = State(initialValue: dailyMood?.mood)
@@ -55,7 +74,7 @@ struct PersonalCardView: View {
 
         // Initially show mood selection if there's no mood set
         _isMoodSelectionVisible = State(initialValue: dailyMood?.mood == nil)
-        _setColor = State(initialValue: dailyMood?.mood?.color ?? .brown.opacity(0.2))
+        //_setColor = State(initialValue: dailyMood?.mood?.color ?? .brown.opacity(0.2))
         // Reset expanded state if we're starting fresh with no mood
         _expanded = State(initialValue: dailyMood?.mood != nil)  // If mood exists, start "expanded"
 
@@ -69,7 +88,8 @@ struct PersonalCardView: View {
         ZStack {
 
             RoundedRectangle(cornerRadius: 20)
-                .fill(setColor)
+                .fill(cardColor) // USE THE COMPUTED PROPERTY HERE
+                .animation(.easeInOut, value: cardColor)
 
             VStack {
                 Text(df.string(from: date))
@@ -99,6 +119,7 @@ struct PersonalCardView: View {
                                     .onTapGesture {
                                         currentMood = .gray
                                         isFront[4] = true
+                                        saveEntry()
                                     }
                                     .shadow(color: .black.opacity(0.2), radius: 4)
                             }
@@ -114,6 +135,7 @@ struct PersonalCardView: View {
                                     .onTapGesture {
                                         currentMood = .orange
                                         isFront[3] = true
+                                        saveEntry()
                                     }
                                     .shadow(color: .black.opacity(0.2), radius: 4)
                             }
@@ -127,6 +149,7 @@ struct PersonalCardView: View {
                                     .onTapGesture {
                                         currentMood = .yellow
                                         isFront[2] = true
+                                        saveEntry()
                                     }
                                     .shadow(color: .black.opacity(0.2), radius: 4)
                             }
@@ -142,6 +165,7 @@ struct PersonalCardView: View {
                                     .onTapGesture {
                                         currentMood = .green
                                         isFront[1] = true
+                                        saveEntry()
                                     }
                                     .shadow(color: .black.opacity(0.2), radius: 4)
                             }
@@ -157,6 +181,8 @@ struct PersonalCardView: View {
                                     .onTapGesture {
                                         currentMood = .teal
                                         isFront[0] = true
+                                        saveEntry()
+                                        print("Saved Teal?")
                                     }
                                     .shadow(color: .black.opacity(0.2), radius: 4)
                             }
@@ -195,29 +221,6 @@ struct PersonalCardView: View {
                     .frame(width: 310)
                     .focused($isFocused)
                     .onSubmit {
-                        print("Done button on keyboard tapped!")
-                        guard let userId = am.currentUser?.uid else {
-                            print("Error: User not logged in. Cannot save note.")
-                            // You might want to show an alert or redirect the user
-                            return
-                        }
-                        let newNote = note
-                        Task {
-                            do {
-                                try await am.fm.saveDailyMood(
-                                    date: date,
-                                    mood: currentMood ?? MoodColor.none,
-                                    content: newNote,
-                                    forUserID: userId
-                                )
-                                print("Daily entry forsaved successfully")
-                            } catch {
-                                print(
-                                    "Error saving daily entry: \(error.localizedDescription)"
-                                )
-                                // Handle the error, e.g., show an alert to the user
-                            }
-                        }
                         isFocused = false
                     }
                     .offset(y: isFocused ? -90 : 0)
@@ -242,9 +245,18 @@ struct PersonalCardView: View {
             .rotationEffect(isPreview ? .zero : .degrees(-90))
         }
         .clipShape(RoundedRectangle(cornerRadius: 20))
-        /*.onTapGesture {
-            self.hideKeyboard()
-        }*/
+        // Weird way to be able to dismiss keyboard when using axis: .vertical modifier
+        .toolbar {
+            ToolbarItem(placement: .keyboard) {
+                Button("Done") {
+                    saveEntry()
+                    
+                    UIApplication.shared.sendAction(
+                        #selector(UIResponder.resignFirstResponder), to: nil, from: nil,
+                        for: nil)
+                }
+            }
+        }
     }
 }
 
