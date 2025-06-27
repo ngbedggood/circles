@@ -8,15 +8,21 @@
 import SwiftUI
 
 struct SocialCardView: View {
+    
+    func formattedDate(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMM y"
+        return formatter.string(from: date)
+    }
 
     @State private var selectedFriend: FriendColor? = nil
     let me = FriendColor(name: "Me", color: .gray, note: "Lets roll!")
 
     let radius: CGFloat = 100
     var isPreview: Bool = false
+    var date: Date
     var socialCard: SocialCard
     var dailyMood: DailyMood?
-    var date: Date = .now
 
     var body: some View {
         ZStack {
@@ -42,17 +48,17 @@ struct SocialCardView: View {
 
                         // Personal circle
                         Circle()
-                            .fill(.gray)
+                            .fill(dailyMood?.mood?.color ?? .gray)
                             .frame(width: 80, height: 80)
                             .overlay(
-                                Text(isMeSelected ? "No note" : "Me")
+                                Text(isMeSelected ? (dailyMood?.noteContent?.isEmpty == true ? "No note" : dailyMood?.noteContent ?? "No note") : "Me")
                                     .font(isMeSelected ? .system(size: 6) : .system(size: 24))
                                     .foregroundColor(.white)
                                     .fontWeight(isMeSelected ? .regular : .bold)
                                     .padding(12)
                             )
                             .multilineTextAlignment(.center)
-                            .minimumScaleFactor(0.2)  // Shrinks font if needed
+                            .minimumScaleFactor(0.2)
                             .clipShape(Circle())
                             .position(x: meX, y: meY)
                             .scaleEffect(meScale)
@@ -117,7 +123,7 @@ struct SocialCardView: View {
 
                         }
                     }
-                    Text("Test Date")
+                    Text(formattedDate(from: date))
                         .font(.title)
                         .fontWeight(.bold)
                         .zIndex(1)
@@ -133,6 +139,7 @@ struct SocialCardView: View {
 
 #Preview {
     struct PreviewWrapper: View {
+        var date = Calendar.current.startOfDay(for: Date())
         @State private var socialCard = SocialCard(
             date: "24th June 2025",
             friends: [
@@ -143,7 +150,7 @@ struct SocialCardView: View {
             id: "2025-06-24", mood: .teal, noteContent: "This is a test!", createdAt: .now)
 
         var body: some View {
-            SocialCardView(isPreview: true, socialCard: socialCard, dailyMood: dailyMood)
+            SocialCardView(isPreview: true, date: date, socialCard: socialCard, dailyMood: dailyMood)
         }
     }
 

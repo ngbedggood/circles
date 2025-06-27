@@ -31,7 +31,7 @@ struct PersonalCardView: View {
                 try await am.fm.saveDailyMood(
                     date: date,
                     mood: currentMood ?? MoodColor.none,
-                    content: newNote,
+                    content: newNote.isEmpty == true ? nil : newNote,
                     forUserID: userId
                 )
                 print("Daily entry forsaved successfully")
@@ -41,6 +41,12 @@ struct PersonalCardView: View {
                 )
             }
         }
+    }
+    
+    func formattedDate(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMM y"
+        return formatter.string(from: date)
     }
 
     @FocusState private var isFocused: Bool
@@ -57,9 +63,6 @@ struct PersonalCardView: View {
     @State private var note: String = ""
     @State private var isMoodSelectionVisible: Bool = true
 
-    //@State private var setColor: Color
-
-    let df = DateFormatter()
 
     init(date: Date, dailyMood: DailyMood?, verticalIndex: Binding<Int>, isPreview: Bool = false) {
         self.date = date
@@ -78,7 +81,6 @@ struct PersonalCardView: View {
         // Reset expanded state if we're starting fresh with no mood
         _expanded = State(initialValue: dailyMood?.mood != nil)  // If mood exists, start "expanded"
 
-        df.dateFormat = "d MMM y"
     }
 
     var body: some View {
@@ -92,7 +94,7 @@ struct PersonalCardView: View {
                 .animation(.easeInOut, value: cardColor)
 
             VStack {
-                Text(df.string(from: date))
+                Text(formattedDate(from: date))
                     .font(.title)
                     .fontWeight(.bold)
                     .zIndex(1)
@@ -182,7 +184,6 @@ struct PersonalCardView: View {
                                         currentMood = .teal
                                         isFront[0] = true
                                         saveEntry()
-                                        print("Saved Teal?")
                                     }
                                     .shadow(color: .black.opacity(0.2), radius: 4)
                             }

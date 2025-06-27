@@ -103,7 +103,8 @@ struct ContentView: View {
                     if am.isFirestoreLoading {
                         LoadingView()
                             .background(
-                                RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
+                                RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(
+                                    radius: 10)
                             )
                             .padding(20)
                             .transition(.opacity)

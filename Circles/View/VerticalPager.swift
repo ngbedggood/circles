@@ -27,14 +27,18 @@ struct VerticalPager: View {
                 )
                 .padding(20)
                 .tag(0)
-                /*if let mood = dailyMood {
-                    SocialCardView(socialCard: socialCard, dailyMood: dailyMood)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
-                        )
-                        .padding(20)
-                        .tag(1)
-                }*/
+                if let mood = dailyMood {
+                    SocialCardView(
+                        date: date,
+                        socialCard: socialCard,
+                        dailyMood: dailyMood
+                    )
+                    .background(
+                        RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
+                    )
+                    .padding(20)
+                    .tag(1)
+                }
             }
 
             .rotationEffect(.degrees(90))  // make tabview scroll vertical
