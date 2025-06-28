@@ -33,13 +33,40 @@ struct PersonalCardView: View {
                     content: newNote.isEmpty == true ? nil : newNote,
                     forUserID: userId
                 )
-                print("Daily entry forsaved successfully")
+                print("Daily entry for \(date) saved successfully")
             } catch {
                 print(
                     "Error saving daily entry: \(error.localizedDescription)"
                 )
             }
         }
+
+        expanded = false
+        //isVisible = false
+        isMoodSelectionVisible = false
+        print("SAVE = isMoodSelectionVisible: \(isMoodSelectionVisible) - expanded: \(expanded) - isVisible: \(isVisible) - currentMood: \(currentMood?.rawValue ?? "none")")
+    }
+    
+    private func deleteEntry() {
+        guard let userId = am.currentUser?.uid else {
+            print("Error: User not logged in. Cannot delete note.")
+            return
+        }
+        Task {
+            do {
+                try await am.fm.deleteDailyMood(date: date, forUserId: userId)
+                print("Daily entry for \(date) deleted successfully")
+            } catch {
+                print(
+                    "Error deleting daily entry: \(error.localizedDescription)"
+                )
+            }
+        }
+        isMoodSelectionVisible = true
+        currentMood = nil
+        expanded = false
+        isVisible = true
+        print("DELETE = isMoodSelectionVisible: \(isMoodSelectionVisible) - expanded: \(expanded) - isVisible: \(isVisible) - currentMood: \(currentMood?.rawValue ?? "none")")
     }
 
     func formattedDate(from date: Date) -> String {
@@ -90,61 +117,84 @@ struct PersonalCardView: View {
         ZStack {
 
             RoundedRectangle(cornerRadius: 20)
-                .fill(cardColor)  // USE THE COMPUTED PROPERTY HERE
+                .fill(cardColor)
                 .animation(.easeInOut, value: cardColor)
 
             VStack {
-                Text(formattedDate(from: date))
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .zIndex(1)
-                    .foregroundColor(currentMood != nil ? .white : .black)
-                    .animation(.easeInOut, value: currentMood)
-                    .offset(y: -170)  // hacky fix for now
-                    .onTapGesture {
-                        am.signOut()
+                HStack {
+                    Button {
+                        
+                    } label: {
+                        Image(systemName: "face.smiling")
+                            
                     }
+                    Spacer()
+                    Text(formattedDate(from: date))
+                        .onTapGesture {
+                            am.signOut()
+                        }
+                    Spacer()
+                    Button{
+                        deleteEntry()
+                    } label: {
+                        Image(systemName: "minus.circle")
+                            .opacity(currentMood == nil ? 0 : 1)
+                    }
+                }
+                .frame(width: 320)
+                .font(.title)
+                .fontWeight(.bold)
+                .offset(y: -170)  // hacky fix for now
+                .zIndex(5)
+                .foregroundColor(currentMood == nil ? .black.opacity(0.8) : .white)
+                .animation(.easeInOut, value: currentMood)
 
                 Spacer()
                 ZStack {
-                    if isMoodSelectionVisible {
+                    
                         ZStack {
                             ForEach(moodCircles, id: \.color) { mood in
-                                if currentMood == nil || currentMood == mood.color {
                                     Circle()
                                         .fill(mood.fill)
                                         .frame(width: expanded ? mood.expandedSize : mood.defaultSize,
                                                height: expanded ? mood.expandedSize : mood.defaultSize)
-                                        .zIndex(isFront[mood.index] ? 1 : 0)
-                                        .scaleEffect(currentMood == mood.color ? 20 : 1)
                                         .offset(x: 0, y: expanded ? mood.offsetY : 0)
-                                        .animation(.easeInOut, value: expanded)
-                                        .animation(.easeInOut, value: isFront[mood.index])
+                                        .animation(.spring(
+                                            response: 0.55,
+                                            dampingFraction: 0.69,
+                                            blendDuration: 0
+                                        ), value: expanded)
+                                        .opacity(isMoodSelectionVisible || currentMood == mood.color ? 1 : 0)
+                                        .zIndex(isFront[mood.index] ? 1 : -1)
+                                        .scaleEffect(currentMood == mood.color ? 20 : 1)
+                                        .animation(.easeInOut, value: isMoodSelectionVisible)
+                                        //.animation(.easeInOut, value: isFront[mood.index])
                                         .onTapGesture {
                                             currentMood = mood.color
+                                            isFront = Array(repeating: false, count: isFront.count)
                                             isFront[mood.index] = true
                                             saveEntry()
                                         }
                                         .shadow(color: .black.opacity(0.2), radius: 4)
-                                }
                             }
 
                             if currentMood == nil && isVisible {
                                 Circle()
-                                    .fill(Color.brown.opacity(0.1))
+                                    .fill(Color.brown.opacity(0.001))
                                     .frame(width: 80, height: 80)
                                     .animation(.easeInOut, value: expanded)
+                                    .zIndex(isMoodSelectionVisible ? 2 : 0)
                                     .onTapGesture {
-                                        expanded = true
-                                        withAnimation {
+                                        withAnimation{
                                             isVisible = false
                                         }
+                                        expanded = true
                                         verticalIndex = 0
                                     }
                             }
                         }
-
-                    }
+                        .opacity(isMoodSelectionVisible ? 1.0 : 0.0)
+                        .animation(.easeInOut, value: isMoodSelectionVisible)
 
                     TextField(
                         "What makes you feel that way today?", text: $note, axis: .vertical
@@ -158,9 +208,8 @@ struct PersonalCardView: View {
                             .stroke(Color.white, lineWidth: 2)
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 20))
-                    .opacity(currentMood != nil ? 1.0 : 0.0)
-                    .animation(.easeInOut, value: currentMood)
-                    .zIndex(currentMood != nil ? 1.0 : 0.0)
+                    .opacity(isMoodSelectionVisible ? 0.0 : 1.0)
+                    .zIndex(isMoodSelectionVisible ? 0.0 : 1.0)
                     .frame(width: 310)
                     .focused($isFocused)
                     .onSubmit {
@@ -168,6 +217,7 @@ struct PersonalCardView: View {
                     }
                     .offset(y: isFocused ? -90 : 0)
                     .animation(.easeInOut, value: isFocused)
+                    .animation(.easeInOut, value: isMoodSelectionVisible)
                 }
 
                 Spacer()
@@ -176,11 +226,11 @@ struct PersonalCardView: View {
                     Text("Select today's mood before seeing your friends below")
                         .font(.caption)
                         .foregroundStyle(.gray)
-                        .opacity(currentMood == MoodColor.none ? 1.0 : 0.0)
+                        .opacity(currentMood == nil ? 1.0 : 0.0)
                         .animation(.easeInOut, value: currentMood)
                     Image(systemName: "arrowshape.down.fill")
                         .foregroundStyle(.white)
-                        .opacity(currentMood != MoodColor.none ? 1.0 : 0.0)
+                        .opacity(currentMood != nil ? 1.0 : 0.0)
                         .animation(.easeInOut, value: currentMood)
                 }
                 .offset(y: 170)
@@ -190,13 +240,15 @@ struct PersonalCardView: View {
         .clipShape(RoundedRectangle(cornerRadius: 20))
         // Weird way to be able to dismiss keyboard when using axis: .vertical modifier
         .toolbar {
-            ToolbarItem(placement: .keyboard) {
-                Button("Done") {
-                    saveEntry()
-
-                    UIApplication.shared.sendAction(
-                        #selector(UIResponder.resignFirstResponder), to: nil, from: nil,
-                        for: nil)
+            if isFocused {
+                ToolbarItem(placement: .keyboard) {
+                    Button("Done") {
+                        saveEntry()
+                        
+                        UIApplication.shared.sendAction(
+                            #selector(UIResponder.resignFirstResponder), to: nil, from: nil,
+                            for: nil)
+                    }
                 }
             }
         }

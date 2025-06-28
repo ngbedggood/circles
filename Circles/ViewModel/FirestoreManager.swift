@@ -183,7 +183,6 @@ class FirestoreManager: ObservableObject {
                     print(
                         "[\(Date())] Loaded \(self.pastMoods.count) moods for the last 7 days for user \(userId)."
                     )
-                    print("isLoading is now: \(self.isLoading)")
                 }
             }
     }

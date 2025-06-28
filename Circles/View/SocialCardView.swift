@@ -28,6 +28,15 @@ struct SocialCardView: View {
         ZStack {
             RoundedRectangle(cornerRadius: 20)
                 .fill((Color.brown).opacity(0.2))
+                .onTapGesture {
+                    withAnimation(.spring(
+                        response: 0.55,
+                        dampingFraction: 0.69,
+                        blendDuration: 0
+                    )) {
+                        selectedFriend = nil
+                    }
+                }
             VStack {
 
                 Image(systemName: "arrowshape.up.fill")
@@ -70,7 +79,11 @@ struct SocialCardView: View {
                             .zIndex(isMeSelected ? 1 : 0)
                             .shadow(color: .black.opacity(0.2), radius: 4)
                             .onTapGesture {
-                                withAnimation(.spring()) {
+                                withAnimation(.spring(
+                                    response: 0.55,
+                                    dampingFraction: 0.69,
+                                    blendDuration: 0
+                                )) {
                                     selectedFriend = isMeSelected ? nil : me
                                 }
                             }
@@ -116,7 +129,11 @@ struct SocialCardView: View {
                                 .position(x: x, y: y)
                                 .shadow(color: .black.opacity(0.2), radius: 4)
                                 .onTapGesture {
-                                    withAnimation(.spring()) {
+                                    withAnimation(.spring(
+                                        response: 0.55,
+                                        dampingFraction: 0.69,
+                                        blendDuration: 0
+                                    )) {
                                         if selectedFriend?.id == friend.id {
                                             selectedFriend = nil  // Deselect if tapped again
                                         } else {
@@ -128,17 +145,19 @@ struct SocialCardView: View {
 
                         }
                     }
+                    
                     Text(formattedDate(from: date))
                         .font(.title)
                         .fontWeight(.bold)
                         .zIndex(1)
-                        .foregroundColor(.black)
+                        .foregroundColor(.black.opacity(0.8))
                         .offset(y: 320)  // hacky fix for now
                 }
 
             }
             .rotationEffect(isPreview ? .zero : .degrees(-90))
         }
+        
     }
 }
 

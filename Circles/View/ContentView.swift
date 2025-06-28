@@ -121,6 +121,7 @@ struct ContentView: View {
                                     socialCard: socialCards[i],
                                     verticalIndex: $verticalIndex
                                 )
+                                .id(dateId )//+ (dailyMood?.noteContent ?? ""))
                                 .tag(i)
                             }
                         }
