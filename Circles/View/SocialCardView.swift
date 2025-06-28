@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SocialCardView: View {
+    
+    @EnvironmentObject var am: AuthManager
 
     func formattedDate(from date: Date) -> String {
         let formatter = DateFormatter()
@@ -42,6 +44,11 @@ struct SocialCardView: View {
                 Image(systemName: "arrowshape.up.fill")
                     .foregroundStyle(.white)
                     .offset(y: -170)
+                Text("Username: \(am.fm.userProfile?.username ?? "No username") Display Name: \(am.fm.userProfile?.displayName ?? "No display name")")
+                    .zIndex(1)
+                    .foregroundColor(.black.opacity(0.2))
+                    .font(.caption2)
+                    .offset(y: -140)
 
                 ZStack {
                     GeometryReader { geometry in

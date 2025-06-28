@@ -21,14 +21,72 @@ class FirestoreManager: ObservableObject {
     @Published var dailyMoods: [DailyMood] = []
     @Published var pastMoods: [String: DailyMood] = [:]  // Empty dictionary for date ID to mood
     @Published var isLoading: Bool = true
+    @Published var userProfile: UserProfile?
 
     // This allows a "subscription" to Firestore. Will be managed to stop listening when user logs out.
     private var DailyMoodsListener: ListenerRegistration?
     private var PastMoodsListener: ListenerRegistration?
 
     private var errorMsg: String = ""
+    
+    // USER SIGNUP RELATED METHODS
+    func isUsernameAvailable(_ username: String) async throws -> Bool {
+            let doc = try await db.collection("usernames").document(username).getDocument()
+            return !doc.exists
+        }
+    
+    func saveUserProfile(uid: String, username: String, displayName: String) async throws {
+        let userRef = db.collection("users").document(uid)
+        let usernameRef = db.collection("usernames").document(username)
 
-    // Save daily mood
+        try await db.runTransaction({ (transaction, errorPointer) -> Any? in
+            let usernameDoc: DocumentSnapshot
+            do {
+                usernameDoc = try transaction.getDocument(usernameRef)
+            } catch let error as NSError {
+                errorPointer?.pointee = error
+                return nil
+            }
+
+            if usernameDoc.exists {
+                let error = NSError(domain: "Firestore", code: 1, userInfo: [NSLocalizedDescriptionKey: "Username already taken"])
+                errorPointer?.pointee = error
+                return nil
+            }
+
+            transaction.setData(["uid": uid], forDocument: usernameRef)
+            transaction.setData([
+                "username": username,
+                "displayName": displayName,
+                "createdAt": FieldValue.serverTimestamp()
+            ], forDocument: userRef)
+
+            return nil
+        })
+    }
+    
+    func loadUserProfile(for uid: String) {
+        let userRef = db.collection("users").document(uid)
+        userRef.getDocument { [weak self] snapshot, error in
+            guard let self = self else { return }
+
+            if let error = error {
+                print("Error fetching user profile: \(error.localizedDescription)")
+                return
+            }
+
+            do {
+                if let snapshot = snapshot, snapshot.exists {
+                    self.userProfile = try snapshot.data(as: UserProfile.self)
+                    print("Loaded user profile: \(self.userProfile?.username ?? "nil")")
+                }
+            } catch {
+                print("Error decoding user profile: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    // DAILY MOOD RELATED METHODS
     func saveDailyMood(date: Date, mood: MoodColor, content: String?, forUserID userId: String)
         async throws
     {
