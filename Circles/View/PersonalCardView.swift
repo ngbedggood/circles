@@ -11,14 +11,6 @@ struct PersonalCardView: View {
 
     @EnvironmentObject var am: AuthManager
 
-    // Computed value
-    private var cardColor: Color {
-        if let userSelectedMood = currentMood {
-            return userSelectedMood.color
-        }
-        return dailyMood?.mood?.color ?? .brown.opacity(0.2)
-    }
-
     private func saveEntry() {
         guard let userId = am.currentUser?.uid else {
             print("Error: User not logged in. Cannot save note.")
@@ -41,8 +33,7 @@ struct PersonalCardView: View {
             }
         }
 
-        expanded = false
-        //isVisible = false
+        //expanded = false
         isMoodSelectionVisible = false
         print("SAVE = isMoodSelectionVisible: \(isMoodSelectionVisible) - expanded: \(expanded) - isVisible: \(isVisible) - currentMood: \(currentMood?.rawValue ?? "none")")
     }
@@ -117,8 +108,9 @@ struct PersonalCardView: View {
         ZStack {
 
             RoundedRectangle(cornerRadius: 20)
-                .fill(cardColor)
-                .animation(.easeInOut, value: cardColor)
+                .fill(dailyMood?.mood?.color ?? .brown.opacity(0.2))
+                .zIndex(-1)
+                .animation(.easeInOut.speed(0.8), value: dailyMood?.mood)
 
             VStack {
                 HStack {
@@ -147,7 +139,7 @@ struct PersonalCardView: View {
                 .offset(y: -170)  // hacky fix for now
                 .zIndex(5)
                 .foregroundColor(currentMood == nil ? .black.opacity(0.8) : .white)
-                .animation(.easeInOut, value: currentMood)
+                //.animation(.easeInOut, value: currentMood)
 
                 Spacer()
                 ZStack {
@@ -158,6 +150,8 @@ struct PersonalCardView: View {
                                         .fill(mood.fill)
                                         .frame(width: expanded ? mood.expandedSize : mood.defaultSize,
                                                height: expanded ? mood.expandedSize : mood.defaultSize)
+                                        .scaleEffect(currentMood == mood.color ? 16 : 1)
+                                        .animation(.easeInOut.speed(0.8), value: currentMood)
                                         .offset(x: 0, y: expanded ? mood.offsetY : 0)
                                         .animation(.spring(
                                             response: 0.55,
@@ -165,14 +159,12 @@ struct PersonalCardView: View {
                                             blendDuration: 0
                                         ), value: expanded)
                                         .opacity(isMoodSelectionVisible || currentMood == mood.color ? 1 : 0)
-                                        .zIndex(isFront[mood.index] ? 1 : -1)
-                                        .scaleEffect(currentMood == mood.color ? 20 : 1)
-                                        .animation(.easeInOut, value: isMoodSelectionVisible)
-                                        //.animation(.easeInOut, value: isFront[mood.index])
+                                        .zIndex(isFront[mood.index] ? 6 : -1)
                                         .onTapGesture {
                                             currentMood = mood.color
                                             isFront = Array(repeating: false, count: isFront.count)
-                                            isFront[mood.index] = true
+                                            isFront[mood.index] = true // Keep last selected colour at front
+                                            expanded = false
                                             saveEntry()
                                         }
                                         .shadow(color: .black.opacity(0.2), radius: 4)
@@ -182,12 +174,9 @@ struct PersonalCardView: View {
                                 Circle()
                                     .fill(Color.brown.opacity(0.001))
                                     .frame(width: 80, height: 80)
-                                    .animation(.easeInOut, value: expanded)
-                                    .zIndex(isMoodSelectionVisible ? 2 : 0)
+                                    .zIndex(isMoodSelectionVisible ? 10 : 0)
                                     .onTapGesture {
-                                        withAnimation{
-                                            isVisible = false
-                                        }
+                                        isVisible = false
                                         expanded = true
                                         verticalIndex = 0
                                     }
@@ -227,12 +216,11 @@ struct PersonalCardView: View {
                         .font(.caption)
                         .foregroundStyle(.gray)
                         .opacity(currentMood == nil ? 1.0 : 0.0)
-                        .animation(.easeInOut, value: currentMood)
                     Image(systemName: "arrowshape.down.fill")
                         .foregroundStyle(.white)
                         .opacity(currentMood != nil ? 1.0 : 0.0)
-                        .animation(.easeInOut, value: currentMood)
                 }
+                .animation(.easeInOut, value: currentMood)
                 .offset(y: 170)
             }
             .rotationEffect(isPreview ? .zero : .degrees(-90))
