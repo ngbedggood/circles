@@ -12,6 +12,7 @@ import Foundation
 class AuthManager: ObservableObject {
     @Published var currentUser: User?  // Firebase user object
     @Published var isAuthenticated: Bool = false
+    @Published var isAvailable: Bool = true
     @Published var errorMsg: String?
 
     // The AuthManager owns the instance of FirestoreManager, all data flows through here.
@@ -39,6 +40,7 @@ class AuthManager: ObservableObject {
                     // If we have a UID then start downloading the logged in users notes
                     print("User \(uid) logged in. Starting Firestore past moods listener.")
                     self.fm.loadPastMoods(forUserId: uid)
+                    self.fm.loadUserProfile(for: uid)
 
                 } else {
                     // If no one is logged in/authenticated then detach all Firestore listeners and clear data.
@@ -51,34 +53,70 @@ class AuthManager: ObservableObject {
     }
 
     func login(email: String, password: String) {
-        Auth.auth().signIn(withEmail: email, password: password) { [weak self] authResult, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    self?.errorMsg = error.localizedDescription
-                    print("Login error: \(error.localizedDescription)")
-                } else {
-                    self?.errorMsg = nil
-                    print("User logged in: \(authResult?.user.email ?? "Unknown")")
+        Task {
+            do {
+                let result = try await Auth.auth().signIn(withEmail: email, password: password)
+                let uid = result.user.uid
+
+                await MainActor.run {
+                    self.errorMsg = nil
+                    self.currentUser = result.user
+                    self.isAuthenticated = true
                 }
+
+                await MainActor.run {
+                    self.fm.loadUserProfile(for: uid)
+                    self.fm.loadPastMoods(forUserId: uid)
+                }
+
+                print("User logged in: \(result.user.email ?? "Unknown")")
+            } catch {
+                await MainActor.run {
+                    self.errorMsg = error.localizedDescription
+                }
+                print("Login error: \(error.localizedDescription)")
             }
         }
     }
 
-    func signUp(email: String, password: String) {
-        Auth.auth().createUser(withEmail: email, password: password) {
-            [weak self] authResult, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    self?.errorMsg = error.localizedDescription
-                    print("Sign up error: \(error.localizedDescription)")
-                } else {
-                    self?.errorMsg = nil
-                    print("User signed up: \(authResult?.user.email ?? "Unknown")")
+    func signUp(email: String, password: String, username: String, displayName: String) {
+        Task {
+            do {
+                let isAvailable = try await fm.isUsernameAvailable(username)
+                guard isAvailable else {
+                    DispatchQueue.main.async {
+                        self.errorMsg = "Username '\(username)' is already taken."
+                    }
+                    return
+                }
+
+                let result = try await Auth.auth().createUser(withEmail: email, password: password)
+                let uid = result.user.uid
+
+                try await fm.saveUserProfile(uid: uid, username: username, displayName: displayName)
+
+                // If loadUserProfile sets any @Published properties, wrap it:
+                await MainActor.run {
+                    self.currentUser = result.user
+                    self.isAuthenticated = true
+                }
+
+                // These also need to run on main thread if they modify @Published vars
+                await MainActor.run {
+                    self.fm.loadUserProfile(for: uid)
+                    self.fm.loadPastMoods(forUserId: uid)
+                    self.errorMsg = nil
+                }
+
+            } catch {
+                DispatchQueue.main.async {
+                    self.errorMsg = error.localizedDescription
+                    print("Sign up failed: \(error.localizedDescription)")
                 }
             }
-
         }
     }
+    
 
     func signOut() {
         do {

@@ -12,6 +12,8 @@ struct LoginView: View {
     @EnvironmentObject var am: AuthManager
     @State private var email: String = ""
     @State private var password: String = ""
+    @State private var username: String = ""
+    @State private var displayName: String = ""
     @State private var isPasswordVisible: Bool = false
     @State private var isSignUp: Bool = false
 
@@ -81,6 +83,35 @@ struct LoginView: View {
                     }
                     .padding(4)
                 }
+                
+                if isSignUp {
+                    TextField("Username", text: $username)
+                        .textInputAutocapitalization(.never)
+                        .frame(height: 24)
+                        .foregroundColor(.black)
+                        .font(.system(size: 16))
+                        .padding(16)
+                        .background(.white)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 30)
+                                .stroke(am.isAvailable ? .white : .red.opacity(0.5), lineWidth: 4)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 30))
+                        .padding(4)
+                    
+                    TextField("Display Name", text: $displayName)
+                        .frame(height: 24)
+                        .foregroundColor(.black)
+                        .font(.system(size: 16))
+                        .padding(16)
+                        .background(.white)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.white, lineWidth: 2)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 30))
+                        .padding(4)
+                }
 
                 if let errorMsg = am.errorMsg {
                     Text(errorMsg)
@@ -94,9 +125,17 @@ struct LoginView: View {
                     Button(action: {
 
                         if isSignUp {
-                            am.signUp(email: email, password: password)
+                            am.signUp(
+                                email: email,
+                                password: password,
+                                username: username,
+                                displayName: displayName
+                            )
                         } else {
-                            am.login(email: email, password: password)
+                            am.login(
+                                email: email,
+                                password: password
+                            )
                         }
 
                     }) {
