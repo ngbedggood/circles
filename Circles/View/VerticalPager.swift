@@ -8,18 +8,25 @@
 import SwiftUI
 
 struct VerticalPager: View {
+    
+    @EnvironmentObject var authManager: AuthManager
 
     var date: Date
     var dailyMood: DailyMood?
     var socialCard: SocialCard
     @Binding var verticalIndex: Int
+    
+    @State private var isViewModelInitialized = false
 
     var body: some View {
         GeometryReader { geo in
             TabView(selection: $verticalIndex) {
                 PersonalCardView(
-                    date: date,
-                    dailyMood: dailyMood ?? nil,
+                    viewModel: PersonalCardViewModel(
+                        date: date,
+                        dailyMood: dailyMood,
+                        authManager: authManager
+                    ),
                     verticalIndex: $verticalIndex
                 )
                 .background(
@@ -29,9 +36,12 @@ struct VerticalPager: View {
                 .tag(0)
                 if let mood = dailyMood {
                     SocialCardView(
-                        date: date,
-                        socialCard: socialCard,
-                        dailyMood: dailyMood
+                        viewModel: SocialCardViewModel(
+                            date: date,
+                            dailyMood: dailyMood,
+                            socialCard: socialCard,
+                            authManager: authManager
+                        )
                     )
                     .background(
                         RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
