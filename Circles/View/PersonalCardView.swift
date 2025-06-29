@@ -35,7 +35,6 @@ struct PersonalCardView: View {
 
         //expanded = false
         isMoodSelectionVisible = false
-        print("SAVE = isMoodSelectionVisible: \(isMoodSelectionVisible) - expanded: \(expanded) - isVisible: \(isVisible) - currentMood: \(currentMood?.rawValue ?? "none")")
     }
     
     private func deleteEntry() {
@@ -57,7 +56,6 @@ struct PersonalCardView: View {
         currentMood = nil
         expanded = false
         isVisible = true
-        print("DELETE = isMoodSelectionVisible: \(isMoodSelectionVisible) - expanded: \(expanded) - isVisible: \(isVisible) - currentMood: \(currentMood?.rawValue ?? "none")")
     }
 
     func formattedDate(from date: Date) -> String {
