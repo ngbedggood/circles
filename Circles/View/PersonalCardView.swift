@@ -8,11 +8,15 @@
 import SwiftUI
 
 struct PersonalCardView: View {
+    
+    @EnvironmentObject var authManager: AuthManager
+    @EnvironmentObject var firestoreManager: FirestoreManager
 
     @ObservedObject var viewModel: PersonalCardViewModel
     @Binding var verticalIndex: Int
     
     @State private var isFront: [Bool] = Array(repeating: false, count: 5)
+    @State private var showFriends: Bool = false
 
     @FocusState private var isFocused: Bool
 
@@ -42,131 +46,135 @@ struct PersonalCardView: View {
                 .zIndex(-1)
                 .animation(.easeInOut.speed(0.8), value: viewModel.currentMood)
 
-            VStack {
-                HStack {
-                    Button {
-                        // Profile view stuff might go here
-                    } label: {
-                        Image(systemName: "face.smiling")
+            if showFriends {
+                FriendsView(viewModel: FriendsViewModel(firestoreManager: firestoreManager, authManager: authManager))
+            } else {
+                VStack {
+                    HStack {
+                        Button {
+                            showFriends = true
+                        } label: {
+                            Image(systemName: "face.smiling")
 
-                    }
-                    Spacer()
-                    Text(viewModel.formattedDate())
-                        .onTapGesture {
-                            viewModel.authManager.signOut()
                         }
-                    Spacer()
-                    Button {
-                        viewModel.deleteEntry()
-                    } label: {
-                        Image(systemName: "minus.circle")
-                            .opacity(viewModel.currentMood == nil ? 0 : 1)
+                        Spacer()
+                        Text(viewModel.formattedDate())
+                            .onTapGesture {
+                                viewModel.authManager.signOut()
+                            }
+                        Spacer()
+                        Button {
+                            viewModel.deleteEntry()
+                        } label: {
+                            Image(systemName: "minus.circle")
+                                .opacity(viewModel.currentMood == nil ? 0 : 1)
+                        }
                     }
-                }
-                .frame(width: 320)
-                .font(.title)
-                .fontWeight(.bold)
-                .offset(y: -170)  // hacky fix for now
-                .zIndex(5)
-                .foregroundColor(viewModel.currentMood == nil ? .black.opacity(0.8) : .white)
+                    .frame(width: 320)
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .offset(y: -170)  // hacky fix for now
+                    .zIndex(5)
+                    .foregroundColor(viewModel.currentMood == nil ? .black.opacity(0.8) : .white)
 
-                Spacer()
-                ZStack {
+                    Spacer()
+                    ZStack {
+
+                        ZStack {
+                            ForEach(moodCircles, id: \.color) { mood in
+                                Circle()
+                                    .fill(mood.fill)
+                                    .frame(
+                                        width: viewModel.expanded
+                                            ? mood.expandedSize : mood.defaultSize,
+                                        height: viewModel.expanded
+                                            ? mood.expandedSize : mood.defaultSize
+                                    )
+                                    .scaleEffect(viewModel.currentMood == mood.color ? 16 : 1)
+                                    .animation(.easeInOut.speed(0.8), value: viewModel.currentMood)
+                                    .offset(x: 0, y: viewModel.expanded ? mood.offsetY : 0)
+                                    .animation(
+                                        .spring(
+                                            response: 0.55,
+                                            dampingFraction: 0.69,
+                                            blendDuration: 0
+                                        ), value: viewModel.expanded
+                                    )
+                                    .opacity(
+                                        viewModel.isMoodSelectionVisible
+                                            || viewModel.currentMood == mood.color ? 1 : 0
+                                    )
+                                    .zIndex(isFront[mood.index] ? 6 : -1)
+                                    .onTapGesture {
+                                        viewModel.currentMood = mood.color
+                                        isFront = Array(
+                                            repeating: false, count: isFront.count)
+                                        isFront[mood.index] = true  // Keep last selected colour at front
+                                        print(
+                                            "Mood index is: \(mood.index) and isFront is: \(isFront[mood.index])"
+                                        )
+                                        viewModel.saveEntry()
+                                    }
+                                    .shadow(color: .black.opacity(0.2), radius: 4)
+                            }
+
+                            if viewModel.currentMood == nil && viewModel.isVisible {
+                                Circle()
+                                    .fill(Color.brown.opacity(0.001))
+                                    .frame(width: 80, height: 80)
+                                    .zIndex(viewModel.isMoodSelectionVisible ? 10 : 0)
+                                    .onTapGesture {
+                                        viewModel.isVisible = false
+                                        viewModel.expanded = true
+                                        verticalIndex = 0
+                                    }
+                            }
+                        }
+                        .opacity(viewModel.isMoodSelectionVisible ? 1.0 : 0.0)
+                        .animation(.easeInOut, value: viewModel.isMoodSelectionVisible)
+
+                        TextField(
+                            "What makes you feel that way today?", text: $viewModel.note,
+                            axis: .vertical
+                        )
+                        .foregroundColor(.black)
+                        .font(.system(size: 16))
+                        .padding(16)
+                        .background(.white)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.white, lineWidth: 2)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .opacity(viewModel.isMoodSelectionVisible ? 0.0 : 1.0)
+                        .zIndex(viewModel.isMoodSelectionVisible ? 0.0 : 1.0)
+                        .frame(width: 310)
+                        .focused($isFocused)
+                        .onSubmit {
+                            isFocused = false
+                        }
+                        .offset(y: isFocused ? -90 : 0)
+                        .animation(.easeInOut, value: isFocused)
+                        .animation(.easeInOut, value: isFocused)
+                        .animation(.easeInOut, value: viewModel.isMoodSelectionVisible)
+                    }
+
+                    Spacer()
 
                     ZStack {
-                        ForEach(moodCircles, id: \.color) { mood in
-                            Circle()
-                                .fill(mood.fill)
-                                .frame(
-                                    width: viewModel.expanded
-                                        ? mood.expandedSize : mood.defaultSize,
-                                    height: viewModel.expanded
-                                        ? mood.expandedSize : mood.defaultSize
-                                )
-                                .scaleEffect(viewModel.currentMood == mood.color ? 16 : 1)
-                                .animation(.easeInOut.speed(0.8), value: viewModel.currentMood)
-                                .offset(x: 0, y: viewModel.expanded ? mood.offsetY : 0)
-                                .animation(
-                                    .spring(
-                                        response: 0.55,
-                                        dampingFraction: 0.69,
-                                        blendDuration: 0
-                                    ), value: viewModel.expanded
-                                )
-                                .opacity(
-                                    viewModel.isMoodSelectionVisible
-                                        || viewModel.currentMood == mood.color ? 1 : 0
-                                )
-                                .zIndex(isFront[mood.index] ? 6 : -1)
-                                .onTapGesture {
-                                    viewModel.currentMood = mood.color
-                                    isFront = Array(
-                                        repeating: false, count: isFront.count)
-                                    isFront[mood.index] = true  // Keep last selected colour at front
-                                    print(
-                                        "Mood index is: \(mood.index) and isFront is: \(isFront[mood.index])"
-                                    )
-                                    viewModel.saveEntry()
-                                }
-                                .shadow(color: .black.opacity(0.2), radius: 4)
-                        }
-
-                        if viewModel.currentMood == nil && viewModel.isVisible {
-                            Circle()
-                                .fill(Color.brown.opacity(0.001))
-                                .frame(width: 80, height: 80)
-                                .zIndex(viewModel.isMoodSelectionVisible ? 10 : 0)
-                                .onTapGesture {
-                                    viewModel.isVisible = false
-                                    viewModel.expanded = true
-                                    verticalIndex = 0
-                                }
-                        }
+                        Text("Select today's mood before seeing your friends below")
+                            .font(.caption)
+                            .foregroundStyle(.gray)
+                            .opacity(viewModel.currentMood == nil ? 1.0 : 0.0)
+                        Image(systemName: "arrowshape.down.fill")
+                            .foregroundStyle(.white)
+                            .opacity(viewModel.currentMood != nil ? 1.0 : 0.0)
                     }
-                    .opacity(viewModel.isMoodSelectionVisible ? 1.0 : 0.0)
-                    .animation(.easeInOut, value: viewModel.isMoodSelectionVisible)
-
-                    TextField(
-                        "What makes you feel that way today?", text: $viewModel.note,
-                        axis: .vertical
-                    )
-                    .foregroundColor(.black)
-                    .font(.system(size: 16))
-                    .padding(16)
-                    .background(.white)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.white, lineWidth: 2)
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
-                    .opacity(viewModel.isMoodSelectionVisible ? 0.0 : 1.0)
-                    .zIndex(viewModel.isMoodSelectionVisible ? 0.0 : 1.0)
-                    .frame(width: 310)
-                    .focused($isFocused)
-                    .onSubmit {
-                        isFocused = false
-                    }
-                    .offset(y: isFocused ? -90 : 0)
-                    .animation(.easeInOut, value: isFocused)
-                    .animation(.easeInOut, value: isFocused)
-                    .animation(.easeInOut, value: viewModel.isMoodSelectionVisible)
+                    .animation(.easeInOut, value: viewModel.currentMood)
+                    .offset(y: 170)
                 }
-
-                Spacer()
-
-                ZStack {
-                    Text("Select today's mood before seeing your friends below")
-                        .font(.caption)
-                        .foregroundStyle(.gray)
-                        .opacity(viewModel.currentMood == nil ? 1.0 : 0.0)
-                    Image(systemName: "arrowshape.down.fill")
-                        .foregroundStyle(.white)
-                        .opacity(viewModel.currentMood != nil ? 1.0 : 0.0)
-                }
-                .animation(.easeInOut, value: viewModel.currentMood)
-                .offset(y: 170)
+                .rotationEffect(isPreview ? .zero : .degrees(-90))
             }
-            .rotationEffect(isPreview ? .zero : .degrees(-90))
         }
         .clipShape(RoundedRectangle(cornerRadius: 20))
         // Weird way to be able to dismiss keyboard when using axis: .vertical modifier

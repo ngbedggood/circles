@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LoginView: View {
 
-    @EnvironmentObject var am: AuthManager
+    @EnvironmentObject var authManager: AuthManager
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var username: String = ""
@@ -85,8 +85,14 @@ struct LoginView: View {
                 }
                 
                 if isSignUp {
-                    TextField("Username", text: $username)
-                        .textInputAutocapitalization(.never)
+                    TextField("Username", text: Binding(
+                        get: { username },
+                        set: { newValue in
+                            username = newValue.lowercased()
+                        }
+                    ))
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
                         .frame(height: 24)
                         .foregroundColor(.black)
                         .font(.system(size: 16))
@@ -94,7 +100,7 @@ struct LoginView: View {
                         .background(.white)
                         .overlay(
                             RoundedRectangle(cornerRadius: 30)
-                                .stroke(am.isAvailable ? .white : .red.opacity(0.5), lineWidth: 4)
+                                .stroke(authManager.isAvailable ? .white : .red.opacity(0.5), lineWidth: 4)
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 30))
                         .padding(4)
@@ -113,7 +119,7 @@ struct LoginView: View {
                         .padding(4)
                 }
 
-                if let errorMsg = am.errorMsg {
+                if let errorMsg = authManager.errorMsg {
                     Text(errorMsg)
                         .font(.caption)
                         .foregroundStyle(.gray)
@@ -125,14 +131,14 @@ struct LoginView: View {
                     Button(action: {
 
                         if isSignUp {
-                            am.signUp(
+                            authManager.signUp(
                                 email: email,
                                 password: password,
                                 username: username,
                                 displayName: displayName
                             )
                         } else {
-                            am.login(
+                            authManager.login(
                                 email: email,
                                 password: password
                             )

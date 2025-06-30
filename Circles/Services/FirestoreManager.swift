@@ -21,6 +21,7 @@ class FirestoreManager: ObservableObject {
     @Published var pastMoods: [String: DailyMood] = [:]  // Empty dictionary for date ID to mood
     @Published var isLoading: Bool = true
     @Published var userProfile: UserProfile?
+    
 
     // This allows a "subscription" to Firestore. Will be managed to stop listening when user logs out.
     private var DailyMoodsListener: ListenerRegistration?
@@ -85,6 +86,56 @@ class FirestoreManager: ObservableObject {
         }
     }
 
+    // SOCIAL STUFF
+    func searchUsers(byUsername username: String, excludingUserID: String) async throws -> [UserProfile] {
+        let snapshot = try await db.collection("users")
+            .whereField("username", isEqualTo: username)
+            .getDocuments()
+
+        return snapshot.documents.compactMap { doc in
+            let profile = try? doc.data(as: UserProfile.self)
+            return profile?.uid != excludingUserID ? profile : nil
+        }
+    }
+
+    func sendFriendRequest(from senderID: String, to receiverID: String) async throws {
+        let data = ["from": senderID, "to": receiverID, "status": "pending"]
+        _ = try await db
+            .collection("users")
+            .document(receiverID)
+            .collection("friendRequests")
+            .addDocument(data: data)
+    }
+
+    func acceptFriendRequest(requestID: String, userID: String, friendID: String) async throws {
+        // Add each user to the other's friend list
+        try await db.collection("users").document(userID)
+            .collection("friends").document(friendID).setData(["since": Date()])
+
+        try await db.collection("users").document(friendID)
+            .collection("friends").document(userID).setData(["since": Date()])
+
+        // Delete the request
+        try await db.collection("users").document(userID)
+            .collection("friendRequests").document(requestID).delete()
+    }
+
+    func fetchPendingFriendRequests(for userID: String) async throws -> [FriendRequest] {
+        let snapshot = try await db.collection("users").document(userID).collection("friendRequests")
+            .whereField("to", isEqualTo: userID)
+            .getDocuments()
+
+        return snapshot.documents.compactMap {
+            try? $0.data(as: FriendRequest.self)
+        }
+    }
+    
+    func fetchUserProfile(uid: String) async throws -> UserProfile {
+        let doc = try await db.collection("users").document(uid).getDocument()
+        return try doc.data(as: UserProfile.self)
+    }
+    
+    
     // DAILY MOOD RELATED METHODS
     func saveDailyMood(date: Date, mood: MoodColor, content: String?, forUserID userId: String)
         async throws
