@@ -22,7 +22,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct CirclesApp: App {
 
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @StateObject var am = AuthManager()
+    @StateObject var firestoreManager = FirestoreManager()
+    @StateObject var authManager = AuthManager()
 
     init() {
         UIView.appearance().overrideUserInterfaceStyle = .light
@@ -31,7 +32,11 @@ struct CirclesApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(am)
+                .environmentObject(authManager)
+                .environmentObject(firestoreManager)
+                .onAppear {
+                    authManager.setFirestoreManager(firestoreManager)
+                }
         }
     }
 }

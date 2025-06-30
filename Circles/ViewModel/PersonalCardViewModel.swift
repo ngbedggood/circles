@@ -20,12 +20,14 @@ class PersonalCardViewModel: ObservableObject {
     let initialNote: String?
 
     let authManager: AuthManager
+    let firestoreManager: FirestoreManager
 
-    init(date: Date, dailyMood: DailyMood?, authManager: AuthManager) {
+    init(date: Date, dailyMood: DailyMood?, authManager: AuthManager, firestoreManager: FirestoreManager) {
         self.date = date
         self.initialMood = dailyMood?.mood
         self.initialNote = dailyMood?.noteContent
         self.authManager = authManager
+        self.firestoreManager = firestoreManager
 
         self.currentMood = dailyMood?.mood
         self.note = dailyMood?.noteContent ?? ""
@@ -42,7 +44,7 @@ class PersonalCardViewModel: ObservableObject {
         let newNote = note
         Task {
             do {
-                try await authManager.fm.saveDailyMood(
+                try await firestoreManager.saveDailyMood(
                     date: date,
                     mood: currentMood ?? MoodColor.none,
                     content: newNote.isEmpty ? nil : newNote,
@@ -64,7 +66,7 @@ class PersonalCardViewModel: ObservableObject {
             }
             Task {
                 do {
-                    try await authManager.fm.deleteDailyMood(date: date, forUserId: userId)
+                    try await firestoreManager.deleteDailyMood(date: date, forUserId: userId)
                     print("Daily entry for \(date) deleted successfully")
                 } catch {
                     print(

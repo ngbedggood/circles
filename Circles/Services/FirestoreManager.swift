@@ -7,7 +7,6 @@
 
 // The purpose of the FirestoreManager is to communicate with the Firestore database to complete CRUD operations. Methods are laid out for use by the app's logic.
 
-import FirebaseAuth
 import FirebaseFirestore
 import Foundation
 

@@ -10,6 +10,7 @@ import SwiftUI
 struct VerticalPager: View {
     
     @EnvironmentObject var authManager: AuthManager
+    @EnvironmentObject var firestoreManager: FirestoreManager
 
     var date: Date
     var dailyMood: DailyMood?
@@ -25,7 +26,8 @@ struct VerticalPager: View {
                     viewModel: PersonalCardViewModel(
                         date: date,
                         dailyMood: dailyMood,
-                        authManager: authManager
+                        authManager: authManager,
+                        firestoreManager: firestoreManager
                     ),
                     verticalIndex: $verticalIndex
                 )
@@ -34,13 +36,14 @@ struct VerticalPager: View {
                 )
                 .padding(20)
                 .tag(0)
-                if let mood = dailyMood {
+                if dailyMood != nil {
                     SocialCardView(
                         viewModel: SocialCardViewModel(
                             date: date,
                             dailyMood: dailyMood,
                             socialCard: socialCard,
-                            authManager: authManager
+                            authManager: authManager,
+                            firestoreManager: firestoreManager
                         )
                     )
                     .background(

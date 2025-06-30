@@ -32,7 +32,7 @@ struct SocialCardView: View {
                 Image(systemName: "arrowshape.up.fill")
                     .foregroundStyle(.white)
                     .offset(y: -170)
-                Text("Username: \(viewModel.authManager.fm.userProfile?.username ?? "No username") Display Name: \(viewModel.authManager.fm.userProfile?.displayName ?? "No display name")")
+                Text("Username: \(viewModel.firestoreManager.userProfile?.username ?? "No username") Display Name: \(viewModel.firestoreManager.userProfile?.displayName ?? "No display name")")
                     .zIndex(1)
                     .foregroundColor(.black.opacity(0.2))
                     .font(.caption2)
@@ -157,7 +157,8 @@ struct SocialCardView: View {
                         FriendColor(name: "Greg", color: .teal, note: "I'm alright, just a bit tired!")
                     ]
                 ),
-            authManager: AuthManager()
+            authManager: AuthManager(),
+            firestoreManager: FirestoreManager()
         )
 
         var body: some View {

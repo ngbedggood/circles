@@ -191,7 +191,9 @@ struct PersonalCardView: View {
             date: Date(),
             dailyMood: DailyMood(
                 id: "2025-06-24", mood: .teal, noteContent: "This is a test!", createdAt: .now),
-            authManager: AuthManager())
+            authManager: AuthManager(),
+            firestoreManager: FirestoreManager()
+        )
         @State private var verticalIndex = 0
 
         var body: some View {

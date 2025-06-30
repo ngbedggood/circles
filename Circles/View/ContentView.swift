@@ -9,7 +9,8 @@ import SwiftUI
 
 struct ContentView: View {
 
-    @EnvironmentObject var am: AuthManager
+    @EnvironmentObject var authManager: AuthManager
+    @EnvironmentObject var firestoreManager: FirestoreManager
 
     // Dummy Data
     var socialCards = [
@@ -92,7 +93,7 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            if !am.isAuthenticated {
+            if !authManager.isAuthenticated {
                 LoginView()
                     .background(
                         RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
@@ -100,7 +101,7 @@ struct ContentView: View {
                     .padding(20)
             } else {
                 ZStack {
-                    if am.isFirestoreLoading {
+                    if firestoreManager.isLoading {
                         LoadingView()
                             .background(
                                 RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(
@@ -113,7 +114,7 @@ struct ContentView: View {
                             ForEach(0..<pastDays, id: \.self) { i in
                                 let date = datesToDisplay[i]
                                 let dateId = DailyMood.dateId(from: date)
-                                let dailyMood = am.fm.pastMoods[dateId]
+                                let dailyMood = firestoreManager.pastMoods[dateId]
 
                                 VerticalPager(
                                     date: date,
@@ -134,7 +135,7 @@ struct ContentView: View {
                         .gesture(verticalIndex == 0 ? DragGesture() : nil)
                     }
                 }
-                .animation(.easeInOut(duration: 1.5), value: am.isFirestoreLoading)
+                .animation(.easeInOut(duration: 1.5), value: firestoreManager.isLoading)
             }
         }
     }
@@ -142,5 +143,4 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .environmentObject(AuthManager())
 }

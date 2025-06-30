@@ -18,12 +18,14 @@ class SocialCardViewModel: ObservableObject {
     let socialCard: SocialCard
     
     let authManager: AuthManager
+    let firestoreManager: FirestoreManager
 
-    init(date: Date, dailyMood: DailyMood?, socialCard: SocialCard, authManager: AuthManager) {
+    init(date: Date, dailyMood: DailyMood?, socialCard: SocialCard, authManager: AuthManager, firestoreManager: FirestoreManager) {
         self.date = date
         self.dailyMood = dailyMood
         self.socialCard = socialCard
         self.authManager = authManager
+        self.firestoreManager = firestoreManager
     }
 
     func formattedDate() -> String {
