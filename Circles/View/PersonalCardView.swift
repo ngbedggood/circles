@@ -42,7 +42,7 @@ struct PersonalCardView: View {
         ZStack {
 
             RoundedRectangle(cornerRadius: 20)
-                .fill(viewModel.currentMood?.color ?? .brown.opacity(0.2))
+                .fill(showFriends ? .brown.opacity(0.2) : viewModel.currentMood?.color ?? .brown.opacity(0.2))
                 .zIndex(-1)
                 .animation(.easeInOut.speed(0.8), value: viewModel.currentMood)
 
@@ -53,10 +53,12 @@ struct PersonalCardView: View {
                     HStack {
                         Button {
                             showFriends.toggle()
+                            
                         } label: {
                             Image(systemName: "face.smiling")
 
                         }
+                        .frame(minWidth: 48)
                         Spacer()
                         Text(viewModel.formattedDate())
                             .onTapGesture {
@@ -69,6 +71,7 @@ struct PersonalCardView: View {
                             Image(systemName: "minus.circle")
                                 .opacity(viewModel.currentMood == nil ? 0 : 1)
                         }
+                        .frame(minWidth: 48)
                     }
                     .frame(width: 320)
                     .font(.title)
@@ -142,7 +145,7 @@ struct PersonalCardView: View {
                         .padding(16)
                         .background(.white)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 20)
+                            RoundedRectangle(cornerRadius: 30)
                                 .stroke(Color.white, lineWidth: 2)
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 20))

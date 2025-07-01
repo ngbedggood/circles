@@ -15,9 +15,9 @@ struct FriendsView: View {
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 20)
-                .fill(.brown.opacity(0.2))
-                .zIndex(-1)
+            //RoundedRectangle(cornerRadius: 20)
+                //.fill(.brown.opacity(0.2))
+                //.zIndex(-1)
             
             VStack {
                 
@@ -25,10 +25,27 @@ struct FriendsView: View {
                     Button {
                         showFriends.toggle()
                     } label: {
-                        Image(systemName: "face.smiling")
+                        Image(systemName: showFriends ? "chevron.compact.down" : "face.smiling")
 
                     }
-                    TextField("Search username", text: $viewModel.searchQuery)
+                    .frame(minWidth: 48)
+                    Spacer()
+                    Text("1 Jul 2025")
+                    Spacer()
+                    Button {
+                    } label: {
+                        Image(systemName: "minus.circle")
+                    }
+                    .frame(minWidth: 48)
+                }
+                .frame(width: 320)
+                .font(.title)
+                .fontWeight(.bold)
+                .offset(y: -170)  // hacky fix for now
+                .zIndex(5)
+                .foregroundColor(.black.opacity(0.8))
+                HStack {
+                    TextField("Search Username", text: $viewModel.searchQuery)
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
                         .frame(height: 24)
@@ -41,19 +58,21 @@ struct FriendsView: View {
                                 .stroke(Color.white, lineWidth: 2)
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 30))
-                        .padding(4)
                     Button(action: {
                         viewModel.searchUsers()
                     }) {
                         Image(systemName: "magnifyingglass.circle.fill")
                             .foregroundColor(.white)
-                            .font(.system(size: 52))
+                            .font(.system(size: 56))
                     }
-                    .padding(4)
                 }
 
                 List {
-                    Section(header: Text("Search Results")) {
+                    VStack(alignment: .leading) {
+                        Text("Search Results")
+                            .font(.system(size: 16))
+                            .padding(4)
+                            .foregroundColor(.gray)
                         ForEach(viewModel.searchResults) { user in
                             HStack {
                                 Text(user.displayName)
@@ -61,11 +80,22 @@ struct FriendsView: View {
                                 Button("Add") {
                                     viewModel.sendRequest(to: user)
                                 }
+                                .padding([.top, .bottom], 4)
+                                .padding([.leading, .trailing], 8)
+                                .foregroundColor(.white)
+                                .buttonStyle(.plain)
+                                .background(.teal)
+                                .clipShape(Capsule())
                             }
+                            .listRowSeparator(.hidden)
                         }
                     }
 
-                    Section(header: Text("Pending Requests")) {
+                    VStack(alignment: .leading) {
+                        Text("Pending Requests")
+                            .font(.system(size: 16))
+                            .padding(4)
+                            .foregroundColor(.gray)
                         ForEach(viewModel.pendingRequestsWithUsers) { item in
                             HStack {
                                 Text(item.user.username)
@@ -73,14 +103,40 @@ struct FriendsView: View {
                                 Button("Accept") {
                                     viewModel.acceptRequest(item.request)
                                 }
+                                .padding([.top, .bottom], 4)
+                                .padding([.leading, .trailing], 8)
+                                .foregroundColor(.white)
+                                .buttonStyle(.plain)
+                                .background(.teal)
+                                .clipShape(Capsule())
                             }
+                            .listRowSeparator(.hidden)
                         }
                     }
                     
-                    Section(header: Text("My Friends")) {
-                    
+                    VStack(alignment: .leading) {
+                        Text("Friends List")
+                            .font(.system(size: 16))
+                            .padding(4)
+                            .foregroundColor(.gray)
+                        /*ForEach(viewModel.friendsList) { item in
+                            HStack {
+                                Text(item.user.username)
+                            }
+                            .listRowSeparator(.hidden)
+                        }*/
                     }
                 }
+                .padding(.top, 4)
+                .listStyle(.plain)
+                .listRowSeparator(.hidden)
+                .scrollContentBackground(.hidden)
+                .background(Color.white)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 30)
+                        .stroke(Color.white, lineWidth: 2)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 30))
             }
             .frame(width: 320)
             .rotationEffect(isPreview ? .zero : .degrees(-90))
