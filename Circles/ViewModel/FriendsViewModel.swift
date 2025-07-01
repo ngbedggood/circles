@@ -13,6 +13,7 @@ class FriendsViewModel: ObservableObject {
     @Published var searchResults: [UserProfile] = []
     @Published var pendingRequests: [FriendRequest] = []
     @Published var pendingRequestsWithUsers: [RequestWithUser] = []
+    @Published var friendsList: [FriendColor] = []
     @Published var error: String?
     
 
@@ -62,14 +63,13 @@ class FriendsViewModel: ObservableObject {
     }
     
     func fetchFriendRequests() {
-        guard let userId = authManager.currentUser?.uid else { return }
+        guard let userID = authManager.currentUser?.uid else { return }
         Task {
             do {
-                let requests = try await firestoreManager.fetchPendingFriendRequests(for: userId)
+                let requests = try await firestoreManager.fetchPendingFriendRequests(for: userID)
                 var enrichedRequests: [RequestWithUser] = []
-
                 for request in requests {
-                    let senderProfile = try await firestoreManager.fetchUserProfile(uid: request.from)
+                    let senderProfile = try await firestoreManager.fetchUserProfile(userID: request.from)
                     let combined = RequestWithUser(request: request, user: senderProfile)
                     enrichedRequests.append(combined)
                 }
@@ -94,4 +94,35 @@ class FriendsViewModel: ObservableObject {
         }
         print("Accepted request from: \(requestID)")
     }
+    
+    /*func retrieveFriendsWithMoods() {
+        guard let userID = authManager.currentUser?.uid else { return }
+
+        Task {
+            do {
+                let friendsUID = try await firestoreManager.fetchFriends(userID: userID)
+                var results: [FriendColor] = []
+
+                for uid in friendsUID {
+                    if let mood = try await firestoreManager.getDailyMood(forDate: date, forUserId: uid) {
+                        let profile = try await firestoreManager.fetchUserProfile(userID: uid)
+                        let friend = FriendColor(
+                            name: profile.displayName,
+                            color: mood.mood,
+                            note: mood.noteContent ?? "No note"
+                        )
+                        results.append(friend)
+                    }
+                }
+
+                let todayString = DailyMood.dateId(from: date)
+                await MainActor.run {
+                    self.socialCard = SocialCard(date: todayString, friends: results)
+                }
+
+            } catch {
+                print("Error fetching friends: \(error.localizedDescription)")
+            }
+        }
+    }*/
 }

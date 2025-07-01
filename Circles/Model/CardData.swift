@@ -26,14 +26,14 @@ enum CardColor {
 struct PersonalCard: Identifiable {
     let id = UUID()
     var date: String
-    var color: CardColor?
+    var color: MoodColor?
     var note: String
 }
 
 struct FriendColor: Identifiable {
     let id = UUID()
     var name: String
-    var color: CardColor?
+    var color: MoodColor?
     var note: String
 }
 

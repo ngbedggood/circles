@@ -9,6 +9,7 @@ import SwiftUI
 
 struct FriendsView: View {
     @ObservedObject var viewModel: FriendsViewModel
+    @Binding var showFriends: Bool
     
     var isPreview: Bool = false
 
@@ -19,7 +20,14 @@ struct FriendsView: View {
                 .zIndex(-1)
             
             VStack {
+                
                 HStack {
+                    Button {
+                        showFriends.toggle()
+                    } label: {
+                        Image(systemName: "face.smiling")
+
+                    }
                     TextField("Search username", text: $viewModel.searchQuery)
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
@@ -68,6 +76,10 @@ struct FriendsView: View {
                             }
                         }
                     }
+                    
+                    Section(header: Text("My Friends")) {
+                    
+                    }
                 }
             }
             .frame(width: 320)
@@ -85,10 +97,13 @@ struct FriendsView: View {
             firestoreManager: FirestoreManager(),
             authManager: AuthManager()
         )
+        
+        @State var showFriends: Bool = true
 
         var body: some View {
             FriendsView(
                 viewModel: viewModel,
+                showFriends: $showFriends,
                 isPreview: true
             )
         }

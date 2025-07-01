@@ -12,7 +12,7 @@ struct PersonalCardView: View {
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var firestoreManager: FirestoreManager
 
-    @ObservedObject var viewModel: PersonalCardViewModel
+    @StateObject var viewModel: PersonalCardViewModel
     @Binding var verticalIndex: Int
     
     @State private var isFront: [Bool] = Array(repeating: false, count: 5)
@@ -47,12 +47,12 @@ struct PersonalCardView: View {
                 .animation(.easeInOut.speed(0.8), value: viewModel.currentMood)
 
             if showFriends {
-                FriendsView(viewModel: FriendsViewModel(firestoreManager: firestoreManager, authManager: authManager))
+                FriendsView(viewModel: FriendsViewModel(firestoreManager: firestoreManager, authManager: authManager), showFriends: $showFriends)
             } else {
                 VStack {
                     HStack {
                         Button {
-                            showFriends = true
+                            showFriends.toggle()
                         } label: {
                             Image(systemName: "face.smiling")
 

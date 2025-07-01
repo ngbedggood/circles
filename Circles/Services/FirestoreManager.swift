@@ -99,7 +99,11 @@ class FirestoreManager: ObservableObject {
     }
 
     func sendFriendRequest(from senderID: String, to receiverID: String) async throws {
-        let data = ["from": senderID, "to": receiverID, "status": "pending"]
+        let data: [String: Any] = [
+            "from": senderID,
+            "to": receiverID,
+            "status": "pending"
+        ]
         _ = try await db
             .collection("users")
             .document(receiverID)
@@ -109,15 +113,19 @@ class FirestoreManager: ObservableObject {
 
     func acceptFriendRequest(requestID: String, userID: String, friendID: String) async throws {
         // Add each user to the other's friend list
+        print("Accessing myself:")
         try await db.collection("users").document(userID)
             .collection("friends").document(friendID).setData(["since": Date()])
-
+        print("Accessing them:")
         try await db.collection("users").document(friendID)
             .collection("friends").document(userID).setData(["since": Date()])
+        print("Trying to delete request:")
 
         // Delete the request
         try await db.collection("users").document(userID)
             .collection("friendRequests").document(requestID).delete()
+        
+        print("\(userID) and \(friendID) are now friends")
     }
 
     func fetchPendingFriendRequests(for userID: String) async throws -> [FriendRequest] {
@@ -130,9 +138,16 @@ class FirestoreManager: ObservableObject {
         }
     }
     
-    func fetchUserProfile(uid: String) async throws -> UserProfile {
-        let doc = try await db.collection("users").document(uid).getDocument()
+    func fetchUserProfile(userID: String) async throws -> UserProfile {
+        let doc = try await db.collection("users").document(userID).getDocument()
         return try doc.data(as: UserProfile.self)
+    }
+    
+    func fetchFriends(userID: String) async throws -> [String] {
+        let friendsDocRef = db.collection("users").document(userID).collection("friends")
+        let snapshot = try await friendsDocRef.getDocuments()
+        
+        return snapshot.documents.map { $0.documentID }  // Return documentID (friend's UID) from array of QueryDocumentSnapshot
     }
     
     
@@ -195,7 +210,7 @@ class FirestoreManager: ObservableObject {
             print("No mood found for \(moodId).")  // Cant find mood error
             return nil
         } catch {
-            print("Error fetching specific daily mood: \(error.localizedDescription)")  // Something else error
+            print("Error fetching specific daily mood for \(userId): \(error.localizedDescription)")  // Something else error
             throw error
         }
 

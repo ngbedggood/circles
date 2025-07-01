@@ -14,7 +14,6 @@ struct VerticalPager: View {
 
     var date: Date
     var dailyMood: DailyMood?
-    var socialCard: SocialCard
     @Binding var verticalIndex: Int
     
     @State private var isViewModelInitialized = false
@@ -41,7 +40,6 @@ struct VerticalPager: View {
                         viewModel: SocialCardViewModel(
                             date: date,
                             dailyMood: dailyMood,
-                            socialCard: socialCard,
                             authManager: authManager,
                             firestoreManager: firestoreManager
                         )
@@ -69,9 +67,6 @@ struct VerticalPager: View {
     struct PreviewWrapper: View {
         var dailyMood: DailyMood = DailyMood(
             id: "2025-06-24", mood: .teal, noteContent: "This is a test!", createdAt: .now)
-        @State private var socialCard = SocialCard(
-            date: "24th June 2025",
-            friends: [FriendColor(name: "Jack", color: .green, note: "I'm feeling great!")])
         @State private var verticalIndex = 0
         var date = Calendar.current.startOfDay(for: Date())
 
@@ -79,7 +74,6 @@ struct VerticalPager: View {
             VerticalPager(
                 date: date,
                 dailyMood: dailyMood,
-                socialCard: socialCard,
                 verticalIndex: $verticalIndex)
         }
     }
