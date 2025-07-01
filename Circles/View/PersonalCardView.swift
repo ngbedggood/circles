@@ -148,7 +148,7 @@ struct PersonalCardView: View {
                             RoundedRectangle(cornerRadius: 30)
                                 .stroke(Color.white, lineWidth: 2)
                         )
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .clipShape(RoundedRectangle(cornerRadius: 30))
                         .opacity(viewModel.isMoodSelectionVisible ? 0.0 : 1.0)
                         .zIndex(viewModel.isMoodSelectionVisible ? 0.0 : 1.0)
                         .frame(width: 310)
