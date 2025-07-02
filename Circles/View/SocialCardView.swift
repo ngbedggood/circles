@@ -89,14 +89,23 @@ struct SocialCardView: View {
             .fill(viewModel.dailyMood?.mood?.color ?? .gray)
             .frame(width: 80, height: 80)
             .overlay(
-                Text(viewModel.isMeSelected
-                     ? (viewModel.dailyMood?.noteContent?.isEmpty == true ? "No note" : viewModel.dailyMood?.noteContent ?? "No note")
-                     : "Me"
-                )
-                .font(viewModel.isMeSelected ? .system(size: 6) : .system(size: 24))
+                Group {
+                    if viewModel.isLoading {
+                        Image(systemName: "hourglass.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .padding(12)
+                    } else {
+                        Text(viewModel.isMeSelected
+                             ? (viewModel.dailyMood?.noteContent?.isEmpty == true ? "No note" : viewModel.dailyMood?.noteContent ?? "No note")
+                             : "Me"
+                        )
+                        .font(viewModel.isMeSelected ? .system(size: 6) : .system(size: 24))
+                        .fontWeight(viewModel.isMeSelected ? .regular : .bold)
+                        .padding(12)
+                    }
+                }
                 .foregroundColor(.white)
-                .fontWeight(viewModel.isMeSelected ? .regular : .bold)
-                .padding(12)
             )
             .multilineTextAlignment(.center)
             .minimumScaleFactor(0.2)
