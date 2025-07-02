@@ -12,7 +12,7 @@ import Foundation
 
 class FirestoreManager: ObservableObject {
 
-    let howManyDaysToRetrieve: Int = 7
+    let daysToRetrieve: Int = 7
 
     private let db = Firestore.firestore()
 
@@ -210,7 +210,7 @@ class FirestoreManager: ObservableObject {
             print("No mood found for \(moodId).")  // Cant find mood error
             return nil
         } catch {
-            print("Error fetching specific daily mood for \(userId): \(error.localizedDescription)")  // Something else error
+            //print("Error fetching specific daily mood for \(userId): \(error.localizedDescription)")  // Something else error
             throw error
         }
 
@@ -254,61 +254,87 @@ class FirestoreManager: ObservableObject {
     }
 
     func loadPastMoods(forUserId userId: String) {
-        PastMoodsListener?.remove()
+            self.isLoading = true
+            self.errorMsg = ""
+            self.pastMoods = [:]
 
-        let today = Calendar.current.startOfDay(for: Date())
+            PastMoodsListener?.remove()
 
-        guard
-            let startDate = Calendar.current.date(
-                byAdding: .day, value: -(howManyDaysToRetrieve - 1), to: today)
-        else {
-            self.errorMsg = "Failed to calculate start date for moods."
-            print("Could not calculate start date for past moods.")
-            return
-        }
+            let calendar = Calendar.current
+            let now = Date()
+            let todayStartOfDay = calendar.startOfDay(for: now)
 
-        print("[\(Date())] FirestoreManager: Initiating fetch for moods from \(startDate)")
-
-        PastMoodsListener = db.collection("users").document(userId).collection("dailyMoods")
-            .whereField("createdAt", isGreaterThanOrEqualTo: startDate)
-            .order(by: "createdAt", descending: false)
-            .addSnapshotListener { [weak self] querySnapshot, error in
-                guard let self = self else { return }
-
-                if let error = error {
-                    print(
-                        "[\(Date())] ERROR: Firestore query failed: \(error.localizedDescription)")
-                    DispatchQueue.main.async {  // Ensure error state update is on main thread
-                        self.errorMsg = "Failed to load moods: \(error.localizedDescription)"
-                    }
-                    return
+            // Calculate the startDate for the query range
+            guard let queryDate = calendar.date(
+                byAdding: .day, value: -(daysToRetrieve - 1), to: todayStartOfDay)
+            else {
+                DispatchQueue.main.async {
+                    self.errorMsg = "Failed to calculate start date for past moods."
+                    self.isLoading = false
                 }
+                print("Could not calculate start date for past moods.")
+                return
+            }
 
-                var fetchedMoods: [String: DailyMood] = [:]
-                for document in querySnapshot?.documents ?? [] {
-                    do {
-                        let dailyMood = try document.data(as: DailyMood.self)
-                        fetchedMoods[document.documentID] = dailyMood
+            // Generate the lower bound document ID string
+            let startDocID = DailyMood.dateId(from: queryDate)
 
-                    } catch {
-                        print(
-                            "[\(Date())] Failed to decode DailyMood for document ID '\(document.documentID)': \(error.localizedDescription)"
-                        )
-                        if let decodingError = error as? DecodingError {
-                            print("  - Decoding Error Details: \(decodingError)")
+            // Generate the upper bound document ID string (the day AFTER today, exclusive)
+            guard let endDateForQuery = calendar.date(byAdding: .day, value: 1, to: todayStartOfDay) else {
+                DispatchQueue.main.async {
+                    self.errorMsg = "Failed to calculate end date for past moods."
+                    self.isLoading = false
+                }
+                print("Could not calculate end date for past moods.")
+                return
+            }
+            let endDocID = DailyMood.dateId(from: endDateForQuery)
+
+
+            print("[\(Date())] FirestoreManager: Initiating fetch for moods with Document IDs from \(startDocID) (inclusive) to \(endDocID) (exclusive).")
+
+            PastMoodsListener = db.collection("users").document(userId).collection("dailyMoods")
+                // Using Document ID instead of createBy date for filtering
+                .whereField(FieldPath.documentID(), isGreaterThanOrEqualTo: startDocID)
+                .whereField(FieldPath.documentID(), isLessThan: endDocID)
+
+                .order(by: FieldPath.documentID(), descending: false)  // Chronological
+                .addSnapshotListener { [weak self] querySnapshot, error in
+                    guard let self = self else { return }
+
+                    if let error = error {
+                        print("[\(Date())] ERROR: Firestore query failed: \(error.localizedDescription)")
+                        DispatchQueue.main.async {
+                            self.errorMsg = "Failed to load moods: \(error.localizedDescription)"
+                            self.isLoading = false
+                        }
+                        return
+                    }
+
+                    var fetchedMoods: [String: DailyMood] = [:]
+                    for document in querySnapshot?.documents ?? [] {
+                        do {
+                            let dailyMood = try document.data(as: DailyMood.self)
+                            fetchedMoods[document.documentID] = dailyMood
+                        } catch {
+                            print(
+                                "[\(Date())] Failed to decode DailyMood for document ID '\(document.documentID)': \(error.localizedDescription)"
+                            )
+                            if let decodingError = error as? DecodingError {
+                                print("  - Decoding Error Details: \(decodingError)")
+                            }
                         }
                     }
-                }
 
-                DispatchQueue.main.async {
-                    self.pastMoods = fetchedMoods
-                    self.isLoading = false
-                    print(
-                        "[\(Date())] Loaded \(self.pastMoods.count) moods for the last 7 days for user \(userId)."
-                    )
+                    DispatchQueue.main.async {
+                        self.pastMoods = fetchedMoods
+                        self.isLoading = false
+                        print(
+                            "[\(Date())] Loaded \(self.pastMoods.count) moods for the past \(self.daysToRetrieve) days for user \(userId)."
+                        )
+                    }
                 }
-            }
-    }
+        }
 
     // Call this method when a user logs out to stop all Firestore real-time updates
     // and clear any data that belongs to the previous user.

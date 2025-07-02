@@ -64,12 +64,13 @@ struct SocialCardView: View {
         .task {  // Use .task to call the async method when the view appears
             await viewModel.retrieveFriendsWithMoods()
         }
-        .onChange(of: verticalIndex) {
-            Task {
-                await viewModel.retrieveFriendsWithMoods()
+        .onScrollVisibilityChange { isVisible in
+            if isVisible {
+                Task {
+                    await viewModel.retrieveFriendsWithMoods()
+                }
             }
         }
-
     }
 
     private func friendCircles(in geometry: GeometryProxy) -> some View {

@@ -95,13 +95,13 @@ class SocialCardViewModel: ObservableObject {
                         results.append(friend)
                     }
                 } catch {
-                    print("Failed to process friend \(uid): \(error.localizedDescription)")
+                    //print("Failed to process friend \(uid): \(error.localizedDescription)")
                 }
             }
             
-            for friend in results {
-                print("\(friend.name) - \(friend.color?.color) - \(friend.note.prefix(40))")
-            }
+            //for friend in results {
+            //    print("\(friend.name) - \(friend.color?.color) - \(friend.note.prefix(40))")
+            //}
 
             let todayString = DailyMood.dateId(from: date)
             self.socialCard = SocialCard(date: todayString, friends: results)
