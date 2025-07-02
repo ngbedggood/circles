@@ -8,30 +8,28 @@
 import SwiftUI
 
 struct ContentView: View {
-
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var firestoreManager: FirestoreManager
 
     @State private var horizontalIndex = 0
     @State private var verticalIndex = 0
     @State private var isLoggedIn: Bool = true
+    @State private var verticalIndices = Array(repeating: 0, count: 7)
 
     let pastDays = 7
 
     var datesToDisplay: [Date] {
         var dates: [Date] = []
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())  // Get start of today to ensure consistent dates
-
+        let today = calendar.startOfDay(for: Date())
         dates.append(today)
 
-        // Add past dates
         for i in 0..<pastDays - 1 {
             if let pastDate = calendar.date(byAdding: .day, value: -(i + 1), to: today) {
-                dates.insert(pastDate, at: 0)  // Insert at the beginning to keep chronological order
+                dates.insert(pastDate, at: 0)
             }
         }
-        return dates.sorted()  // Ensure consistent order
+        return dates.sorted()
     }
 
     var body: some View {
@@ -47,25 +45,14 @@ struct ContentView: View {
                     if firestoreManager.isLoading {
                         LoadingView()
                             .background(
-                                RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(
-                                    radius: 10)
+                                RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
                             )
                             .padding(20)
                             .transition(.opacity)
                     } else {
                         TabView(selection: $horizontalIndex) {
                             ForEach(0..<pastDays, id: \.self) { i in
-                                let date = datesToDisplay[i]
-                                let dateId = DailyMood.dateId(from: date)
-                                let dailyMood = firestoreManager.pastMoods[dateId]
-
-                                VerticalPager(
-                                    date: date,
-                                    dailyMood: dailyMood,
-                                    verticalIndex: $verticalIndex
-                                )
-                                .id(dateId )//+ (dailyMood?.noteContent ?? ""))
-                                .tag(i)
+                                dayPageView(for: i)
                             }
                         }
                         .transition(.opacity)
@@ -74,13 +61,61 @@ struct ContentView: View {
                         .onAppear {
                             horizontalIndex = pastDays - 1
                         }
-                        .gesture(verticalIndex == 0 ? DragGesture() : nil)
                     }
                 }
                 .animation(.easeInOut(duration: 1.5), value: firestoreManager.isLoading)
             }
         }
     }
+    
+    private func dayPageView(for index: Int) -> some View {
+        let date = datesToDisplay[index]
+        let dateId = DailyMood.dateId(from: date)
+        let dailyMood = firestoreManager.pastMoods[dateId]
+        
+        return ScrollView(.vertical) {
+                personalCardView(date: date, dailyMood: dailyMood)
+                
+                if dailyMood != nil {
+                    socialCardView(date: date, dailyMood: dailyMood)
+                }
+        }
+        .scrollTargetBehavior(.paging)
+    }
+    
+    private func personalCardView(date: Date, dailyMood: DailyMood?) -> some View {
+            PersonalCardView(
+                viewModel: PersonalCardViewModel(
+                    date: date,
+                    dailyMood: dailyMood,
+                    authManager: authManager,
+                    firestoreManager: firestoreManager
+                )
+            )
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.white)
+                    .shadow(radius: 10)
+            )
+            .padding(20)
+        }
+        
+        private func socialCardView(date: Date, dailyMood: DailyMood?) -> some View {
+            SocialCardView(
+                viewModel: SocialCardViewModel(
+                    date: date,
+                    dailyMood: dailyMood,
+                    authManager: authManager,
+                    firestoreManager: firestoreManager
+                )
+            )
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.white)
+                    .shadow(radius: 10)
+            )
+            .padding(20)
+        }
 }
 
 #Preview {

@@ -13,14 +13,11 @@ struct PersonalCardView: View {
     @EnvironmentObject var firestoreManager: FirestoreManager
 
     @StateObject var viewModel: PersonalCardViewModel
-    @Binding var verticalIndex: Int
     
     @State private var isFront: [Bool] = Array(repeating: false, count: 5)
     @State private var showFriends: Bool = false
 
     @FocusState private var isFocused: Bool
-
-    var isPreview: Bool = false
 
     let moodCircles: [MoodCircle] = [
         .init(
@@ -71,9 +68,9 @@ struct PersonalCardView: View {
                         }
                     }
                     .frame(width: 320)
+                    .padding()
                     .font(.title)
                     .fontWeight(.bold)
-                    .offset(y: -170)  // hacky fix for now
                     .zIndex(5)
                     .foregroundColor(viewModel.currentMood == nil ? .black.opacity(0.8) : .white)
 
@@ -126,7 +123,6 @@ struct PersonalCardView: View {
                                     .onTapGesture {
                                         viewModel.isVisible = false
                                         viewModel.expanded = true
-                                        verticalIndex = 0
                                     }
                             }
                         }
@@ -170,12 +166,12 @@ struct PersonalCardView: View {
                             .foregroundStyle(.white)
                             .opacity(viewModel.currentMood != nil ? 1.0 : 0.0)
                     }
+                    .padding()
                     .animation(.easeInOut, value: viewModel.currentMood)
-                    .offset(y: 170)
                 }
-                .rotationEffect(isPreview ? .zero : .degrees(-90))
             }
         }
+        .frame(height: 720)
         .clipShape(RoundedRectangle(cornerRadius: 20))
         // Weird way to be able to dismiss keyboard when using axis: .vertical modifier
         .toolbar {
@@ -202,11 +198,10 @@ struct PersonalCardView: View {
             authManager: AuthManager(),
             firestoreManager: FirestoreManager()
         )
-        @State private var verticalIndex = 0
 
         var body: some View {
             PersonalCardView(
-                viewModel: viewModel, verticalIndex: $verticalIndex, isPreview: true)
+                viewModel: viewModel)
         }
     }
 

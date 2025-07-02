@@ -14,7 +14,6 @@ struct SocialCardView: View {
     @State private var hasLoadedData = false
 
     let radius: CGFloat = 100
-    var isPreview: Bool = false
 
     var body: some View {
         ZStack {
@@ -33,34 +32,34 @@ struct SocialCardView: View {
                 VStack{
                     Text("Loading...")
                 }
-                .rotationEffect(isPreview ? .zero : .degrees(-90))
             } else {
                 VStack {
-                    Image(systemName: "arrowshape.up.fill")
-                        .foregroundStyle(.white)
-                        .offset(y: -170)
-                    Text("\(viewModel.firestoreManager.userProfile?.displayName ?? "No display name") (\(viewModel.firestoreManager.userProfile?.username ?? "No username"))")
-                        .zIndex(1)
-                        .foregroundColor(.black.opacity(0.2))
-                        .font(.caption2)
-                        .offset(y: -140)
+                    VStack{
+                        Image(systemName: "arrowshape.up.fill")
+                            .foregroundStyle(.white)
+                        Text("\(viewModel.firestoreManager.userProfile?.displayName ?? "No display name") (\(viewModel.firestoreManager.userProfile?.username ?? "No username"))")
+                            .zIndex(1)
+                            .foregroundColor(.black.opacity(0.2))
+                            .font(.caption2)
+                    }
+                    .padding()
 
                     ZStack {
                         GeometryReader { geometry in
                             friendCircles(in: geometry)
                         }
-                        
-                        Text(viewModel.formattedDate())
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .zIndex(1)
-                            .foregroundColor(.black.opacity(0.8))
-                            .offset(y: 320)  // hacky fix for now
                     }
+                        
+                    Text(viewModel.formattedDate())
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .zIndex(1)
+                        .foregroundColor(.black.opacity(0.8))
+                        .padding()
                 }
-                .rotationEffect(isPreview ? .zero : .degrees(-90))
             }
         }
+        .frame(height: 724)
         .task { // Use .task to call the async method when the view appears
             await viewModel.retrieveFriendsWithMoods()
             print("And here too?")
@@ -168,8 +167,7 @@ struct SocialCardView: View {
 
         var body: some View {
             SocialCardView(
-                viewModel: viewModel,
-                isPreview: true)
+                viewModel: viewModel)
         }
     }
 
