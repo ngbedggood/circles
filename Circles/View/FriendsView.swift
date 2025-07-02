@@ -10,6 +10,7 @@ import SwiftUI
 struct FriendsView: View {
     @ObservedObject var viewModel: FriendsViewModel
     @Binding var showFriends: Bool
+    let date: String
 
     var body: some View {
         ZStack {
@@ -21,14 +22,16 @@ struct FriendsView: View {
                 
                 HStack {
                     Button {
-                        showFriends.toggle()
+                        withAnimation {
+                            showFriends.toggle()
+                        }
                     } label: {
                         Image(systemName: showFriends ? "chevron.compact.down" : "face.smiling")
 
                     }
                     .frame(minWidth: 48)
                     Spacer()
-                    Text("1 Jul 2025")
+                    Text(date)
                     Spacer()
                     Button {
                     } label: {
@@ -45,14 +48,13 @@ struct FriendsView: View {
                     TextField("Search Username", text: $viewModel.searchQuery)
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
-                        .frame(height: 24)
                         .foregroundColor(.black)
                         .font(.system(size: 16))
                         .padding(16)
                         .background(.white)
                         .overlay(
                             RoundedRectangle(cornerRadius: 30)
-                                .stroke(Color.white, lineWidth: 2)
+                                .stroke(Color.white, lineWidth: 0)
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 30))
                     Button(action: {
@@ -60,7 +62,7 @@ struct FriendsView: View {
                     }) {
                         Image(systemName: "magnifyingglass.circle.fill")
                             .foregroundColor(.white)
-                            .font(.system(size: 56))
+                            .font(.system(size: 50))
                     }
                 }
 
@@ -131,11 +133,12 @@ struct FriendsView: View {
                 .background(Color.white)
                 .overlay(
                     RoundedRectangle(cornerRadius: 30)
-                        .stroke(Color.white, lineWidth: 2)
+                        .stroke(Color.white, lineWidth: 0)
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 30))
                 
                 Spacer()
+                    .padding(.top, 8)
             }
             .frame(width: 320)
             .onAppear {
@@ -153,11 +156,14 @@ struct FriendsView: View {
         )
         
         @State var showFriends: Bool = true
+        
+        let date: String = "1 Jul 2025"
 
         var body: some View {
             FriendsView(
                 viewModel: viewModel,
-                showFriends: $showFriends
+                showFriends: $showFriends,
+                date: date
             )
         }
     }

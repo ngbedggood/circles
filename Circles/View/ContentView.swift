@@ -12,7 +12,7 @@ struct ContentView: View {
     @EnvironmentObject var firestoreManager: FirestoreManager
 
     @State private var horizontalIndex = 0
-    @State private var verticalIndex = 0
+    @State private var verticalIndex: Int? = nil
     @State private var isLoggedIn: Bool = true
     @State private var verticalIndices = Array(repeating: 0, count: 7)
 
@@ -74,48 +74,52 @@ struct ContentView: View {
         let dailyMood = firestoreManager.pastMoods[dateId]
         
         return ScrollView(.vertical) {
+            LazyVStack(spacing: 0) {
                 personalCardView(date: date, dailyMood: dailyMood)
+                    .padding(20)
                 
                 if dailyMood != nil {
                     socialCardView(date: date, dailyMood: dailyMood)
+                        .padding(20)
                 }
+            }
         }
         .scrollTargetBehavior(.paging)
+        .scrollIndicators(.hidden)
     }
     
     private func personalCardView(date: Date, dailyMood: DailyMood?) -> some View {
-            PersonalCardView(
-                viewModel: PersonalCardViewModel(
-                    date: date,
-                    dailyMood: dailyMood,
-                    authManager: authManager,
-                    firestoreManager: firestoreManager
-                )
+        PersonalCardView(
+            viewModel: PersonalCardViewModel(
+                date: date,
+                dailyMood: dailyMood,
+                authManager: authManager,
+                firestoreManager: firestoreManager
             )
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.white)
-                    .shadow(radius: 10)
-            )
-            .padding(20)
-        }
+        )
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white)
+                .shadow(radius: 10)
+        )
+    }
         
-        private func socialCardView(date: Date, dailyMood: DailyMood?) -> some View {
-            SocialCardView(
-                viewModel: SocialCardViewModel(
-                    date: date,
-                    dailyMood: dailyMood,
-                    authManager: authManager,
-                    firestoreManager: firestoreManager
-                )
-            )
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.white)
-                    .shadow(radius: 10)
-            )
-            .padding(20)
-        }
+    private func socialCardView(date: Date, dailyMood: DailyMood?) -> some View {
+        SocialCardView(
+            viewModel: SocialCardViewModel(
+                date: date,
+                dailyMood: dailyMood,
+                authManager: authManager,
+                firestoreManager: firestoreManager
+            ),
+            verticalIndex: $verticalIndex
+        )
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white)
+                .shadow(radius: 10)
+        )
+    }
 }
 
 #Preview {

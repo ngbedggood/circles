@@ -8,10 +8,12 @@
 import SwiftUI
 
 struct SocialCardView: View {
-    
+
     @StateObject var viewModel: SocialCardViewModel
-    
+
     @State private var hasLoadedData = false
+    
+    @Binding var verticalIndex: Int?
 
     let radius: CGFloat = 100
 
@@ -20,70 +22,73 @@ struct SocialCardView: View {
             RoundedRectangle(cornerRadius: 20)
                 .fill((Color.brown).opacity(0.2))
                 .onTapGesture {
-                    withAnimation(.spring(
-                        response: 0.55,
-                        dampingFraction: 0.69,
-                        blendDuration: 0
-                    )) {
+                    withAnimation(
+                        .spring(
+                            response: 0.55,
+                            dampingFraction: 0.69,
+                            blendDuration: 0
+                        )
+                    ) {
                         viewModel.clearSelection()
                     }
                 }
-            if viewModel.isLoading {
-                VStack{
-                    Text("Loading...")
-                }
-            } else {
+            VStack {
                 VStack {
-                    VStack{
-                        Image(systemName: "arrowshape.up.fill")
-                            .foregroundStyle(.white)
-                        Text("\(viewModel.firestoreManager.userProfile?.displayName ?? "No display name") (\(viewModel.firestoreManager.userProfile?.username ?? "No username"))")
-                            .zIndex(1)
-                            .foregroundColor(.black.opacity(0.2))
-                            .font(.caption2)
-                    }
-                    .padding()
-
-                    ZStack {
-                        GeometryReader { geometry in
-                            friendCircles(in: geometry)
-                        }
-                    }
-                        
-                    Text(viewModel.formattedDate())
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .zIndex(1)
-                        .foregroundColor(.black.opacity(0.8))
-                        .padding()
+                    Image(systemName: "arrowshape.up.fill")
+                        .foregroundStyle(.white)
+                    Text(
+                        "\(viewModel.firestoreManager.userProfile?.displayName ?? "No display name") (\(viewModel.firestoreManager.userProfile?.username ?? "No username"))"
+                    )
+                    .zIndex(1)
+                    .foregroundColor(.black.opacity(0.2))
+                    .font(.caption2)
                 }
+                .padding()
+                
+                ZStack {
+                    GeometryReader { geometry in
+                        friendCircles(in: geometry)
+                    }
+                }
+                
+                Text(viewModel.formattedDate())
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .zIndex(1)
+                    .foregroundColor(.black.opacity(0.8))
+                    .padding()
             }
         }
-        .frame(height: 724)
-        .task { // Use .task to call the async method when the view appears
+        .frame(height: 720)
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .task {  // Use .task to call the async method when the view appears
             await viewModel.retrieveFriendsWithMoods()
-            print("And here too?")
-            
         }
-        
+        .onChange(of: verticalIndex) {
+            Task {
+                await viewModel.retrieveFriendsWithMoods()
+            }
+        }
+
     }
-    
+
     private func friendCircles(in geometry: GeometryProxy) -> some View {
         ZStack {
             let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
 
             personalCircle(center: center)
 
-            ForEach(Array(viewModel.socialCard.friends.enumerated()), id: \.element.id) { index, friend in
+            ForEach(Array(viewModel.socialCard.friends.enumerated()), id: \.element.id) {
+                index, friend in
                 socialCircle(friend: friend, index: index, center: center)
             }
         }
     }
 
-    
     // Need to seperate this into another view file, xcode is screaming about view complexity now.
     private func personalCircle(center: CGPoint) -> some View {
-        let meScale: CGFloat = viewModel.isMeSelected ? 3.0 : (viewModel.someoneElseSelected ? 0.1 : 1.2)
+        let meScale: CGFloat =
+            viewModel.isMeSelected ? 3.0 : (viewModel.someoneElseSelected ? 0.1 : 1.2)
 
         return Circle()
             .fill(viewModel.dailyMood?.mood?.color ?? .gray)
@@ -96,9 +101,11 @@ struct SocialCardView: View {
                             .scaledToFit()
                             .padding(12)
                     } else {
-                        Text(viewModel.isMeSelected
-                             ? (viewModel.dailyMood?.noteContent?.isEmpty == true ? "No note" : viewModel.dailyMood?.noteContent ?? "No note")
-                             : "Me"
+                        Text(
+                            viewModel.isMeSelected
+                                ? (viewModel.dailyMood?.noteContent?.isEmpty == true
+                                    ? "No note" : viewModel.dailyMood?.noteContent ?? "No note")
+                                : "Me"
                         )
                         .font(viewModel.isMeSelected ? .system(size: 6) : .system(size: 24))
                         .fontWeight(viewModel.isMeSelected ? .regular : .bold)
@@ -158,11 +165,9 @@ struct SocialCardView: View {
     }
 }
 
-
-
 #Preview {
     struct PreviewWrapper: View {
-        
+
         var viewModel: SocialCardViewModel = SocialCardViewModel(
             date: Date(),
             dailyMood: DailyMood(
@@ -173,10 +178,14 @@ struct SocialCardView: View {
             authManager: AuthManager(),
             firestoreManager: FirestoreManager()
         )
+        
+        @State private var verticalIndex: Int? = 0
 
         var body: some View {
             SocialCardView(
-                viewModel: viewModel)
+                viewModel: viewModel,
+                verticalIndex: $verticalIndex
+            )
         }
     }
 

@@ -44,12 +44,21 @@ struct PersonalCardView: View {
                 .animation(.easeInOut.speed(0.8), value: viewModel.currentMood)
 
             if showFriends {
-                FriendsView(viewModel: FriendsViewModel(firestoreManager: firestoreManager, authManager: authManager), showFriends: $showFriends)
+                FriendsView(
+                    viewModel: FriendsViewModel(
+                        firestoreManager: firestoreManager,
+                        authManager: authManager
+                    ),
+                    showFriends: $showFriends,
+                    date: viewModel.formattedDate()
+                )
             } else {
                 VStack {
                     HStack {
                         Button {
-                            showFriends.toggle()
+                            withAnimation {
+                                showFriends.toggle()
+                            }
                             
                         } label: {
                             Image(systemName: "face.smiling")
@@ -142,7 +151,7 @@ struct PersonalCardView: View {
                         .background(.white)
                         .overlay(
                             RoundedRectangle(cornerRadius: 30)
-                                .stroke(Color.white, lineWidth: 2)
+                                .stroke(Color.white, lineWidth: 0)
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 30))
                         .opacity(viewModel.isMoodSelectionVisible ? 0.0 : 1.0)
