@@ -19,7 +19,7 @@ struct SocialCardView: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 20)
-                .fill((Color.brown).opacity(0.2))
+                .fill(Color(red: 0.92, green: 0.88, blue: 0.84))
                 .onTapGesture {
                     withAnimation(
                         .spring(
@@ -54,7 +54,7 @@ struct SocialCardView: View {
                     .font(.title)
                     .fontWeight(.bold)
                     .zIndex(1)
-                    .foregroundColor(.black.opacity(0.8))
+                    .foregroundColor(.black.opacity(0.75))
                     .padding()
             }
         }

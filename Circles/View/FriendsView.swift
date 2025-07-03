@@ -15,7 +15,7 @@ struct FriendsView: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 20)
-                .fill(.brown.opacity(0.2))
+                .fill(Color(red: 0.92, green: 0.88, blue: 0.84))
                 .zIndex(-1)
 
             VStack {
@@ -43,7 +43,7 @@ struct FriendsView: View {
                 .font(.title)
                 .fontWeight(.bold)
                 .zIndex(5)
-                .foregroundColor(.black.opacity(0.8))
+                .foregroundColor(.black.opacity(0.75))
                 HStack {
                     TextField("Search Username", text: $viewModel.searchQuery)
                         .autocapitalization(.none)

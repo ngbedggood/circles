@@ -41,7 +41,7 @@ struct PersonalCardView: View {
             RoundedRectangle(cornerRadius: 20)
                 .fill(
                     showFriends
-                        ? .brown.opacity(0.2) : viewModel.currentMood?.color ?? .brown.opacity(0.2)
+                        ? Color(red: 0.92, green: 0.88, blue: 0.84) : viewModel.currentMood?.color ?? Color(red: 0.92, green: 0.88, blue: 0.84)
                 )
                 .zIndex(-1)
                 .animation(.easeInOut.speed(0.8), value: viewModel.currentMood)
@@ -87,7 +87,7 @@ struct PersonalCardView: View {
                     .font(.title)
                     .fontWeight(.bold)
                     .zIndex(5)
-                    .foregroundColor(viewModel.currentMood == nil ? .black.opacity(0.8) : .white)
+                    .foregroundColor(viewModel.currentMood == nil ? .black.opacity(0.75) : .white)
 
                     Spacer()
                     ZStack {
