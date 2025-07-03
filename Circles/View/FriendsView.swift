@@ -17,9 +17,9 @@ struct FriendsView: View {
             RoundedRectangle(cornerRadius: 20)
                 .fill(.brown.opacity(0.2))
                 .zIndex(-1)
-            
+
             VStack {
-                
+
                 HStack {
                     Button {
                         withAnimation {
@@ -112,7 +112,7 @@ struct FriendsView: View {
                             .listRowSeparator(.hidden)
                         }
                     }
-                    
+
                     VStack(alignment: .leading) {
                         Text("Friends List")
                             .font(.system(size: 16))
@@ -136,7 +136,7 @@ struct FriendsView: View {
                         .stroke(Color.white, lineWidth: 0)
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 30))
-                
+
                 Spacer()
                     .padding(.top, 8)
             }
@@ -154,9 +154,9 @@ struct FriendsView: View {
             firestoreManager: FirestoreManager(),
             authManager: AuthManager()
         )
-        
+
         @State var showFriends: Bool = true
-        
+
         let date: String = "1 Jul 2025"
 
         var body: some View {

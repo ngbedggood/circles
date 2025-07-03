@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct PersonalCardView: View {
-    
+
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var firestoreManager: FirestoreManager
 
     @StateObject var viewModel: PersonalCardViewModel
-    
+
     @State private var isFront: [Bool] = Array(repeating: false, count: 5)
     @State private var showFriends: Bool = false
 
@@ -39,7 +39,10 @@ struct PersonalCardView: View {
         ZStack {
 
             RoundedRectangle(cornerRadius: 20)
-                .fill(showFriends ? .brown.opacity(0.2) : viewModel.currentMood?.color ?? .brown.opacity(0.2))
+                .fill(
+                    showFriends
+                        ? .brown.opacity(0.2) : viewModel.currentMood?.color ?? .brown.opacity(0.2)
+                )
                 .zIndex(-1)
                 .animation(.easeInOut.speed(0.8), value: viewModel.currentMood)
 
@@ -59,7 +62,7 @@ struct PersonalCardView: View {
                             withAnimation {
                                 showFriends.toggle()
                             }
-                            
+
                         } label: {
                             Image(systemName: "face.smiling")
 

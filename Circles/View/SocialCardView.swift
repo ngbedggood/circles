@@ -12,7 +12,7 @@ struct SocialCardView: View {
     @StateObject var viewModel: SocialCardViewModel
 
     @State private var hasLoadedData = false
-    
+
     @Binding var verticalIndex: Int?
 
     let radius: CGFloat = 100
@@ -44,13 +44,13 @@ struct SocialCardView: View {
                     .font(.caption2)
                 }
                 .padding()
-                
+
                 ZStack {
                     GeometryReader { geometry in
                         friendCircles(in: geometry)
                     }
                 }
-                
+
                 Text(viewModel.formattedDate())
                     .font(.title)
                     .fontWeight(.bold)
@@ -86,44 +86,33 @@ struct SocialCardView: View {
         }
     }
 
-    // Need to seperate this into another view file, xcode is screaming about view complexity now.
     private func personalCircle(center: CGPoint) -> some View {
         let meScale: CGFloat =
             viewModel.isMeSelected ? 3.0 : (viewModel.someoneElseSelected ? 0.1 : 1.2)
 
         return Circle()
             .fill(viewModel.dailyMood?.mood?.color ?? .gray)
-            .frame(width: 80, height: 80)
-            .overlay(
-                Group {
-                    if viewModel.isLoading {
-                        Image(systemName: "hourglass.circle.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .padding(12)
-                    } else {
-                        Text(
-                            viewModel.isMeSelected
-                                ? (viewModel.dailyMood?.noteContent?.isEmpty == true
-                                    ? "No note" : viewModel.dailyMood?.noteContent ?? "No note")
-                                : "Me"
-                        )
-                        .font(viewModel.isMeSelected ? .system(size: 6) : .system(size: 24))
-                        .fontWeight(viewModel.isMeSelected ? .regular : .bold)
-                        .padding(12)
-                    }
-                }
-                .foregroundColor(.white)
-            )
-            .multilineTextAlignment(.center)
-            .minimumScaleFactor(0.2)
-            .clipShape(Circle())
-            .position(x: center.x, y: center.y)
-            .scaleEffect(meScale)
-            .zIndex(viewModel.isMeSelected ? 1 : 0)
+            .frame(width: 80 * meScale, height: 80 * meScale)
             .shadow(color: .black.opacity(0.2), radius: 4)
+            .zIndex(viewModel.isMeSelected ? 1 : 0)
+            .overlay(
+                Text(
+                    viewModel.isMeSelected
+                        ? (viewModel.dailyMood?.noteContent?.isEmpty == true
+                            ? "No note" : viewModel.dailyMood?.noteContent ?? "No note")
+                        : "Me"
+                )
+                .lineLimit(7)
+                .fontWeight(viewModel.isMeSelected ? .regular : .bold)
+                .font(viewModel.isMeSelected ? .system(size: 24) : .system(size: 30))
+                .multilineTextAlignment(.center)
+                .minimumScaleFactor(4 / 24)
+                .foregroundColor(.white)
+                .padding(12)
+            )
+            .position(x: center.x, y: center.y)
             .onTapGesture {
-                withAnimation(.spring(response: 0.55, dampingFraction: 0.69)) {
+                withAnimation(.spring(response: 0.49, dampingFraction: 0.69)) {
                     viewModel.selectedFriend = viewModel.isMeSelected ? nil : viewModel.me
                 }
             }
@@ -133,36 +122,37 @@ struct SocialCardView: View {
         let totalSpots = viewModel.socialCard.friends.count
         let angle = Angle(degrees: Double(index) / Double(totalSpots) * 360)
         let isSelected = (viewModel.selectedFriend?.id == friend.id)
-        let someoneSelected = viewModel.selectedFriend != nil
+        let someoneSelected = viewModel.selectedFriend?.id != nil
         let effectiveRadius = isSelected ? 0 : (someoneSelected ? radius * 1.5 : radius)
 
         let x = center.x + (isSelected ? 0 : effectiveRadius * CGFloat(sin(angle.radians)))
         let y = center.y - (isSelected ? 0 : effectiveRadius * CGFloat(cos(angle.radians)))
         let scale: CGFloat = isSelected ? 3.0 : (someoneSelected ? 0.5 : 1.0)
 
-        return Circle()
-            .fill(friend.color?.color ?? Color.gray)
-            .frame(width: 80, height: 80)
-            .overlay(
-                Text(isSelected ? friend.note : friend.name)
-                    .foregroundColor(.white)
-                    .fontWeight(isSelected ? .regular : .bold)
-                    .padding(12)
-            )
-            .multilineTextAlignment(.center)
-            .minimumScaleFactor(0.2)
-            .padding(20)
-            .clipShape(Circle())
-            .font(isSelected ? .system(size: 6) : .system(size: 24))
-            .scaleEffect(scale)
-            .position(x: x, y: y)
-            .shadow(color: .black.opacity(0.2), radius: 4)
-            .onTapGesture {
-                withAnimation(.spring(response: 0.55, dampingFraction: 0.69)) {
-                    viewModel.selectedFriend = isSelected ? nil : friend
+        return ZStack {
+            Circle()
+                .fill(friend.color?.color ?? Color.gray)
+                .frame(width: 80 * scale, height: 80 * scale)
+                .shadow(color: .black.opacity(0.2), radius: 4)
+                .zIndex(isSelected ? 1 : 0)
+                .overlay(
+                    Text(isSelected ? friend.note : friend.name)
+                        .lineLimit(7)
+                        .fontWeight(isSelected ? .regular : .bold)
+                        .font(isSelected ? .system(size: 24) : .system(size: 20))
+                        .multilineTextAlignment(.center)
+                        .minimumScaleFactor(4 / 24)
+                        .foregroundColor(.white)
+                        .padding(8)
+
+                )
+                .position(x: x, y: y)
+                .onTapGesture {
+                    withAnimation(.spring(response: 0.49, dampingFraction: 0.69)) {
+                        viewModel.selectedFriend = isSelected ? nil : friend
+                    }
                 }
-            }
-            .zIndex(isSelected ? 1 : 0)
+        }
     }
 }
 
@@ -179,7 +169,7 @@ struct SocialCardView: View {
             authManager: AuthManager(),
             firestoreManager: FirestoreManager()
         )
-        
+
         @State private var verticalIndex: Int? = 0
 
         var body: some View {
