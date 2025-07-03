@@ -111,8 +111,7 @@ struct ContentView: View {
                 dailyMood: dailyMood,
                 authManager: authManager,
                 firestoreManager: firestoreManager
-            ),
-            verticalIndex: $verticalIndex
+            )
         )
         .background(
             RoundedRectangle(cornerRadius: 20)

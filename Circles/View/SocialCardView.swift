@@ -11,10 +11,9 @@ struct SocialCardView: View {
 
     @StateObject var viewModel: SocialCardViewModel
 
-    @State private var hasLoadedData = false
-
-    @Binding var verticalIndex: Int?
-
+    @State private var circleAppeared: [Bool] = []
+    @State private var animatingCircles: Bool = true
+    
     let radius: CGFloat = 100
 
     var body: some View {
@@ -61,27 +60,49 @@ struct SocialCardView: View {
         }
         .frame(height: 720)
         .clipShape(RoundedRectangle(cornerRadius: 20))
-        .task {  // Use .task to call the async method when the view appears
-            await viewModel.retrieveFriendsWithMoods()
-        }
         .onScrollVisibilityChange { isVisible in
             if isVisible {
                 Task {
                     await viewModel.retrieveFriendsWithMoods()
                 }
+            } else {
+                circleAppeared = Array(repeating: false, count: viewModel.socialCard.friends.count)
             }
         }
+        .onChange(of: viewModel.socialCard.friends) { friends in
+            circleAppeared = Array(repeating: false, count: friends.count)
+            animateCirclesInSequence()
+        }
+    }
+    
+    private func animateCirclesInSequence() {
+        for index in viewModel.socialCard.friends.indices {
+            // Apply a delayed spring animation to each circle.
+            withAnimation(.spring().delay(0.15 * Double(index))) {
+                if index < circleAppeared.count {
+                    circleAppeared[index] = true
+                }
+            }
+        }
+        animatingCircles = false
     }
 
     private func friendCircles(in geometry: GeometryProxy) -> some View {
         ZStack {
             let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
-
+            
             personalCircle(center: center)
-
+            
             ForEach(Array(viewModel.socialCard.friends.enumerated()), id: \.element.id) {
                 index, friend in
-                socialCircle(friend: friend, index: index, center: center)
+                if index < circleAppeared.count {
+                    socialCircle(
+                        friend: friend,
+                        index: index,
+                        center: center,
+                        hasAppeared: circleAppeared[index]
+                    )
+                }
             }
         }
     }
@@ -94,7 +115,7 @@ struct SocialCardView: View {
             .fill(viewModel.dailyMood?.mood?.color ?? .gray)
             .frame(width: 80 * meScale, height: 80 * meScale)
             .shadow(color: .black.opacity(0.2), radius: 4)
-            .zIndex(viewModel.isMeSelected ? 1 : 0)
+            .zIndex(viewModel.someoneElseSelected ? -1 : viewModel.isMeSelected ? 1 : 0)
             .overlay(
                 Text(
                     viewModel.isMeSelected
@@ -108,7 +129,7 @@ struct SocialCardView: View {
                 .multilineTextAlignment(.center)
                 .minimumScaleFactor(4 / 24)
                 .foregroundColor(.white)
-                .padding(12)
+                .padding(24)
             )
             .position(x: center.x, y: center.y)
             .onTapGesture {
@@ -118,7 +139,7 @@ struct SocialCardView: View {
             }
     }
 
-    private func socialCircle(friend: FriendColor, index: Int, center: CGPoint) -> some View {
+    private func socialCircle(friend: FriendColor, index: Int, center: CGPoint, hasAppeared: Bool) -> some View {
         let totalSpots = viewModel.socialCard.friends.count
         let angle = Angle(degrees: Double(index) / Double(totalSpots) * 360)
         let isSelected = (viewModel.selectedFriend?.id == friend.id)
@@ -152,6 +173,8 @@ struct SocialCardView: View {
                         viewModel.selectedFriend = isSelected ? nil : friend
                     }
                 }
+                .scaleEffect(hasAppeared ? 1 : 0)
+                .opacity(hasAppeared ? 1 : 0)
         }
     }
 }
@@ -170,12 +193,9 @@ struct SocialCardView: View {
             firestoreManager: FirestoreManager()
         )
 
-        @State private var verticalIndex: Int? = 0
-
         var body: some View {
             SocialCardView(
-                viewModel: viewModel,
-                verticalIndex: $verticalIndex
+                viewModel: viewModel
             )
         }
     }
