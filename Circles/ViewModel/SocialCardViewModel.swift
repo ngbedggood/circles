@@ -21,17 +21,18 @@ class SocialCardViewModel: ObservableObject {
     @Published var socialCard: SocialCard = SocialCard(date: "", friends: [])
     @Published var isLoading: Bool
     
+    @Binding var dailyMood: DailyMood?
+    
     let me = FriendColor(name: "Me", color: .gray, note: "Lets roll!")
     
     let date: Date
-    var dailyMood: DailyMood?
     
     let authManager: AuthManager
     let firestoreManager: FirestoreManager
 
-    init(date: Date, dailyMood: DailyMood?, authManager: AuthManager, firestoreManager: FirestoreManager) {
+    init(date: Date, dailyMood: Binding<DailyMood?>, authManager: AuthManager, firestoreManager: FirestoreManager) {
         self.date = date
-        self.dailyMood = dailyMood
+        self._dailyMood = dailyMood
         self.authManager = authManager
         self.firestoreManager = firestoreManager
         self.isLoading = true
@@ -72,13 +73,14 @@ class SocialCardViewModel: ObservableObject {
     @MainActor // Ensures all property updates within this method happen on the main thread
     func retrieveFriendsWithMoods() async {
         isLoading = true // Start loading
+        print("SVM -> The current mood is: \(dailyMood?.mood?.color ?? .none)")
 
         guard let userID = authManager.currentUser?.uid else {
             self.isLoading = false
             return
         }
         do {
-            self.dailyMood = try await firestoreManager.getDailyMood(forDate: date, forUserId: userID)
+            //self.dailyMood = try await firestoreManager.getDailyMood(forDate: date, forUserId: userID)
             let friendsUID = try await firestoreManager.fetchFriends(userID: userID)
             var results: [FriendColor] = []
 

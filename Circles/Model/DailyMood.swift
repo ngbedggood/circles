@@ -33,7 +33,7 @@ enum MoodColor: String, Codable, CaseIterable, Identifiable {
     }
 }
 
-struct DailyMood: Codable, Identifiable {
+struct DailyMood: Codable, Identifiable, Equatable {
 
     @DocumentID var id: String?
     var mood: MoodColor?

@@ -16,6 +16,8 @@ struct ContentView: View {
     @State private var isLoggedIn: Bool = true
     @State private var verticalIndices = Array(repeating: 0, count: 7)
 
+    @State private var localDailyMoods: [String: DailyMood] = [:]
+
     let pastDays = 7
 
     var datesToDisplay: [Date] {
@@ -45,14 +47,22 @@ struct ContentView: View {
                     if firestoreManager.isLoading {
                         LoadingView()
                             .background(
-                                RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
+                                RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(
+                                    radius: 10)
                             )
                             .padding(20)
                             .transition(.opacity)
                     } else {
                         TabView(selection: $horizontalIndex) {
-                            ForEach(0..<pastDays, id: \.self) { i in
-                                dayPageView(for: i)
+                            ForEach(0..<pastDays, id: \.self) { index in
+                                let date = datesToDisplay[index]
+                                DayPageView(
+                                    viewModel: DayPageViewModel(
+                                        date: date,
+                                        authManager: authManager,
+                                        firestoreManager: firestoreManager
+                                    )
+                                )
                             }
                         }
                         .transition(.opacity)
@@ -67,58 +77,7 @@ struct ContentView: View {
             }
         }
     }
-    
-    private func dayPageView(for index: Int) -> some View {
-        let date = datesToDisplay[index]
-        let dateId = DailyMood.dateId(from: date)
-        let dailyMood = firestoreManager.pastMoods[dateId]
-        
-        return ScrollView(.vertical) {
-            LazyVStack(spacing: 0) {
-                personalCardView(date: date, dailyMood: dailyMood)
-                    .padding(20)
-                
-                if dailyMood != nil {
-                    socialCardView(date: date, dailyMood: dailyMood)
-                        .padding(20)
-                }
-            }
-        }
-        .scrollTargetBehavior(.paging)
-        .scrollIndicators(.hidden)
-    }
-    
-    private func personalCardView(date: Date, dailyMood: DailyMood?) -> some View {
-        PersonalCardView(
-            viewModel: PersonalCardViewModel(
-                date: date,
-                dailyMood: dailyMood,
-                authManager: authManager,
-                firestoreManager: firestoreManager
-            )
-        )
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white)
-                .shadow(radius: 10)
-        )
-    }
-        
-    private func socialCardView(date: Date, dailyMood: DailyMood?) -> some View {
-        SocialCardView(
-            viewModel: SocialCardViewModel(
-                date: date,
-                dailyMood: dailyMood,
-                authManager: authManager,
-                firestoreManager: firestoreManager
-            )
-        )
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white)
-                .shadow(radius: 10)
-        )
-    }
+
 }
 
 #Preview {

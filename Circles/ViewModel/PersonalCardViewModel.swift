@@ -15,6 +15,8 @@ class PersonalCardViewModel: ObservableObject {
     @Published var expanded: Bool = false
     @Published var isVisible: Bool = true
 
+    @Binding var dailyMood: DailyMood?
+
     let date: Date
     let initialMood: MoodColor?
     let initialNote: String?
@@ -22,17 +24,22 @@ class PersonalCardViewModel: ObservableObject {
     let authManager: AuthManager
     let firestoreManager: FirestoreManager
 
-    init(date: Date, dailyMood: DailyMood?, authManager: AuthManager, firestoreManager: FirestoreManager) {
+    init(
+        date: Date, dailyMood: Binding<DailyMood?>, authManager: AuthManager,
+        firestoreManager: FirestoreManager
+    ) {
         self.date = date
-        self.initialMood = dailyMood?.mood
-        self.initialNote = dailyMood?.noteContent
+        self._dailyMood = dailyMood
         self.authManager = authManager
         self.firestoreManager = firestoreManager
 
-        self.currentMood = dailyMood?.mood
-        self.note = dailyMood?.noteContent ?? ""
-        self.isMoodSelectionVisible = dailyMood?.mood == nil
-        self.expanded = dailyMood?.mood != nil
+        let moodEntry = dailyMood.wrappedValue
+        self.initialMood = moodEntry?.mood
+        self.initialNote = moodEntry?.noteContent
+        self.currentMood = moodEntry?.mood
+        self.note = moodEntry?.noteContent ?? ""
+        self.isMoodSelectionVisible = moodEntry?.mood == nil
+        self.expanded = moodEntry?.mood != nil
     }
 
     func saveEntry() {
@@ -40,6 +47,17 @@ class PersonalCardViewModel: ObservableObject {
             print("Error: User not logged in. Cannot save note.")
             return
         }
+
+        let entry = DailyMood(
+            id: DailyMood.dateId(from: date),
+            mood: currentMood ?? MoodColor.none,
+            noteContent: note,
+            createdAt: dailyMood?.createdAt ?? Date()
+        )
+        self.dailyMood = entry
+
+        print("PVM -> The current mood is: \(dailyMood?.mood?.color ?? .none)")
+        print("PVM -> The current note is: \(dailyMood?.noteContent ?? .none)")
 
         let newNote = note
         Task {
@@ -58,27 +76,27 @@ class PersonalCardViewModel: ObservableObject {
         isMoodSelectionVisible = false
         expanded = false
     }
-    
+
     func deleteEntry() {
         guard let userId = authManager.currentUser?.uid else {
-                print("Error: User not logged in. Cannot delete note.")
-                return
-            }
-            Task {
-                do {
-                    try await firestoreManager.deleteDailyMood(date: date, forUserId: userId)
-                    print("Daily entry for \(date) deleted successfully")
-                } catch {
-                    print(
-                        "Error deleting daily entry: \(error.localizedDescription)"
-                    )
-                }
-            }
-            isMoodSelectionVisible = true
-            currentMood = nil
-            expanded = false
-            isVisible = true
+            print("Error: User not logged in. Cannot delete note.")
+            return
         }
+        Task {
+            do {
+                try await firestoreManager.deleteDailyMood(date: date, forUserID: userId)
+                print("Daily entry for \(date) deleted successfully")
+            } catch {
+                print(
+                    "Error deleting daily entry: \(error.localizedDescription)"
+                )
+            }
+        }
+        isMoodSelectionVisible = true
+        currentMood = nil
+        expanded = false
+        isVisible = true
+    }
 
     func formattedDate() -> String {
         let formatter = DateFormatter()

@@ -12,7 +12,7 @@ struct PersonalCardView: View {
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var firestoreManager: FirestoreManager
 
-    @StateObject var viewModel: PersonalCardViewModel
+    @ObservedObject var viewModel: DayPageViewModel
 
     @State private var isFront: [Bool] = Array(repeating: false, count: 5)
     @State private var showFriends: Bool = false
@@ -41,7 +41,8 @@ struct PersonalCardView: View {
             RoundedRectangle(cornerRadius: 20)
                 .fill(
                     showFriends
-                        ? Color(red: 0.92, green: 0.88, blue: 0.84) : viewModel.currentMood?.color ?? Color(red: 0.92, green: 0.88, blue: 0.84)
+                        ? Color(red: 0.92, green: 0.88, blue: 0.84)
+                        : viewModel.currentMood?.color ?? Color(red: 0.92, green: 0.88, blue: 0.84)
                 )
                 .zIndex(-1)
                 .animation(.easeInOut.speed(0.8), value: viewModel.currentMood)
@@ -206,10 +207,15 @@ struct PersonalCardView: View {
 
 #Preview {
     struct PreviewWrapper: View {
-        var viewModel: PersonalCardViewModel = PersonalCardViewModel(
+        @State static var previewMood: DailyMood? = DailyMood(
+            id: "2025-07-01",
+            mood: .green,
+            noteContent: "Feeling good!",
+            createdAt: Date()
+        )
+
+        var viewModel: DayPageViewModel = DayPageViewModel(
             date: Date(),
-            dailyMood: DailyMood(
-                id: "2025-06-24", mood: .teal, noteContent: "This is a test!", createdAt: .now),
             authManager: AuthManager(),
             firestoreManager: FirestoreManager()
         )

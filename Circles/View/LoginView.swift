@@ -21,7 +21,7 @@ struct LoginView: View {
 
         ZStack {
             RoundedRectangle(cornerRadius: 20)
-                .fill((Color.brown).opacity(0.2))
+                .fill(Color(red: 0.92, green: 0.88, blue: 0.84))
 
             VStack {
                 Spacer()

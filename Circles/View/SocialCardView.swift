@@ -9,11 +9,12 @@ import SwiftUI
 
 struct SocialCardView: View {
 
-    @StateObject var viewModel: SocialCardViewModel
+    @ObservedObject var viewModel: DayPageViewModel
 
     @State private var circleAppeared: [Bool] = []
     @State private var animatingCircles: Bool = true
-    
+    @State private var showPersonalCircle: Bool = false
+
     let radius: CGFloat = 100
 
     var body: some View {
@@ -63,18 +64,27 @@ struct SocialCardView: View {
         .onScrollVisibilityChange { isVisible in
             if isVisible {
                 Task {
+                    withAnimation {
+                        showPersonalCircle = true
+                    }
                     await viewModel.retrieveFriendsWithMoods()
                 }
             } else {
                 circleAppeared = Array(repeating: false, count: viewModel.socialCard.friends.count)
+                showPersonalCircle = false
             }
         }
         .onChange(of: viewModel.socialCard.friends) { friends in
             circleAppeared = Array(repeating: false, count: friends.count)
             animateCirclesInSequence()
         }
+        .onChange(of: viewModel.dailyMood) { newValue in
+            showPersonalCircle = false
+            print("DailyMood changed in SocialCardView: \(String(describing: newValue?.mood))")
+            showPersonalCircle = true
+        }
     }
-    
+
     private func animateCirclesInSequence() {
         for index in viewModel.socialCard.friends.indices {
             // Apply a delayed spring animation to each circle.
@@ -90,9 +100,12 @@ struct SocialCardView: View {
     private func friendCircles(in geometry: GeometryProxy) -> some View {
         ZStack {
             let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
-            
-            personalCircle(center: center)
-            
+
+            if showPersonalCircle {
+                personalCircle(center: center)
+                    .transition(.scale)
+            }
+
             ForEach(Array(viewModel.socialCard.friends.enumerated()), id: \.element.id) {
                 index, friend in
                 if index < circleAppeared.count {
@@ -139,7 +152,9 @@ struct SocialCardView: View {
             }
     }
 
-    private func socialCircle(friend: FriendColor, index: Int, center: CGPoint, hasAppeared: Bool) -> some View {
+    private func socialCircle(friend: FriendColor, index: Int, center: CGPoint, hasAppeared: Bool)
+        -> some View
+    {
         let totalSpots = viewModel.socialCard.friends.count
         let angle = Angle(degrees: Double(index) / Double(totalSpots) * 360)
         let isSelected = (viewModel.selectedFriend?.id == friend.id)
@@ -181,14 +196,15 @@ struct SocialCardView: View {
 
 #Preview {
     struct PreviewWrapper: View {
+        @State static var previewMood: DailyMood? = DailyMood(
+            id: "2025-07-01",
+            mood: .green,
+            noteContent: "Feeling good!",
+            createdAt: Date()
+        )
 
-        var viewModel: SocialCardViewModel = SocialCardViewModel(
+        var viewModel: DayPageViewModel = DayPageViewModel(
             date: Date(),
-            dailyMood: DailyMood(
-                id: "2025-06-24",
-                mood: .teal,
-                noteContent: "This is a test!",
-                createdAt: .now),
             authManager: AuthManager(),
             firestoreManager: FirestoreManager()
         )
