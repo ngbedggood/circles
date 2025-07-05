@@ -83,7 +83,7 @@ struct PersonalCardView: View {
                         }
                         .frame(minWidth: 48)
                     }
-                    .frame(width: 320)
+                    .frame(width: 310)
                     .padding()
                     .font(.title)
                     .fontWeight(.bold)

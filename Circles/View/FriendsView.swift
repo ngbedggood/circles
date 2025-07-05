@@ -38,7 +38,7 @@ struct FriendsView: View {
                     }
                     .frame(minWidth: 48)
                 }
-                .frame(width: 320)
+                .frame(width: 310)
                 .padding()
                 .font(.title)
                 .fontWeight(.bold)
@@ -140,7 +140,7 @@ struct FriendsView: View {
                 Spacer()
                     .padding(.top, 8)
             }
-            .frame(width: 320)
+            .frame(width: 310)
             .onAppear {
                 viewModel.fetchFriendRequests()
             }
