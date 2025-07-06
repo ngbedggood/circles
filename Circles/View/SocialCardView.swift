@@ -172,15 +172,26 @@ struct SocialCardView: View {
                 .shadow(color: .black.opacity(0.2), radius: 4)
                 .zIndex(isSelected ? 1 : 0)
                 .overlay(
-                    Text(isSelected ? friend.note : friend.name)
-                        .lineLimit(7)
-                        .fontWeight(isSelected ? .regular : .bold)
-                        .font(isSelected ? .system(size: 24) : .system(size: 20))
-                        .multilineTextAlignment(.center)
-                        .minimumScaleFactor(4 / 24)
-                        .foregroundColor(.white)
-                        .padding(8)
-
+                    ZStack {
+                        Text(isSelected ? friend.note : friend.name)
+                            .lineLimit(7)
+                            .fontWeight(isSelected ? .regular : .bold)
+                            .font(isSelected ? .system(size: 24) : .system(size: 20))
+                            .multilineTextAlignment(.center)
+                            .minimumScaleFactor(4 / 24)
+                            .foregroundColor(.white)
+                            .padding(8)
+                        if isSelected {
+                            Button(action: {
+                                
+                            }) {
+                                Image(systemName: "ellipsis.message.fill")
+                                    .font(.system(size: 28))
+                                    .foregroundColor(.white)
+                            }
+                            .offset(y: 88)
+                        }
+                    }
                 )
                 .position(x: x, y: y)
                 .onTapGesture {
