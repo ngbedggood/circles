@@ -46,11 +46,6 @@ struct ContentView: View {
                 ZStack {
                     if firestoreManager.isLoading {
                         LoadingView()
-                            .background(
-                                RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(
-                                    radius: 10)
-                            )
-                            .padding(24)
                             .transition(.opacity)
                     } else {
                         TabView(selection: $horizontalIndex) {

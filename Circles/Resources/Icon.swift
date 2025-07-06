@@ -8,11 +8,12 @@
 import SwiftUI
 
 struct Icon: View {
-    let scale = 2.0
+    let scale = 0.8
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 50)
-                .fill((Color.brown).opacity(0.2))
+                //.fill((Color.brown).opacity(0.2))
+                .fill(Color.white)
             Circle()
                 .fill(.gray)
                 .frame(width: 100, height: 100)
@@ -43,7 +44,10 @@ struct Icon: View {
                 .frame(width: 100, height: 100)
                 .offset(x: 40, y: -40)
                 .scaleEffect(0.8 * scale)
-
+            
+            Text("Circles")
+                .font(.system(size: 24))
+                .offset(y: 80)
         }
 
     }
