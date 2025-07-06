@@ -56,9 +56,6 @@ class PersonalCardViewModel: ObservableObject {
         )
         self.dailyMood = entry
 
-        print("PVM -> The current mood is: \(dailyMood?.mood?.color ?? .none)")
-        print("PVM -> The current note is: \(dailyMood?.noteContent ?? .none)")
-
         let newNote = note
         Task {
             do {

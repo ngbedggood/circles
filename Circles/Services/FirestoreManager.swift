@@ -38,7 +38,7 @@ class FirestoreManager: ObservableObject {
         let userRef = db.collection("users").document(uid)
         let usernameRef = db.collection("usernames").document(username)
 
-        try await db.runTransaction({ (transaction, errorPointer) -> Any? in
+        try await _ = db.runTransaction({ (transaction, errorPointer) -> Any? in
             let usernameDoc: DocumentSnapshot
             do {
                 usernameDoc = try transaction.getDocument(usernameRef)
@@ -192,7 +192,7 @@ class FirestoreManager: ObservableObject {
         }
 
         do {
-            try await moodDocRef.setData(from: moodToSave)
+            try moodDocRef.setData(from: moodToSave)
             print("Daily mood for \(moodId) by \(userId) was save successfully!")
         } catch {
             print("Error saving daily mood: \(error.localizedDescription)")

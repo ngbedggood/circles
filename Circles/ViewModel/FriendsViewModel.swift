@@ -54,7 +54,6 @@ class FriendsViewModel: ObservableObject {
         Task {
             try? await firestoreManager.sendFriendRequest(from: fromID, to: toID)
         }
-        print("Sent request to: \(user.uid)")
     }
 
     func loadPendingRequests() {

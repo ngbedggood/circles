@@ -72,9 +72,7 @@ class SocialCardViewModel: ObservableObject {
     // Friend retrieval functionality
     @MainActor // Ensures all property updates within this method happen on the main thread
     func retrieveFriendsWithMoods() async {
-        isLoading = true // Start loading
-        print("SVM -> The current mood is: \(dailyMood?.mood?.color ?? .none)")
-
+        self.isLoading = true
         guard let userID = authManager.currentUser?.uid else {
             self.isLoading = false
             return

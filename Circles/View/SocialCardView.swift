@@ -74,11 +74,11 @@ struct SocialCardView: View {
                 showPersonalCircle = false
             }
         }
-        .onChange(of: viewModel.socialCard.friends) { friends in
+        .onChange(of: viewModel.socialCard.friends) { _, friends in
             circleAppeared = Array(repeating: false, count: friends.count)
             animateCirclesInSequence()
         }
-        .onChange(of: viewModel.dailyMood) { newValue in
+        .onChange(of: viewModel.dailyMood) { _, newValue in
             showPersonalCircle = false
             print("DailyMood changed in SocialCardView: \(String(describing: newValue?.mood))")
             showPersonalCircle = true

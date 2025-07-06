@@ -22,7 +22,7 @@ class AuthManager: ObservableObject {
     init() {
         self.firestoreManager = FirestoreManager()
         // Listen for authentication state changes
-        Auth.auth().addStateDidChangeListener { [weak self] _, user in
+        _ = Auth.auth().addStateDidChangeListener { [weak self] _, user in
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 self.currentUser = user
@@ -81,7 +81,7 @@ class AuthManager: ObservableObject {
             do {
                 let isAvailable = try await firestoreManager.isUsernameAvailable(username)
                 guard isAvailable else {
-                    DispatchQueue.main.async {
+                    await MainActor.run {
                         self.errorMsg = "Username '\(username)' is already taken."
                     }
                     return
@@ -92,13 +92,11 @@ class AuthManager: ObservableObject {
 
                 try await firestoreManager.saveUserProfile(uid: uid, username: username, displayName: displayName)
 
-                // If loadUserProfile sets any @Published properties, wrap it:
                 await MainActor.run {
                     self.currentUser = result.user
                     self.isAuthenticated = true
                 }
 
-                // These also need to run on main thread if they modify @Published vars
                 await MainActor.run {
                     self.firestoreManager.loadUserProfile(for: uid)
                     self.firestoreManager.loadPastMoods(forUserId: uid)
@@ -106,7 +104,7 @@ class AuthManager: ObservableObject {
                 }
 
             } catch {
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.errorMsg = error.localizedDescription
                     print("Sign up failed: \(error.localizedDescription)")
                 }
