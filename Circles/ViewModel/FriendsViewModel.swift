@@ -16,13 +16,19 @@ class FriendsViewModel: ObservableObject {
     @Published var friendsList: [FriendColor] = []
     @Published var error: String?
     
+    @Published var isLoadingFriendsList: Bool = false
+    @Published var isLoadingPendingRequests: Bool = false
+    
+    let date: Date
+    
 
     private let firestoreManager: FirestoreManager
     private let authManager: AuthManager
 
-    init(firestoreManager: FirestoreManager, authManager: AuthManager) {
+    init(firestoreManager: FirestoreManager, authManager: AuthManager, date: Date) {
         self.firestoreManager = firestoreManager
         self.authManager = authManager
+        self.date = date
     }
 
     func searchUsers() {
@@ -62,7 +68,9 @@ class FriendsViewModel: ObservableObject {
         print("Pending requests: \(self.pendingRequests)")
     }
     
+    @MainActor
     func fetchFriendRequests() {
+        self.isLoadingPendingRequests = true
         guard let userID = authManager.currentUser?.uid else { return }
         Task {
             do {
@@ -77,9 +85,10 @@ class FriendsViewModel: ObservableObject {
                 await MainActor.run {
                     self.pendingRequestsWithUsers = enrichedRequests
                 }
-                print(self.pendingRequestsWithUsers)
+                self.isLoadingPendingRequests = false
             } catch {
                 print("Error fetching pending requests with users: \(error.localizedDescription)")
+                self.isLoadingPendingRequests = false
             }
         }
     }
@@ -95,34 +104,36 @@ class FriendsViewModel: ObservableObject {
         print("Accepted request from: \(requestID)")
     }
     
-    /*func retrieveFriendsWithMoods() {
+    
+    @MainActor
+    func fetchFriendList() {
+        self.isLoadingFriendsList = true
         guard let userID = authManager.currentUser?.uid else { return }
 
         Task {
             do {
                 let friendsUID = try await firestoreManager.fetchFriends(userID: userID)
-                var results: [FriendColor] = []
 
                 for uid in friendsUID {
-                    if let mood = try await firestoreManager.getDailyMood(forDate: date, forUserId: uid) {
-                        let profile = try await firestoreManager.fetchUserProfile(userID: uid)
-                        let friend = FriendColor(
-                            name: profile.displayName,
-                            color: mood.mood,
-                            note: mood.noteContent ?? "No note"
-                        )
-                        results.append(friend)
-                    }
+                    let profile = try await firestoreManager.fetchUserProfile(userID: uid)
+                    let friend = FriendColor(
+                        name: profile.username,
+                        color: MoodColor.none,
+                        note: ""
+                    )
+                    friendsList.append(friend)
                 }
-
-                let todayString = DailyMood.dateId(from: date)
-                await MainActor.run {
-                    self.socialCard = SocialCard(date: todayString, friends: results)
-                }
-
+                self.isLoadingFriendsList = false
             } catch {
-                print("Error fetching friends: \(error.localizedDescription)")
+                print("FVM - Error fetching friends: \(error.localizedDescription)")
+                self.isLoadingFriendsList = false
             }
         }
-    }*/
+    }
+    
+    func formattedDate() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMM y"
+        return formatter.string(from: date)
+    }
 }

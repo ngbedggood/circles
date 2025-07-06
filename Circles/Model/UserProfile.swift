@@ -15,7 +15,7 @@ struct FriendRequest: Identifiable, Codable {
     var status: String
 }
 
-struct UserProfile: Identifiable, Codable {
+struct UserProfile: Identifiable, Codable, Equatable {
     @DocumentID var uid: String?  // Automatically uses document ID
     var id: String { uid ?? UUID().uuidString }
     var username: String

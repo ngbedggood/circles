@@ -51,10 +51,10 @@ struct PersonalCardView: View {
                 FriendsView(
                     viewModel: FriendsViewModel(
                         firestoreManager: firestoreManager,
-                        authManager: authManager
+                        authManager: authManager,
+                        date: viewModel.date
                     ),
-                    showFriends: $showFriends,
-                    date: viewModel.formattedDate()
+                    showFriends: $showFriends
                 )
             } else {
                 VStack {

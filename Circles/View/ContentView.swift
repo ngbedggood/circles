@@ -50,7 +50,7 @@ struct ContentView: View {
                                 RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(
                                     radius: 10)
                             )
-                            .padding(20)
+                            .padding(24)
                             .transition(.opacity)
                     } else {
                         TabView(selection: $horizontalIndex) {
