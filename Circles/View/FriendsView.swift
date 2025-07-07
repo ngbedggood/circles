@@ -53,7 +53,7 @@ struct FriendsView: View {
                             //.frame(height: 48)
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
-                            .foregroundColor(.black)
+                            .foregroundColor(.black.opacity(0.75))
                             .font(.body)
                             .padding(18)
                         //.background(.white)
@@ -109,7 +109,7 @@ struct FriendsView: View {
                 VStack {
                     HStack {
                         Text("Pending Requests")
-                            .foregroundColor(.black)
+                            .foregroundColor(.black.opacity(0.75))
                             .font(.body)
                             .padding(18)
                         Spacer()
@@ -179,7 +179,7 @@ struct FriendsView: View {
                 VStack {
                     HStack {
                         Text("Friends List")
-                            .foregroundColor(.black)
+                            .foregroundColor(.black.opacity(0.75))
                             .font(.body)
                             .padding(18)
                         Spacer()

@@ -23,100 +23,87 @@ struct LoginView: View {
             RoundedRectangle(cornerRadius: 20)
                 .fill(Color(red: 0.92, green: 0.88, blue: 0.84))
 
-            VStack {
+            VStack(spacing: 24) {
                 Spacer()
 
                 Text("Circles")
                     .font(.system(size: 40))
                     .fontWeight(.bold)
-                    .foregroundStyle(.black)
+                    .foregroundStyle(.black.opacity(0.75))
+                    .padding()
 
-                TextField("Email", text: $email)
+                HStack {
+                    TextField("Email", text: $email)
+                    .autocapitalization(.none)
+                    .disableAutocorrection(true)
+                    .foregroundColor(.black.opacity(0.75))
+                    .font(.body)
+                    .padding(18)
                     .textInputAutocapitalization(.never)
-                    .frame(height: 24)
-                    .foregroundColor(.black)
-                    .font(.system(size: 16))
-                    .padding(16)
-                    .background(.white)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.white, lineWidth: 2)
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 30))
-                    .padding(4)
+                }
+                .background(Color.white)
+                .cornerRadius(30)
+                .shadow(radius: 4)
+                
 
                 HStack {
                     if isPasswordVisible {
                         TextField("Password", text: $password)
-                            .textInputAutocapitalization(.never)
-                            .frame(height: 24)
-                            .foregroundColor(.black)
-                            .font(.system(size: 16))
-                            .padding(16)
-                            .background(.white)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(Color.white, lineWidth: 2)
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 30))
-                            .padding(4)
+                            //.frame(height: 48)
+                            .autocapitalization(.none)
+                            .disableAutocorrection(true)
+                            .foregroundColor(.black.opacity(0.75))
+                            .font(.body)
+                            .padding(18)
                     } else {
                         SecureField("Password", text: $password)
-                            .frame(height: 24)
-                            .foregroundColor(.black)
-                            .font(.system(size: 16))
-                            .padding(16)
-                            .background(.white)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(Color.white, lineWidth: 2)
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 30))
-                            .padding(4)
+                            //.frame(height: 48)
+                            .autocapitalization(.none)
+                            .disableAutocorrection(true)
+                            .foregroundColor(.black.opacity(0.75))
+                            .font(.body)
+                            .padding(18)
                     }
-
                     Button(action: {
                         isPasswordVisible.toggle()
                     }) {
                         Image(systemName: isPasswordVisible ? "eye.slash.fill" : "eye.fill")
-                            .foregroundColor(.secondary)
+                            .font(.system(size: 20))
+                            .foregroundColor(Color(red: 0.75, green: 0.75, blue: 0.75))
+                            .padding(.horizontal, 12)
                     }
-                    .padding(4)
                 }
+                .background(Color.white)
+                .cornerRadius(30)
+                .shadow(radius: 4)
                 
                 if isSignUp {
-                    TextField("Username", text: Binding(
-                        get: { username },
-                        set: { newValue in
-                            username = newValue.lowercased()
-                        }
-                    ))
+                    HStack {
+                        TextField("Username", text: Binding(
+                            get: { username },
+                            set: { newValue in
+                                username = newValue.lowercased()
+                            }
+                        ))
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
-                        .frame(height: 24)
-                        .foregroundColor(.black)
-                        .font(.system(size: 16))
-                        .padding(16)
-                        .background(.white)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 30)
-                                .stroke(authManager.isAvailable ? .white : .red.opacity(0.5), lineWidth: 4)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 30))
-                        .padding(4)
+                        .foregroundColor(.black.opacity(0.75))
+                        .font(.body)
+                        .padding(18)
+                    }
+                    .background(Color.white)
+                    .cornerRadius(30)
+                    .shadow(radius: 4)
                     
-                    TextField("Display Name", text: $displayName)
-                        .frame(height: 24)
-                        .foregroundColor(.black)
-                        .font(.system(size: 16))
-                        .padding(16)
-                        .background(.white)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white, lineWidth: 2)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 30))
-                        .padding(4)
+                    HStack {
+                        TextField("Display Name", text: $displayName)
+                        .foregroundColor(.black.opacity(0.75))
+                        .font(.body)
+                        .padding(18)
+                    }
+                    .background(Color.white)
+                    .cornerRadius(30)
+                    .shadow(radius: 4)
                 }
 
                 if let errorMsg = authManager.errorMsg {
@@ -155,7 +142,7 @@ struct LoginView: View {
                             )
                             .shadow(color: .black.opacity(0.2), radius: 4)
                     }
-                    .padding(20)
+                    .padding(16)
 
                     Button(
                         action: {
@@ -169,7 +156,9 @@ struct LoginView: View {
 
                 }
             }
-            .padding(20)
+            .frame(width: 310)
+            .padding()
+            
 
         }
     }
