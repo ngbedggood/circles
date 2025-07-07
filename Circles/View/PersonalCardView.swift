@@ -18,7 +18,7 @@ struct PersonalCardView: View {
     @State private var showFriends: Bool = false
 
     @FocusState private var isFocused: Bool
-
+    
     let moodCircles: [MoodCircle] = [
         .init(
             color: .gray, fill: .gray, offsetY: 240, expandedSize: 120, defaultSize: 80, index: 4),
@@ -47,25 +47,15 @@ struct PersonalCardView: View {
                 .zIndex(-1)
                 .animation(.easeInOut.speed(0.8), value: viewModel.currentMood)
 
-            if showFriends {
-                FriendsView(
-                    viewModel: FriendsViewModel(
-                        firestoreManager: firestoreManager,
-                        authManager: authManager,
-                        date: viewModel.date
-                    ),
-                    showFriends: $showFriends
-                )
-            } else {
                 VStack {
                     HStack {
                         Button {
                             withAnimation {
                                 showFriends.toggle()
+                                viewModel.scrollDisabled.toggle()
                             }
-
                         } label: {
-                            Image(systemName: "face.smiling")
+                            Image(systemName: showFriends ? "xmark.circle" : "face.smiling")
 
                         }
                         .frame(minWidth: 48)
@@ -78,8 +68,10 @@ struct PersonalCardView: View {
                         Button {
                             viewModel.deleteEntry()
                         } label: {
-                            Image(systemName: "trash.circle")
-                                .opacity(viewModel.currentMood == nil ? 0 : 1)
+                            if !showFriends {
+                                Image(systemName: "trash.circle")
+                                    .opacity(viewModel.currentMood == nil ? 0 : 1)
+                            }
                         }
                         .frame(minWidth: 48)
                     }
@@ -88,9 +80,19 @@ struct PersonalCardView: View {
                     .font(.title)
                     .fontWeight(.bold)
                     .zIndex(5)
-                    .foregroundColor(viewModel.currentMood == nil ? .black.opacity(0.75) : .white)
+                    .foregroundColor(showFriends ? .black.opacity(0.75) : viewModel.currentMood == nil ? .black.opacity(0.75) : .white)
 
                     Spacer()
+                    
+                    if showFriends {
+                        FriendsView(
+                            viewModel: FriendsViewModel(
+                                firestoreManager: firestoreManager,
+                                authManager: authManager
+                            ),
+                            showFriends: $showFriends
+                        )
+                    } else {
                     ZStack {
 
                         ZStack {
@@ -219,10 +221,13 @@ struct PersonalCardView: View {
             authManager: AuthManager(),
             firestoreManager: FirestoreManager()
         )
+        
+        var disableScroll: Bool = false
 
         var body: some View {
             PersonalCardView(
-                viewModel: viewModel)
+                viewModel: viewModel
+            )
         }
     }
 

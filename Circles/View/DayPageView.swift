@@ -35,6 +35,7 @@ struct DayPageView: View {
         }
         .scrollTargetBehavior(.paging)
         .scrollIndicators(.hidden)
+        .scrollDisabled(viewModel.scrollDisabled)
     }
 }
 

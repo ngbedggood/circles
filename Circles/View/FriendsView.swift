@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FriendsView: View {
-    @ObservedObject var viewModel: FriendsViewModel
+    @StateObject var viewModel: FriendsViewModel
     @Binding var showFriends: Bool
 
     @State var expandPendingRequests: Bool = false
@@ -16,36 +16,37 @@ struct FriendsView: View {
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color(red: 0.92, green: 0.88, blue: 0.84))
-                .zIndex(-1)
+//            RoundedRectangle(cornerRadius: 20)
+//                .fill(Color(red: 0.92, green: 0.88, blue: 0.84))
+//                .zIndex(-1)
 
             VStack(spacing: 24) {
 
-                HStack {
-                    Button {
-                        withAnimation {
-                            showFriends.toggle()
-                        }
-                    } label: {
-                        Image(systemName: showFriends ? "xmark.circle" : "face.smiling")
-
-                    }
-                    .frame(minWidth: 48)
-                    Spacer()
-                    Text(viewModel.formattedDate())
-                    Spacer()
-                    Button {
-                    } label: {
-                    }
-                    .frame(minWidth: 48)
-                }
-                .frame(width: 310)
-                .padding()
-                .font(.title)
-                .fontWeight(.bold)
-                .zIndex(5)
-                .foregroundColor(.black.opacity(0.75))
+//                HStack {
+//                    Button {
+//                        withAnimation {
+//                            showFriends.toggle()
+//                            viemModel.
+//                        }
+//                    } label: {
+//                        Image(systemName: showFriends ? "xmark.circle" : "face.smiling")
+//
+//                    }
+//                    .frame(minWidth: 48)
+//                    Spacer()
+//                    Text(viewModel.formattedDate())
+//                    Spacer()
+//                    Button {
+//                    } label: {
+//                    }
+//                    .frame(minWidth: 48)
+//                }
+//                .frame(width: 310)
+//                .padding()
+//                .font(.title)
+//                .fontWeight(.bold)
+//                .zIndex(5)
+//                .foregroundColor(.black.opacity(0.75))
 
                 VStack {
                     HStack {
@@ -136,39 +137,42 @@ struct FriendsView: View {
                     .zIndex(2)
 
                     if expandPendingRequests {
-                        VStack(spacing: 12) {
-                            ForEach(viewModel.pendingRequestsWithUsers) { item in
-                                HStack {
-                                    Text(item.user.username)
-                                        .foregroundColor(.gray)
-                                        .font(.body)
-                                        .padding(.leading, 4)
-                                    Spacer()
-
-                                    Button("Accept") {
-                                        viewModel.acceptRequest(item.request)
+                        ScrollView {
+                            VStack(spacing: 12) {
+                                ForEach(viewModel.pendingRequestsWithUsers) { item in
+                                    HStack {
+                                        Text(item.user.username)
+                                            .foregroundColor(.gray)
+                                            .font(.body)
+                                            .padding(.leading, 4)
+                                        Spacer()
+                                        
+                                        Button("Accept") {
+                                            viewModel.acceptRequest(item.request)
+                                        }
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .foregroundColor(.white)
+                                        .background(Color.teal)
+                                        .clipShape(Capsule())
+                                        .font(.callout)
                                     }
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 6)
-                                    .foregroundColor(.white)
-                                    .background(Color.teal)
-                                    .clipShape(Capsule())
-                                    .font(.callout)
+                                    .padding(.horizontal, 14)
                                 }
-                                .padding(.horizontal, 14)
                             }
+                            .padding(.bottom, 12)
+                            .transition(
+                                .asymmetric(
+                                    insertion: .move(edge: .top),
+                                    removal: .move(edge: .top)
+                                )
+                                .combined(with: .opacity)
+                            )
+                            .zIndex(0)
                         }
-                        .padding(.bottom, 12)
+                        .frame(maxHeight: 170)
                         .background(Color.white)
                         .cornerRadius(30)
-                        .transition(
-                            .asymmetric(
-                                insertion: .move(edge: .top),
-                                removal: .move(edge: .top)
-                            )
-                            .combined(with: .opacity)
-                        )
-                        .zIndex(0)
                     }
 
                 }
@@ -205,40 +209,43 @@ struct FriendsView: View {
                     .background(Color.white)
                     .zIndex(2)
                     if expandFriendsList {
-                        VStack(spacing: 12) {
-                            ForEach(viewModel.friendsList) { item in
-                                HStack {
-                                    Text("\(item.name) (\(item.username))")
-                                        .foregroundColor(.gray)
-                                        .font(.body)
-                                        .padding(.leading, 4)
-
-                                    Spacer()
-
-                                    Button("Profile?") {
-
+                        ScrollView {
+                            VStack(spacing: 12) {
+                                ForEach(viewModel.friendsList) { item in
+                                    HStack {
+                                        Text("\(item.name) (\(item.username))")
+                                            .foregroundColor(.gray)
+                                            .font(.body)
+                                            .padding(.leading, 4)
+                                        
+                                        Spacer()
+                                        
+                                        Button("Profile?") {
+                                            
+                                        }
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .foregroundColor(.white)
+                                        .background(Color.teal)
+                                        .clipShape(Capsule())
+                                        .font(.callout)
                                     }
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 6)
-                                    .foregroundColor(.white)
-                                    .background(Color.teal)
-                                    .clipShape(Capsule())
-                                    .font(.callout)
+                                    .padding(.horizontal, 14)
                                 }
-                                .padding(.horizontal, 14)
                             }
+                            .padding(.bottom, 12)
+                            .transition(
+                                .asymmetric(
+                                    insertion: .move(edge: .top),
+                                    removal: .move(edge: .top)
+                                )
+                                .combined(with: .opacity)
+                            )
+                            .zIndex(0)
                         }
-                        .padding(.bottom, 12)
+                        .frame(maxHeight: 170)
                         .background(Color.white)
                         .cornerRadius(30)
-                        .transition(
-                            .asymmetric(
-                                insertion: .move(edge: .top),
-                                removal: .move(edge: .top)
-                            )
-                            .combined(with: .opacity)
-                        )
-                        .zIndex(0)
                     }
                 }
                 .background(Color.white)
@@ -267,8 +274,7 @@ struct FriendsView: View {
     struct PreviewWrapper: View {
         var viewModel: FriendsViewModel = FriendsViewModel(
             firestoreManager: FirestoreManager(),
-            authManager: AuthManager(),
-            date: Date()
+            authManager: AuthManager()
         )
 
         @State var showFriends: Bool = true

@@ -26,6 +26,8 @@ class DayPageViewModel: ObservableObject {
     @Published var isLoading: Bool
     
     @Published var showSocialCard: Bool = false
+    
+    @Published var scrollDisabled: Bool
 
     // Shared stuff
     @Published var dailyMood: DailyMood?
@@ -58,6 +60,8 @@ class DayPageViewModel: ObservableObject {
         self.expanded = dailyMood?.mood != nil
         
         self.me = FriendColor(name: "Me", username: "me", color: .gray, note: "Let's roll?")
+        
+        self.scrollDisabled = false
         
 
     }

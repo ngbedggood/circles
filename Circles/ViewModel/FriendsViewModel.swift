@@ -16,19 +16,15 @@ class FriendsViewModel: ObservableObject {
     @Published var friendsList: [FriendColor] = []
     @Published var error: String?
     
-    @Published var isLoadingFriendsList: Bool = false
-    @Published var isLoadingPendingRequests: Bool = false
-    
-    let date: Date
-    
+    @Published var isLoadingFriendsList: Bool = true
+    @Published var isLoadingPendingRequests: Bool = true
 
     private let firestoreManager: FirestoreManager
     private let authManager: AuthManager
 
-    init(firestoreManager: FirestoreManager, authManager: AuthManager, date: Date) {
+    init(firestoreManager: FirestoreManager, authManager: AuthManager) {
         self.firestoreManager = firestoreManager
         self.authManager = authManager
-        self.date = date
     }
 
     func searchUsers() {
@@ -128,12 +124,7 @@ class FriendsViewModel: ObservableObject {
                 print("FVM - Error fetching friends: \(error.localizedDescription)")
                 self.isLoadingFriendsList = false
             }
+
         }
-    }
-    
-    func formattedDate() -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "d MMM y"
-        return formatter.string(from: date)
     }
 }
