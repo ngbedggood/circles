@@ -19,16 +19,18 @@ struct DayPageView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 20)
                             .fill(Color.white)
-                            .shadow(radius: 10)
+                            .shadow(radius: 8)
                     )
                     .padding(24)
-                SocialCardView(viewModel: viewModel)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.white)
-                            .shadow(radius: 10)
-                    )
-                    .padding(24)
+                if viewModel.showSocialCard {
+                    SocialCardView(viewModel: viewModel)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(Color.white)
+                                .shadow(radius: 8)
+                        )
+                        .padding(24)
+                }
             }
         }
         .scrollTargetBehavior(.paging)

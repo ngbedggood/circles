@@ -24,6 +24,8 @@ class DayPageViewModel: ObservableObject {
     @Published var friendsWithMoods: [FriendWithMood] = []
     @Published var socialCard: SocialCard = SocialCard(date: "", friends: [])
     @Published var isLoading: Bool
+    
+    @Published var showSocialCard: Bool = false
 
     // Shared stuff
     @Published var dailyMood: DailyMood?
@@ -44,6 +46,10 @@ class DayPageViewModel: ObservableObject {
 
         let dateId = DailyMood.dateId(from: date)
         let dailyMood = firestoreManager.pastMoods[dateId]
+        
+        if dailyMood != nil {
+            showSocialCard = true
+        }
 
         self.dailyMood = dailyMood
         self.currentMood = dailyMood?.mood
@@ -165,6 +171,7 @@ class DayPageViewModel: ObservableObject {
         }
         isMoodSelectionVisible = false
         expanded = false
+        showSocialCard = true
     }
 
     func deleteEntry() {
@@ -186,5 +193,6 @@ class DayPageViewModel: ObservableObject {
         currentMood = nil
         expanded = false
         isVisible = true
+        showSocialCard = false
     }
 }

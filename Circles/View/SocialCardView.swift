@@ -36,12 +36,6 @@ struct SocialCardView: View {
                 VStack {
                     Image(systemName: "arrowshape.up.fill")
                         .foregroundStyle(.white)
-                    Text(
-                        "\(viewModel.firestoreManager.userProfile?.displayName ?? "No display name") (\(viewModel.firestoreManager.userProfile?.username ?? "No username"))"
-                    )
-                    .zIndex(1)
-                    .foregroundColor(.black.opacity(0.2))
-                    .font(.caption2)
                 }
                 .padding()
 
@@ -79,9 +73,7 @@ struct SocialCardView: View {
             animateCirclesInSequence()
         }
         .onChange(of: viewModel.dailyMood) { _, newValue in
-            showPersonalCircle = false
-            print("DailyMood changed in SocialCardView: \(String(describing: newValue?.mood))")
-            showPersonalCircle = true
+            circleAppeared = Array(repeating: false, count: viewModel.socialCard.friends.count)
         }
     }
 
@@ -169,7 +161,7 @@ struct SocialCardView: View {
             Circle()
                 .fill(friend.color?.color ?? Color.gray)
                 .frame(width: 80 * scale, height: 80 * scale)
-                .shadow(color: .black.opacity(0.2), radius: 4)
+                .shadow(color: .black.opacity(0.3), radius: 4)
                 .zIndex(isSelected ? 1 : 0)
                 .overlay(
                     ZStack {
@@ -192,6 +184,7 @@ struct SocialCardView: View {
                             .offset(y: 88)
                         }
                     }
+                        .transition(.scale)
                 )
                 .position(x: x, y: y)
                 .onTapGesture {

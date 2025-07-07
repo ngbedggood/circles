@@ -167,8 +167,8 @@ struct PersonalCardView: View {
                         }
                         .offset(y: isFocused ? -90 : 0)
                         .animation(.easeInOut, value: isFocused)
-                        .animation(.easeInOut, value: isFocused)
                         .animation(.easeInOut, value: viewModel.isMoodSelectionVisible)
+                        .shadow(radius: 4)
                     }
 
                     Spacer()

@@ -41,7 +41,7 @@ struct ContentView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
                     )
-                    .padding(20)
+                    .padding(24)
             } else {
                 ZStack {
                     if firestoreManager.isLoading {
