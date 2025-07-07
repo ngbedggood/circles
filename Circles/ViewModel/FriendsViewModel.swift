@@ -116,7 +116,8 @@ class FriendsViewModel: ObservableObject {
                 for uid in friendsUID {
                     let profile = try await firestoreManager.fetchUserProfile(userID: uid)
                     let friend = FriendColor(
-                        name: profile.username,
+                        name: profile.displayName,
+                        username: profile.username,
                         color: MoodColor.none,
                         note: ""
                     )

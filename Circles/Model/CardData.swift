@@ -33,6 +33,7 @@ struct PersonalCard: Identifiable {
 struct FriendColor: Identifiable, Equatable{
     let id = UUID()
     var name: String
+    var username: String
     var color: MoodColor?
     var note: String
 }

@@ -51,7 +51,7 @@ class DayPageViewModel: ObservableObject {
         self.isMoodSelectionVisible = dailyMood?.mood == nil
         self.expanded = dailyMood?.mood != nil
         
-        self.me = FriendColor(name: "Me", color: .gray, note: "Let's roll?")
+        self.me = FriendColor(name: "Me", username: "me", color: .gray, note: "Let's roll?")
         
 
     }
@@ -79,6 +79,7 @@ class DayPageViewModel: ObservableObject {
                         let profile = try await firestoreManager.fetchUserProfile(userID: uid)
                         let friend = FriendColor(
                             name: profile.displayName,
+                            username: profile.username,
                             color: mood.mood,
                             note: mood.noteContent == "" ? "No note" : mood.noteContent ?? "No note"
                         )
@@ -122,7 +123,7 @@ class DayPageViewModel: ObservableObject {
     }
 
     var meAsFriend: FriendColor {
-        FriendColor(name: "Me", color: .gray, note: "Let's roll!")
+        FriendColor(name: "Me", username: "me", color: .gray, note: "Let's roll!")
     }
 
     var isMeSelected: Bool {

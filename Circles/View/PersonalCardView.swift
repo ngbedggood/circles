@@ -78,7 +78,7 @@ struct PersonalCardView: View {
                         Button {
                             viewModel.deleteEntry()
                         } label: {
-                            Image(systemName: "minus.circle")
+                            Image(systemName: "trash.circle")
                                 .opacity(viewModel.currentMood == nil ? 0 : 1)
                         }
                         .frame(minWidth: 48)

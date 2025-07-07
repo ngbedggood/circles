@@ -23,7 +23,7 @@ class SocialCardViewModel: ObservableObject {
     
     @Binding var dailyMood: DailyMood?
     
-    let me = FriendColor(name: "Me", color: .gray, note: "Lets roll!")
+    let me = FriendColor(name: "Me", username: "me", color: .gray, note: "Lets roll!")
     
     let date: Date
     
@@ -58,7 +58,7 @@ class SocialCardViewModel: ObservableObject {
     }
 
     var meAsFriend: FriendColor {
-        FriendColor(name: "Me", color: .gray, note: "Let's roll!")
+        FriendColor(name: "Me", username: "me", color: .gray, note: "Let's roll!")
     }
     
     var isMeSelected: Bool {
@@ -89,6 +89,7 @@ class SocialCardViewModel: ObservableObject {
                         let profile = try await firestoreManager.fetchUserProfile(userID: uid)
                         let friend = FriendColor(
                             name: profile.displayName,
+                            username: profile.username,
                             color: mood.mood,
                             note: mood.noteContent == "" ? "No note" : mood.noteContent ?? "No note"
                         )

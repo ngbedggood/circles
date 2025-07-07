@@ -11,6 +11,9 @@ struct FriendsView: View {
     @ObservedObject var viewModel: FriendsViewModel
     @Binding var showFriends: Bool
 
+    @State var expandPendingRequests: Bool = false
+    @State var expandFriendsList: Bool = false
+
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 20)
@@ -25,7 +28,7 @@ struct FriendsView: View {
                             showFriends.toggle()
                         }
                     } label: {
-                        Image(systemName: showFriends ? "chevron.compact.down" : "face.smiling")
+                        Image(systemName: showFriends ? "xmark.circle" : "face.smiling")
 
                     }
                     .frame(minWidth: 48)
@@ -43,166 +46,206 @@ struct FriendsView: View {
                 .fontWeight(.bold)
                 .zIndex(5)
                 .foregroundColor(.black.opacity(0.75))
-                
-                    VStack {
-                        HStack() {
-                            TextField("Search Username", text: $viewModel.searchQuery)
+
+                VStack {
+                    HStack {
+                        TextField("Search Username", text: $viewModel.searchQuery)
                             //.frame(height: 48)
-                                .autocapitalization(.none)
-                                .disableAutocorrection(true)
-                                .foregroundColor(.black)
-                                .font(.body)
-                                .padding(18)
-                            //.background(.white)
-                            
+                            .autocapitalization(.none)
+                            .disableAutocorrection(true)
+                            .foregroundColor(.black)
+                            .font(.body)
+                            .padding(18)
+                        //.background(.white)
+
+                        Button(action: {
+                            viewModel.searchUsers()
+                        }) {
+                            Image(systemName: "magnifyingglass.circle.fill")
+                                .font(.system(size: 32))
+                                .foregroundColor(Color(red: 0.75, green: 0.75, blue: 0.75))
+                                .padding(.horizontal, 12)
+                        }
+                    }
+                    if !viewModel.searchResults.isEmpty {
+                        VStack(spacing: 12) {
+                            ForEach(viewModel.searchResults) { user in
+                                HStack {
+                                    Text("\(user.displayName) (\(user.username))")
+                                        .foregroundColor(.gray)
+                                        .font(.body)
+                                        .padding(.leading, 4)
+
+                                    Spacer()
+
+                                    Button("Add") {
+                                        viewModel.sendRequest(to: user)
+                                    }
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .foregroundColor(.white)
+                                    .background(Color.teal)
+                                    .clipShape(Capsule())
+                                    .font(.callout)
+                                }
+                                .padding(.horizontal, 14)
+                            }
+                        }
+                        .padding(.bottom, 12)
+                        .transition(
+                            .asymmetric(
+                                insertion: .move(edge: .top),
+                                removal: .move(edge: .top)
+                            )
+                            .combined(with: .scale)
+                        )
+                    }
+
+                }
+                .background(Color.white)
+                .cornerRadius(30)
+                .shadow(radius: 4)
+
+                VStack {
+                    HStack {
+                        Text("Pending Requests")
+                            .foregroundColor(.black)
+                            .font(.body)
+                            .padding(18)
+                        Spacer()
+                        if viewModel.isLoadingPendingRequests {
+                            Image(systemName: "hourglass.circle.fill")
+                                .font(.system(size: 32))
+                                .foregroundColor(Color(red: 0.75, green: 0.75, blue: 0.75))
+                                .padding(.horizontal, 12)
+                        } else {
                             Button(action: {
-                                viewModel.searchUsers()
+                                withAnimation(.snappy) {
+                                    expandPendingRequests.toggle()
+                                }
                             }) {
-                                Image(systemName: "magnifyingglass.circle.fill")
+                                Image(systemName: "arrowshape.down.circle.fill")
                                     .font(.system(size: 32))
-                                    .foregroundColor(.gray)
+                                    .foregroundColor(Color(red: 0.75, green: 0.75, blue: 0.75))
                                     .padding(.horizontal, 12)
+                                    .rotationEffect(.degrees(expandPendingRequests ? 180 : 0))
                             }
                         }
-                        if !viewModel.searchResults.isEmpty {
-                            VStack(spacing: 12) {
-                                ForEach(viewModel.searchResults) { user in
-                                    HStack {
-                                        Text(user.displayName)
-                                            .foregroundColor(.black)
-                                            .font(.body)
-                                        
-                                        Spacer()
-                                        
-                                        Button("Add") {
-                                            viewModel.sendRequest(to: user)
-                                        }
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 6)
-                                        .foregroundColor(.white)
-                                        .background(Color.teal)
-                                        .clipShape(Capsule())
-                                        .font(.callout)
-                                    }
-                                    .padding(.horizontal, 14)
-                                }
-                            }
-                            .padding(.bottom, 12)
-                            .transition(.scale)
-                            .animation(.easeInOut, value: viewModel.searchResults)
-                        }
-                        
                     }
                     .background(Color.white)
-                    .cornerRadius(30)
-                    .shadow(radius: 4)
-                
+                    .zIndex(2)
 
-                    VStack {
-                        HStack() {
-                            Text("Pending Requests")
-                                .foregroundColor(.gray)
-                                .font(.body)
-                                .padding(18)
-                            Spacer()
-                            if viewModel.isLoadingPendingRequests {
-                                Image(systemName: "hourglass.circle.fill")
-                                    .font(.system(size: 32))
-                                    .foregroundColor(.gray)
-                                    .padding(.horizontal, 12)
-                            }
-                        }
-                        if !viewModel.isLoadingPendingRequests {
-                            if !viewModel.pendingRequestsWithUsers.isEmpty {
-                                VStack(spacing: 12) {
-                                    ForEach(viewModel.pendingRequestsWithUsers) { item in
-                                        HStack {
-                                            Text(item.user.username)
-                                                .foregroundColor(.black)
-                                                .font(.body)
-                                            
-                                            Spacer()
-                                            
-                                            Button("Accept") {
-                                                viewModel.acceptRequest(item.request)
-                                            }
-                                            .padding(.horizontal, 12)
-                                            .padding(.vertical, 6)
-                                            .foregroundColor(.white)
-                                            .background(Color.teal)
-                                            .clipShape(Capsule())
-                                            .font(.callout)
-                                        }
-                                        .padding(.horizontal, 14)
-                                    }
-                                }
-                                .padding(.bottom, 12)
-                                .background(Color.white)
-                                .cornerRadius(30)
-                                //.padding(.horizontal)
-                                .transition(.scale)
-                                .animation(.easeInOut, value: viewModel.isLoadingPendingRequests)
-                            }
-                        }
-                    }
-                    .background(Color.white)
-                    .cornerRadius(30)
-                    .shadow(radius: 4)
+                    if expandPendingRequests {
+                        VStack(spacing: 12) {
+                            ForEach(viewModel.pendingRequestsWithUsers) { item in
+                                HStack {
+                                    Text(item.user.username)
+                                        .foregroundColor(.gray)
+                                        .font(.body)
+                                        .padding(.leading, 4)
+                                    Spacer()
 
-                    VStack {
-                        HStack() {
-                            Text("Friends List")
-                                .foregroundColor(.gray)
-                                .font(.body)
-                                .padding(18)
-                            Spacer()
-                            if viewModel.isLoadingFriendsList {
-                                Image(systemName: "hourglass.circle.fill")
-                                    .font(.system(size: 32))
-                                    .foregroundColor(.gray)
+                                    Button("Accept") {
+                                        viewModel.acceptRequest(item.request)
+                                    }
                                     .padding(.horizontal, 12)
-                                    .scaleEffect(viewModel.isLoadingFriendsList ? 1 : 0)
-                                    .animation(.easeInOut, value: viewModel.isLoadingFriendsList)
+                                    .padding(.vertical, 6)
+                                    .foregroundColor(.white)
+                                    .background(Color.teal)
+                                    .clipShape(Capsule())
+                                    .font(.callout)
+                                }
+                                .padding(.horizontal, 14)
                             }
                         }
-                            if !viewModel.isLoadingFriendsList {
-                                if !viewModel.friendsList.isEmpty {
-                                    VStack(spacing: 12) {
-                                        ForEach(viewModel.friendsList) { item in
-                                            HStack {
-                                                Text(item.name)
-                                                    .foregroundColor(.black)
-                                                    .font(.body)
-                                                
-                                                Spacer()
-                                                
-                                                Button("Profile?") {
-                                                    
-                                                }
-                                                .padding(.horizontal, 12)
-                                                .padding(.vertical, 6)
-                                                .foregroundColor(.white)
-                                                .background(Color.teal)
-                                                .clipShape(Capsule())
-                                                .font(.callout)
-                                            }
-                                            .padding(.horizontal, 14)
-                                        }
-                                    }
-                                    .padding(.bottom, 12)
-                                    .background(Color.white)
-                                    .cornerRadius(30)
-                                    //.padding(.horizontal)
-                                    .transition(.opacity)
-                                    .animation(.easeInOut, value: viewModel.friendsList)
+                        .padding(.bottom, 12)
+                        .background(Color.white)
+                        .cornerRadius(30)
+                        .transition(
+                            .asymmetric(
+                                insertion: .move(edge: .top),
+                                removal: .move(edge: .top)
+                            )
+                            .combined(with: .opacity)
+                        )
+                        .zIndex(0)
+                    }
+
+                }
+                .background(Color.white)
+                .cornerRadius(30)
+                .shadow(radius: 4)
+
+                VStack {
+                    HStack {
+                        Text("Friends List")
+                            .foregroundColor(.black)
+                            .font(.body)
+                            .padding(18)
+                        Spacer()
+                        if viewModel.isLoadingFriendsList {
+                            Image(systemName: "hourglass.circle.fill")
+                                .font(.system(size: 32))
+                                .foregroundColor(Color(red: 0.75, green: 0.75, blue: 0.75))
+                                .padding(.horizontal, 12)
+                        } else {
+                            Button(action: {
+                                withAnimation(.snappy) {
+                                    expandFriendsList.toggle()
                                 }
+                            }) {
+                                Image(systemName: "arrowshape.down.circle.fill")
+                                    .font(.system(size: 32))
+                                    .foregroundColor(Color(red: 0.75, green: 0.75, blue: 0.75))
+                                    .padding(.horizontal, 12)
+                                    .rotationEffect(.degrees(expandFriendsList ? 180 : 0))
                             }
+                        }
                     }
                     .background(Color.white)
-                    .cornerRadius(30)
-                    .padding(.bottom, 16)
-                    .shadow(radius: 4)
-    
+                    .zIndex(2)
+                    if expandFriendsList {
+                        VStack(spacing: 12) {
+                            ForEach(viewModel.friendsList) { item in
+                                HStack {
+                                    Text("\(item.name) (\(item.username))")
+                                        .foregroundColor(.gray)
+                                        .font(.body)
+                                        .padding(.leading, 4)
+
+                                    Spacer()
+
+                                    Button("Profile?") {
+
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .foregroundColor(.white)
+                                    .background(Color.teal)
+                                    .clipShape(Capsule())
+                                    .font(.callout)
+                                }
+                                .padding(.horizontal, 14)
+                            }
+                        }
+                        .padding(.bottom, 12)
+                        .background(Color.white)
+                        .cornerRadius(30)
+                        .transition(
+                            .asymmetric(
+                                insertion: .move(edge: .top),
+                                removal: .move(edge: .top)
+                            )
+                            .combined(with: .opacity)
+                        )
+                        .zIndex(0)
+                    }
+                }
+                .background(Color.white)
+                .cornerRadius(30)
+                .padding(.bottom, 16)
+                .shadow(radius: 4)
+
                 Spacer()
             }
             .frame(width: 310)
