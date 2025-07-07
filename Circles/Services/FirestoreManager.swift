@@ -298,9 +298,9 @@ class FirestoreManager: ObservableObject {
         }
         let endDocID = DailyMood.dateId(from: endDateForQuery)
 
-//        print(
-//            "[\(Date())] FirestoreManager: Initiating fetch for moods with Document IDs from \(startDocID) (inclusive) to \(endDocID) (exclusive)."
-//        )
+        //        print(
+        //            "[\(Date())] FirestoreManager: Initiating fetch for moods with Document IDs from \(startDocID) (inclusive) to \(endDocID) (exclusive)."
+        //        )
 
         PastMoodsListener = db.collection("users").document(userId).collection("dailyMoods")
             // Using Document ID instead of createBy date for filtering
@@ -339,9 +339,9 @@ class FirestoreManager: ObservableObject {
                 DispatchQueue.main.async {
                     self.pastMoods = fetchedMoods
                     self.isLoading = false
-//                    print(
-//                        "[\(Date())] Loaded \(self.pastMoods.count) moods for the past \(self.daysToRetrieve) days for user \(userId)."
-//                    )
+                    //                    print(
+                    //                        "[\(Date())] Loaded \(self.pastMoods.count) moods for the past \(self.daysToRetrieve) days for user \(userId)."
+                    //                    )
                 }
             }
     }

@@ -155,10 +155,11 @@ struct SocialCardView: View {
 
         let x = center.x + (isSelected ? 0 : effectiveRadius * CGFloat(sin(angle.radians)))
         let y = center.y - (isSelected ? 0 : effectiveRadius * CGFloat(cos(angle.radians)))
-        
-        let anotherScale = max(0.9, 1.0 - CGFloat(totalSpots - 1) * 0.05) // Subtle scaling as more friends are shown (base scale = 1.0, min scale = 0.7)
-        
-        let scale: CGFloat = isSelected ? 3.0 : (someoneSelected ? 0.5 * anotherScale : 1.0 * anotherScale)
+
+        let anotherScale = max(0.9, 1.0 - CGFloat(totalSpots - 1) * 0.05)  // Subtle scaling as more friends are shown (base scale = 1.0, min scale = 0.7)
+
+        let scale: CGFloat =
+            isSelected ? 3.0 : (someoneSelected ? 0.5 * anotherScale : 1.0 * anotherScale)
 
         return ZStack {
             Circle()
@@ -178,7 +179,7 @@ struct SocialCardView: View {
                             .padding(8)
                         if isSelected {
                             Button(action: {
-                                
+
                             }) {
                                 Image(systemName: "ellipsis.message.fill")
                                     .font(.system(size: 28))
@@ -187,7 +188,7 @@ struct SocialCardView: View {
                             .offset(y: 88)
                         }
                     }
-                        .transition(.scale)
+                    .transition(.scale)
                 )
                 .position(x: x, y: y)
                 .onTapGesture {

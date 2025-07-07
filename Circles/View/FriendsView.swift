@@ -16,38 +16,7 @@ struct FriendsView: View {
 
     var body: some View {
         ZStack {
-//            RoundedRectangle(cornerRadius: 20)
-//                .fill(Color(red: 0.92, green: 0.88, blue: 0.84))
-//                .zIndex(-1)
-
             VStack(spacing: 24) {
-
-//                HStack {
-//                    Button {
-//                        withAnimation {
-//                            showFriends.toggle()
-//                            viemModel.
-//                        }
-//                    } label: {
-//                        Image(systemName: showFriends ? "xmark.circle" : "face.smiling")
-//
-//                    }
-//                    .frame(minWidth: 48)
-//                    Spacer()
-//                    Text(viewModel.formattedDate())
-//                    Spacer()
-//                    Button {
-//                    } label: {
-//                    }
-//                    .frame(minWidth: 48)
-//                }
-//                .frame(width: 310)
-//                .padding()
-//                .font(.title)
-//                .fontWeight(.bold)
-//                .zIndex(5)
-//                .foregroundColor(.black.opacity(0.75))
-
                 VStack {
                     HStack {
                         TextField("Search Username", text: $viewModel.searchQuery)
@@ -146,7 +115,7 @@ struct FriendsView: View {
                                             .font(.body)
                                             .padding(.leading, 4)
                                         Spacer()
-                                        
+
                                         Button("Accept") {
                                             viewModel.acceptRequest(item.request)
                                         }
@@ -217,11 +186,11 @@ struct FriendsView: View {
                                             .foregroundColor(.gray)
                                             .font(.body)
                                             .padding(.leading, 4)
-                                        
+
                                         Spacer()
-                                        
+
                                         Button("Profile?") {
-                                            
+
                                         }
                                         .padding(.horizontal, 12)
                                         .padding(.vertical, 6)
