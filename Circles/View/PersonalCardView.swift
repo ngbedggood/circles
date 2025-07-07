@@ -71,6 +71,7 @@ struct PersonalCardView: View {
                             if !showFriends {
                                 Image(systemName: "trash.circle")
                                     .opacity(viewModel.currentMood == nil ? 0 : 1)
+                                    .foregroundColor(.white)
                             }
                         }
                         .frame(minWidth: 48)
