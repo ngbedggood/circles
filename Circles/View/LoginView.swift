@@ -77,7 +77,7 @@ struct LoginView: View {
                 .cornerRadius(30)
                 .shadow(radius: 4)
                 
-                if isSignUp {
+                Group {
                     HStack {
                         TextField("Username", text: Binding(
                             get: { username },
@@ -105,6 +105,7 @@ struct LoginView: View {
                     .cornerRadius(30)
                     .shadow(radius: 4)
                 }
+                .opacity(isSignUp ? 1 : 0)
 
                 if let errorMsg = authManager.errorMsg {
                     Text(errorMsg)
@@ -146,7 +147,9 @@ struct LoginView: View {
 
                     Button(
                         action: {
-                            isSignUp.toggle()
+                            withAnimation {
+                                isSignUp.toggle()
+                            }
                         },
                         label: {
                             Text(isSignUp ? "I already have an account" : "I don't have an account")

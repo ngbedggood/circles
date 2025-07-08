@@ -61,7 +61,6 @@ struct ContentView: View {
                             }
                         }
                         .transition(.opacity)
-                        .ignoresSafeArea(.keyboard)
                         .tabViewStyle(.page(indexDisplayMode: .never))
                         .onAppear {
                             horizontalIndex = pastDays - 1
@@ -71,6 +70,7 @@ struct ContentView: View {
                 .animation(.easeInOut(duration: 1.5), value: firestoreManager.isLoading)
             }
         }
+        .ignoresSafeArea(.keyboard)
     }
 
 }
