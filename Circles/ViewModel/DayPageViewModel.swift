@@ -49,6 +49,8 @@ class DayPageViewModel: ObservableObject {
         
         if dailyMood != nil {
             scrollDisabled = false
+        } else {
+            scrollDisabled = true
         }
 
         self.dailyMood = dailyMood
@@ -58,8 +60,6 @@ class DayPageViewModel: ObservableObject {
         self.expanded = dailyMood?.mood != nil
         
         self.me = FriendColor(name: "Me", username: "me", color: .gray, note: "Let's roll?")
-        
-        self.scrollDisabled = false
         
 
     }

@@ -156,14 +156,11 @@ struct PersonalCardView: View {
                             axis: .vertical
                         )
                         .foregroundColor(.black)
-                        .font(.system(size: 16))
+                        .font(.body)
                         .padding(16)
                         .background(.white)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 30)
-                                .stroke(Color.white, lineWidth: 0)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 30))
+                        .cornerRadius(30)
+                        .shadow(radius: 4)
                         .opacity(viewModel.isMoodSelectionVisible ? 0.0 : 1.0)
                         .zIndex(viewModel.isMoodSelectionVisible ? 0.0 : 1.0)
                         .frame(width: 310)
@@ -174,7 +171,6 @@ struct PersonalCardView: View {
                         .offset(y: isFocused ? -90 : 0)
                         .animation(.easeInOut, value: isFocused)
                         .animation(.easeInOut, value: viewModel.isMoodSelectionVisible)
-                        .shadow(radius: 4)
                     }
 
                     Spacer()
