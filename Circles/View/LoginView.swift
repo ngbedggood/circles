@@ -105,12 +105,13 @@ struct LoginView: View {
                     .shadow(radius: 4)
                 }
                 .opacity(isSignUp ? 1 : 0)
+                
+                Spacer()
 
-                if let error = viewModel.errorMessage {
-                    Text(error)
-                        .font(.caption)
-                        .foregroundStyle(.gray)
-                }
+                Text(viewModel.errorMessage ?? "")
+                    .font(.caption)
+                    .foregroundStyle(.gray)
+                    .opacity(viewModel.errorMessage != nil ? 1 : 0)
 
                 Spacer()
 
