@@ -34,7 +34,7 @@ class FriendsViewModel: ObservableObject {
                 let results = try await firestoreManager.searchUsers(byUsername: searchQuery.lowercased(), excludingUserID: currentUserID)
                 await MainActor.run {
                     self.searchResults = results
-                    print("Search results: \(results)")
+                    //print("Search results: \(results)")
                 }
             } catch {
                 await MainActor.run {

@@ -37,7 +37,11 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             if !authManager.isAuthenticated {
-                LoginView()
+                LoginView(
+                    viewModel: LoginViewModel(
+                        authManager: authManager
+                    )
+                )
                     .background(
                         RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
                     )

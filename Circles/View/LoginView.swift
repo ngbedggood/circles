@@ -9,11 +9,8 @@ import SwiftUI
 
 struct LoginView: View {
 
-    @EnvironmentObject var authManager: AuthManager
-    @State private var email: String = ""
-    @State private var password: String = ""
-    @State private var username: String = ""
-    @State private var displayName: String = ""
+    @StateObject var viewModel: LoginViewModel
+
     @State private var isPasswordVisible: Bool = false
     @State private var isSignUp: Bool = false
 
@@ -33,22 +30,21 @@ struct LoginView: View {
                     .padding()
 
                 HStack {
-                    TextField("Email", text: $email)
-                    .autocapitalization(.none)
-                    .disableAutocorrection(true)
-                    .foregroundColor(.black.opacity(0.75))
-                    .font(.body)
-                    .padding(18)
-                    .textInputAutocapitalization(.never)
+                    TextField("Email", text: $viewModel.email)
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
+                        .foregroundColor(.black.opacity(0.75))
+                        .font(.body)
+                        .padding(18)
+                        .textInputAutocapitalization(.never)
                 }
                 .background(Color.white)
                 .cornerRadius(30)
                 .shadow(radius: 4)
-                
 
                 HStack {
                     if isPasswordVisible {
-                        TextField("Password", text: $password)
+                        TextField("Password", text: $viewModel.password)
                             //.frame(height: 48)
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
@@ -56,7 +52,7 @@ struct LoginView: View {
                             .font(.body)
                             .padding(18)
                     } else {
-                        SecureField("Password", text: $password)
+                        SecureField("Password", text: $viewModel.password)
                             //.frame(height: 48)
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
@@ -76,15 +72,18 @@ struct LoginView: View {
                 .background(Color.white)
                 .cornerRadius(30)
                 .shadow(radius: 4)
-                
+
                 Group {
                     HStack {
-                        TextField("Username", text: Binding(
-                            get: { username },
-                            set: { newValue in
-                                username = newValue.lowercased()
-                            }
-                        ))
+                        TextField(
+                            "Username",
+                            text: Binding(
+                                get: { viewModel.username },
+                                set: { newValue in
+                                    viewModel.username = newValue.lowercased()
+                                }
+                            )
+                        )
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
                         .foregroundColor(.black.opacity(0.75))
@@ -94,12 +93,12 @@ struct LoginView: View {
                     .background(Color.white)
                     .cornerRadius(30)
                     .shadow(radius: 4)
-                    
+
                     HStack {
-                        TextField("Display Name", text: $displayName)
-                        .foregroundColor(.black.opacity(0.75))
-                        .font(.body)
-                        .padding(18)
+                        TextField("Display Name", text: $viewModel.displayName)
+                            .foregroundColor(.black.opacity(0.75))
+                            .font(.body)
+                            .padding(18)
                     }
                     .background(Color.white)
                     .cornerRadius(30)
@@ -107,7 +106,7 @@ struct LoginView: View {
                 }
                 .opacity(isSignUp ? 1 : 0)
 
-                if let errorMsg = authManager.errorMsg {
+                if let errorMsg = viewModel.errorMsg() {
                     Text(errorMsg)
                         .font(.caption)
                         .foregroundStyle(.gray)
@@ -119,17 +118,9 @@ struct LoginView: View {
                     Button(action: {
 
                         if isSignUp {
-                            authManager.signUp(
-                                email: email,
-                                password: password,
-                                username: username,
-                                displayName: displayName
-                            )
+                            viewModel.signUp()
                         } else {
-                            authManager.login(
-                                email: email,
-                                password: password
-                            )
+                            viewModel.login()
                         }
 
                     }) {
@@ -161,12 +152,23 @@ struct LoginView: View {
             }
             .frame(width: 310)
             .padding()
-            
 
         }
     }
 }
 
 #Preview {
-    LoginView()
+
+    struct PreviewWrapper: View {
+
+        let viewModel = LoginViewModel(authManager: AuthManager())
+
+        var body: some View {
+            LoginView(
+                viewModel: viewModel
+            )
+        }
+    }
+
+    return PreviewWrapper()
 }
