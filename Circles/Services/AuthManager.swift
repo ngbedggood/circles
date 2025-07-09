@@ -49,66 +49,47 @@ class AuthManager: ObservableObject {
         self.firestoreManager = firestoreManager
     }
 
-    func login(email: String, password: String) {
-        Task {
-            do {
-                let result = try await Auth.auth().signIn(withEmail: email, password: password)
-                let uid = result.user.uid
+    func login(email: String, password: String) async throws {
+            let result = try await Auth.auth().signIn(withEmail: email, password: password)
+            let uid = result.user.uid
 
-                await MainActor.run {
-                    self.errorMsg = nil
-                    self.currentUser = result.user
-                    self.isAuthenticated = true
-                }
-
-                await MainActor.run {
-                    self.firestoreManager.loadUserProfile(for: uid)
-                    self.firestoreManager.loadPastMoods(forUserId: uid)
-                }
-
-                print("User logged in: \(result.user.email ?? "Unknown")")
-            } catch {
-                await MainActor.run {
-                    self.errorMsg = error.localizedDescription
-                }
-                print("Login error: \(error.localizedDescription)")
+            await MainActor.run {
+                self.errorMsg = nil
+                self.currentUser = result.user
+                self.isAuthenticated = true
             }
-        }
+
+            await MainActor.run {
+                self.firestoreManager.loadUserProfile(for: uid)
+                self.firestoreManager.loadPastMoods(forUserId: uid)
+            }
+
+            print("User logged in: \(result.user.email ?? "Unknown")")
     }
 
-    func signUp(email: String, password: String, username: String, displayName: String) {
-        Task {
-            do {
-                let isAvailable = try await firestoreManager.isUsernameAvailable(username)
-                guard isAvailable else {
-                    await MainActor.run {
-                        self.errorMsg = "Username '\(username)' is already taken."
-                    }
-                    return
-                }
-
-                let result = try await Auth.auth().createUser(withEmail: email, password: password)
-                let uid = result.user.uid
-
-                try await firestoreManager.saveUserProfile(uid: uid, username: username, displayName: displayName)
-
-                await MainActor.run {
-                    self.currentUser = result.user
-                    self.isAuthenticated = true
-                }
-
-                await MainActor.run {
-                    self.firestoreManager.loadUserProfile(for: uid)
-                    self.firestoreManager.loadPastMoods(forUserId: uid)
-                    self.errorMsg = nil
-                }
-
-            } catch {
-                await MainActor.run {
-                    self.errorMsg = error.localizedDescription
-                    print("Sign up failed: \(error.localizedDescription)")
-                }
+    func signUp(email: String, password: String, username: String, displayName: String) async throws {
+        let isAvailable = try await firestoreManager.isUsernameAvailable(username)
+        guard isAvailable else {
+            await MainActor.run {
+                self.errorMsg = "Username '\(username)' is already taken."
             }
+            return
+        }
+
+        let result = try await Auth.auth().createUser(withEmail: email, password: password)
+        let uid = result.user.uid
+
+        try await firestoreManager.saveUserProfile(uid: uid, username: username, displayName: displayName)
+
+        await MainActor.run {
+            self.currentUser = result.user
+            self.isAuthenticated = true
+        }
+
+        await MainActor.run {
+            self.firestoreManager.loadUserProfile(for: uid)
+            self.firestoreManager.loadPastMoods(forUserId: uid)
+            self.errorMsg = nil
         }
     }
     

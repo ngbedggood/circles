@@ -106,8 +106,8 @@ struct LoginView: View {
                 }
                 .opacity(isSignUp ? 1 : 0)
 
-                if let errorMsg = viewModel.errorMsg() {
-                    Text(errorMsg)
+                if let error = viewModel.errorMessage {
+                    Text(error)
                         .font(.caption)
                         .foregroundStyle(.gray)
                 }

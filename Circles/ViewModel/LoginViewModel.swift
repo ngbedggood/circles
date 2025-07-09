@@ -14,6 +14,7 @@ class LoginViewModel: ObservableObject {
     @Published var password: String = ""
     @Published var username: String = ""
     @Published var displayName: String = ""
+    @Published var errorMessage: String?
     
     let authManager: AuthManager
     
@@ -24,15 +25,33 @@ class LoginViewModel: ObservableObject {
     
     
     func signUp() {
-        authManager.signUp(email: email, password: password, username: username, displayName: displayName)
+        guard !email.isEmpty && !password.isEmpty && !username.isEmpty && !displayName.isEmpty else {
+            self.errorMessage = "Fields cannot be empty"
+            return
+        }
+        Task {
+            do {
+                try await authManager.signUp(email: email, password: password, username: username, displayName: displayName)
+            } catch {
+                self.errorMessage = error.localizedDescription
+            }
+        }
     }
     
     func login() {
-        authManager.login(email: email, password: password)
-    }
-    
-    func errorMsg() -> String? {
-        return authManager.errorMsg
+        guard !email.isEmpty && !password.isEmpty else {
+            self.errorMessage = "Fields cannot be empty"
+            return
+        }
+        
+        Task {
+            do {
+                try await authManager.login(email: email, password: password)
+            } catch {
+                self.errorMessage = error.localizedDescription
+            }
+        }
+        
     }
     
 }
