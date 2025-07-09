@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SwiftUI
+import Combine
 
 class FriendsViewModel: ObservableObject {
     @Published var searchQuery = ""

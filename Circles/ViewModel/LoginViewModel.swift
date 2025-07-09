@@ -6,44 +6,44 @@
 //
 
 import Foundation
-//import SwiftUI
+import Combine
 
 class LoginViewModel: ObservableObject {
-    
+
     @Published var email: String = ""
     @Published var password: String = ""
     @Published var username: String = ""
     @Published var displayName: String = ""
     @Published var errorMessage: String?
-    
+
     let authManager: AuthManager
-    
+
     init(authManager: AuthManager) {
         self.authManager = authManager
-        
     }
-    
-    
+
     func signUp() {
-        guard !email.isEmpty && !password.isEmpty && !username.isEmpty && !displayName.isEmpty else {
+        guard !email.isEmpty && !password.isEmpty && !username.isEmpty && !displayName.isEmpty
+        else {
             self.errorMessage = "Fields cannot be empty"
             return
         }
         Task {
             do {
-                try await authManager.signUp(email: email, password: password, username: username, displayName: displayName)
+                try await authManager.signUp(
+                    email: email, password: password, username: username, displayName: displayName)
             } catch {
                 self.errorMessage = error.localizedDescription
             }
         }
     }
-    
+
     func login() {
         guard !email.isEmpty && !password.isEmpty else {
             self.errorMessage = "Fields cannot be empty"
             return
         }
-        
+
         Task {
             do {
                 try await authManager.login(email: email, password: password)
@@ -51,7 +51,5 @@ class LoginViewModel: ObservableObject {
                 self.errorMessage = error.localizedDescription
             }
         }
-        
     }
-    
 }

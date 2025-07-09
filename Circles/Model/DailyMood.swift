@@ -69,3 +69,10 @@ struct DailyMood: Codable, Identifiable, Equatable {
     }
 
 }
+
+struct FriendWithMood {
+    var id: String
+    var name: String
+    var color: Color
+    var note: String
+}
