@@ -16,9 +16,9 @@ class LoginViewModel: ObservableObject {
     @Published var displayName: String = ""
     @Published var errorMessage: String?
 
-    let authManager: AuthManager
+    let authManager: any AuthManagerProtocol
 
-    init(authManager: AuthManager) {
+    init(authManager: any AuthManagerProtocol) {
         self.authManager = authManager
     }
 

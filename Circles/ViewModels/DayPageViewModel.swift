@@ -32,12 +32,12 @@ class DayPageViewModel: ObservableObject {
 
     let date: Date
 
-    let authManager: AuthManager
+    let authManager: any AuthManagerProtocol
     let firestoreManager: FirestoreManager
 
     let me : FriendColor
     
-    init(date: Date, authManager: AuthManager, firestoreManager: FirestoreManager) {
+    init(date: Date, authManager: any AuthManagerProtocol, firestoreManager: FirestoreManager) {
         self.date = date
         self.authManager = authManager
         self.firestoreManager = firestoreManager

@@ -20,9 +20,9 @@ class FriendsViewModel: ObservableObject {
     @Published var isLoadingPendingRequests: Bool = true
 
     private let firestoreManager: FirestoreManager
-    private let authManager: AuthManager
+    private let authManager: any AuthManagerProtocol
 
-    init(firestoreManager: FirestoreManager, authManager: AuthManager) {
+    init(firestoreManager: FirestoreManager, authManager: any AuthManagerProtocol) {
         self.firestoreManager = firestoreManager
         self.authManager = authManager
     }

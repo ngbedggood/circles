@@ -1,0 +1,22 @@
+//
+//  AuthManagerProtocol.swift
+//  Circles
+//
+//  Created by Nathaniel Bedggood on 09/07/2025.
+//
+
+import Foundation
+import FirebaseAuth
+
+protocol AuthManagerProtocol: ObservableObject {
+    
+    var currentUser: UserProtocol? { get }
+    var isAuthenticated: Bool { get set }
+    var isAvailable: Bool { get set }
+    var errorMsg: String? { get set }
+    var firestoreManager: any FirestoreManagerProtocol { get }
+
+    func login(email: String, password: String) async throws
+    func signUp(email: String, password: String, username: String, displayName: String) async throws
+    func signOut()
+}

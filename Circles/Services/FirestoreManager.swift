@@ -10,7 +10,7 @@
 import FirebaseFirestore
 import Foundation
 
-class FirestoreManager: ObservableObject {
+class FirestoreManager: FirestoreManagerProtocol {
 
     let daysToRetrieve: Int = 7
 

@@ -5,18 +5,18 @@
 //  Created by Nathaniel Bedggood on 25/06/2025.
 //
 
+import Foundation
 import Combine
 import FirebaseAuth
 import FirebaseFirestore
-import Foundation
 
-class AuthManager: ObservableObject {
-    @Published var currentUser: User?  // Firebase user object
+class AuthManager: AuthManagerProtocol {
+    @Published var currentUser: UserProtocol?  // Firebase user object
     @Published var isAuthenticated: Bool = false
     @Published var isAvailable: Bool = true
     @Published var errorMsg: String?
     
-    private(set) var firestoreManager: FirestoreManager
+    private(set) var firestoreManager: any FirestoreManagerProtocol
 
 
     init() {
