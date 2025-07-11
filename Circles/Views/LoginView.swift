@@ -141,6 +141,7 @@ struct LoginView: View {
                                     if isLoading {
                                         Text("Loading...")
                                             .foregroundColor(.white)
+                                            .font(.system(size: 12))
                                     } else {
                                         Text(isSignUp ? "Sign up" : "Login")
                                             .fontWeight(.bold)
