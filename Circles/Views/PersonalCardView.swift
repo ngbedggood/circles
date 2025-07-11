@@ -156,7 +156,7 @@ struct PersonalCardView: View {
                             axis: .vertical
                         )
                         .foregroundColor(.black)
-                        .font(.body)
+                        .font(.system(size: 16))
                         .padding(16)
                         .background(.white)
                         .cornerRadius(30)
