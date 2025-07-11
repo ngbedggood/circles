@@ -38,18 +38,17 @@ class LoginViewModel: ObservableObject {
         }
     }
 
-    func login() {
+    func login() async {
         guard !email.isEmpty && !password.isEmpty else {
             self.errorMessage = "Fields cannot be empty"
             return
         }
 
-        Task {
-            do {
-                try await authManager.login(email: email, password: password)
-            } catch {
-                self.errorMessage = error.localizedDescription
-            }
+        do {
+            try await authManager.login(email: email, password: password)
+            self.errorMessage = nil
+        } catch {
+            self.errorMessage = error.localizedDescription
         }
     }
 }

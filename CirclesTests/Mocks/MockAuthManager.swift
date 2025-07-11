@@ -25,17 +25,16 @@ class MockAuthManager: AuthManagerProtocol {
     var mockError: Error?
     
     func login(email: String, password: String) async throws {
-        if let error = mockError {
-            self.errorMsg = error.localizedDescription
-            throw error
-        }
-        
         if loginShouldSucceed {
-            self.isAuthenticated = true
-            self.currentUser = MockUser(uid: "mock-uid", email: "mock@mock.com") // Create a mock user object
-            self.errorMsg = nil
+            isAuthenticated = true
+            currentUser = MockUser(uid: "test-uid", email: "test@example.com")
+            errorMsg = nil
+            print("Login success: \(loginShouldSucceed), isAuthenticated: \(isAuthenticated)")
         } else {
-            self.errorMsg = "Login failed"
+            isAuthenticated = false
+            currentUser = nil
+            errorMsg = "Login failed"
+            throw NSError(domain: "Auth", code: 401, userInfo: nil)
         }
     }
     
@@ -47,11 +46,12 @@ class MockAuthManager: AuthManagerProtocol {
         
         if signUpShouldSucceed {
             self.isAuthenticated = true
-            self.currentUser = MockUser(uid: "mock-uid", email: "mock@mock.com")
+            self.currentUser = MockUser(uid: "test-uid", email: "test@example.com")
             self.errorMsg = nil
         } else {
             self.errorMsg = "Signup failed"
         }
+        print("Error is: \(self.errorMsg ?? "")")
     }
     
     func signOut() {

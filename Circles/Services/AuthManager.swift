@@ -10,6 +10,8 @@ import Combine
 import FirebaseAuth
 import FirebaseFirestore
 
+extension User: UserProtocol {}
+
 class AuthManager: AuthManagerProtocol {
     @Published var currentUser: UserProtocol?  // Firebase user object
     @Published var isAuthenticated: Bool = false

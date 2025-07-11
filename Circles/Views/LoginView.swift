@@ -13,6 +13,7 @@ struct LoginView: View {
 
     @State private var isPasswordVisible: Bool = false
     @State private var isSignUp: Bool = false
+    @State private var isLoading: Bool = false
 
     var body: some View {
 
@@ -117,25 +118,41 @@ struct LoginView: View {
 
                 VStack {
                     Button(action: {
-
-                        if isSignUp {
-                            viewModel.signUp()
-                        } else {
-                            viewModel.login()
+                        Task {
+                            isLoading = true
+                            defer { isLoading = false } // Runs when the Task is complete
+                            
+                            do {
+                                if isSignUp {
+                                    try await viewModel.signUp()
+                                } else {
+                                    try await viewModel.login()
+                                }
+                            } catch {
+                                print("Authentication failed: \(error.localizedDescription)")
+                            }
                         }
-
                     }) {
                         Circle()
                             .fill(.teal)
                             .frame(maxWidth: 80)
                             .overlay(
-                                Text(isSignUp ? "Sign up" : "Login")
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.white)
+                                ZStack {
+                                    if isLoading {
+                                        Text("Loading...")
+                                            .foregroundColor(.white)
+                                    } else {
+                                        Text(isSignUp ? "Sign up" : "Login")
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                    }
+                                }
+
                             )
                             .shadow(color: .black.opacity(0.2), radius: 4)
                     }
                     .padding(16)
+                    .disabled(isLoading)
 
                     Button(
                         action: {

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+@testable import Circles
 
 class MockFirestoreManger: FirestoreManagerProtocol {
     func isUsernameAvailable(_ username: String) async throws -> Bool {return true}
