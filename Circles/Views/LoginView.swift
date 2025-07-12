@@ -38,6 +38,7 @@ struct LoginView: View {
                         .font(.body)
                         .padding(18)
                         .textInputAutocapitalization(.never)
+                        .accessibilityIdentifier("emailTextFieldIdentifier")
                 }
                 .background(Color.white)
                 .cornerRadius(30)
@@ -52,6 +53,7 @@ struct LoginView: View {
                             .foregroundColor(.black.opacity(0.75))
                             .font(.body)
                             .padding(18)
+                            .accessibilityIdentifier("passwordFieldIdentifier")
                     } else {
                         SecureField("Password", text: $viewModel.password)
                             //.frame(height: 48)
@@ -60,6 +62,7 @@ struct LoginView: View {
                             .foregroundColor(.black.opacity(0.75))
                             .font(.body)
                             .padding(18)
+                            .accessibilityIdentifier("passwordFieldIdentifier") // Should be fine using the same identifier considering only one is visible at the same time
                     }
                     Button(action: {
                         isPasswordVisible.toggle()
@@ -69,6 +72,7 @@ struct LoginView: View {
                             .foregroundColor(Color(red: 0.75, green: 0.75, blue: 0.75))
                             .padding(.horizontal, 12)
                     }
+                    .accessibilityIdentifier("showPasswordButtonIdentifier")
                 }
                 .background(Color.white)
                 .cornerRadius(30)
@@ -117,22 +121,24 @@ struct LoginView: View {
                 Spacer()
 
                 VStack {
-                    Button(action: {
-                        Task {
-                            isLoading = true
-                            defer { isLoading = false } // Runs when the Task is complete
-                            
-                            do {
-                                if isSignUp {
-                                    try await viewModel.signUp()
-                                } else {
-                                    try await viewModel.login()
+                    Button(
+                        action: {
+                            Task {
+                                isLoading = true
+                                defer { isLoading = false } // Runs when the Task is complete
+                                
+                                do {
+                                    if isSignUp {
+                                        try await viewModel.signUp()
+                                    } else {
+                                        try await viewModel.login()
+                                    }
+                                } catch {
+                                    print("Authentication failed: \(error.localizedDescription)")
                                 }
-                            } catch {
-                                print("Authentication failed: \(error.localizedDescription)")
                             }
                         }
-                    }) {
+                    ) {
                         Circle()
                             .fill(.teal)
                             .frame(maxWidth: 80)
@@ -154,6 +160,7 @@ struct LoginView: View {
                     }
                     .padding(16)
                     .disabled(isLoading)
+                    .accessibilityIdentifier("loginButtonIdentifier")
 
                     Button(
                         action: {
@@ -165,7 +172,9 @@ struct LoginView: View {
                             Text(isSignUp ? "I already have an account" : "I don't have an account")
                                 .foregroundStyle(.gray)
                                 .font(.caption)
-                        })
+                        }
+                    )
+                    .accessibilityIdentifier("signUpToggleButtonIdentifier")
 
                 }
             }

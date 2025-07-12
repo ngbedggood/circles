@@ -59,6 +59,7 @@ struct PersonalCardView: View {
 
                     }
                     .frame(minWidth: 48)
+                    .accessibilityIdentifier("showFriendsToggleButtonIdentifier")
                     Spacer()
                     Text(viewModel.formattedDate())
                         .onTapGesture {

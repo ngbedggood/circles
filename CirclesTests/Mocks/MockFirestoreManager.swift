@@ -1,5 +1,5 @@
 //
-//  MockFirestoreManger.swift
+//  MockFirestoreManager.swift
 //  CirclesTests
 //
 //  Created by Nathaniel Bedggood on 10/07/2025.
@@ -8,7 +8,7 @@
 import Foundation
 @testable import Circles
 
-class MockFirestoreManger: FirestoreManagerProtocol {
+class MockFirestoreManager: FirestoreManagerProtocol {
     func isUsernameAvailable(_ username: String) async throws -> Bool {return true}
     func saveUserProfile(uid: String, username: String, displayName: String) async throws {}
     func loadUserProfile(for uid: String) {}

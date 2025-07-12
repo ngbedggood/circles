@@ -10,7 +10,7 @@ import Foundation
 import FirebaseAuth
 @testable import Circles
 
-extension User: UserProtocol {}
+//extension User: UserProtocol {}
 
 class MockAuthManager: AuthManagerProtocol {
     @Published var currentUser: UserProtocol?
@@ -18,7 +18,7 @@ class MockAuthManager: AuthManagerProtocol {
     @Published var isAvailable: Bool = true
     @Published var errorMsg: String?
     
-    var firestoreManager: any FirestoreManagerProtocol = MockFirestoreManger()
+    var firestoreManager: any FirestoreManagerProtocol = MockFirestoreManager()
     
     var loginShouldSucceed: Bool = true
     var signUpShouldSucceed: Bool = true
