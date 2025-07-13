@@ -22,6 +22,7 @@ class LoginViewModel: ObservableObject {
         self.authManager = authManager
     }
 
+    @MainActor
     func signUp() async {
         guard !email.isEmpty && !password.isEmpty && !username.isEmpty && !displayName.isEmpty
         else {
@@ -42,6 +43,7 @@ class LoginViewModel: ObservableObject {
         }
     }
 
+    @MainActor
     func login() async {
         guard !email.isEmpty && !password.isEmpty
         else {

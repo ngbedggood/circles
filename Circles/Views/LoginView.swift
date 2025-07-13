@@ -63,7 +63,7 @@ struct LoginView: View {
                             .foregroundColor(.black.opacity(0.75))
                             .font(.body)
                             .padding(18)
-                            .accessibilityIdentifier("passwordFieldIdentifier") // Should be fine using the same identifier considering only one is visible at the same time
+                            .accessibilityIdentifier("passwordFieldIdentifier")  // Should be fine using the same identifier considering only one is visible at the same time
                     }
                     Button(action: {
                         isPasswordVisible.toggle()
@@ -115,13 +115,12 @@ struct LoginView: View {
                     .shadow(radius: 4)
                 }
                 .opacity(isSignUp ? 1 : 0)
-                
-                Spacer()
 
                 Text(viewModel.errorMessage ?? "")
                     .font(.caption)
                     .foregroundStyle(.gray)
                     .opacity(viewModel.errorMessage != nil ? 1 : 0)
+                    .transition(.scale)
 
                 Spacer()
 
@@ -130,8 +129,8 @@ struct LoginView: View {
                         action: {
                             Task {
                                 isLoading = true
-                                defer { isLoading = false } // Runs when the Task is complete
-                                
+                                defer { isLoading = false }  // Runs when the Task is complete
+
                                 do {
                                     if isSignUp {
                                         try await viewModel.signUp()
@@ -158,6 +157,7 @@ struct LoginView: View {
                                         Text(isSignUp ? "Sign up" : "Login")
                                             .fontWeight(.bold)
                                             .foregroundColor(.white)
+                                            .transition(.scale)
                                             .accessibilityIdentifier("signUpOrLoginTextIdentifier")
                                     }
                                 }

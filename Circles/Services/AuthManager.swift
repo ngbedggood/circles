@@ -5,21 +5,31 @@
 //  Created by Nathaniel Bedggood on 25/06/2025.
 //
 
-import Foundation
 import Combine
 import FirebaseAuth
 import FirebaseFirestore
+import Foundation
 
 extension User: UserProtocol {}
+
+enum SignUpError: LocalizedError {
+    case usernameTaken(String)
+
+    var errorDescription: String? {
+        switch self {
+            case .usernameTaken(let username):
+                return "Username '\(username)' is already taken."
+        }
+    }
+}
 
 class AuthManager: AuthManagerProtocol {
     @Published var currentUser: UserProtocol?  // Firebase user object
     @Published var isAuthenticated: Bool = false
     @Published var isAvailable: Bool = true
     @Published var errorMsg: String?
-    
-    private(set) var firestoreManager: any FirestoreManagerProtocol
 
+    private(set) var firestoreManager: any FirestoreManagerProtocol
 
     init() {
         self.firestoreManager = FirestoreManager()
@@ -46,42 +56,41 @@ class AuthManager: AuthManagerProtocol {
             }
         }
     }
-    
+
     func setFirestoreManager(_ firestoreManager: FirestoreManager) {
         self.firestoreManager = firestoreManager
     }
 
     func login(email: String, password: String) async throws {
-            let result = try await Auth.auth().signIn(withEmail: email, password: password)
-            let uid = result.user.uid
+        let result = try await Auth.auth().signIn(withEmail: email, password: password)
+        let uid = result.user.uid
 
-            await MainActor.run {
-                self.errorMsg = nil
-                self.currentUser = result.user
-                self.isAuthenticated = true
-            }
+        await MainActor.run {
+            self.errorMsg = nil
+            self.currentUser = result.user
+            self.isAuthenticated = true
+        }
 
-            await MainActor.run {
-                self.firestoreManager.loadUserProfile(for: uid)
-                self.firestoreManager.loadPastMoods(forUserId: uid)
-            }
+        await MainActor.run {
+            self.firestoreManager.loadUserProfile(for: uid)
+            self.firestoreManager.loadPastMoods(forUserId: uid)
+        }
 
-            print("User logged in: \(result.user.email ?? "Unknown")")
+        print("User logged in: \(result.user.email ?? "Unknown")")
     }
 
-    func signUp(email: String, password: String, username: String, displayName: String) async throws {
+    func signUp(email: String, password: String, username: String, displayName: String) async throws
+    {
         let isAvailable = try await firestoreManager.isUsernameAvailable(username)
         guard isAvailable else {
-            await MainActor.run {
-                self.errorMsg = "Username '\(username)' is already taken."
-            }
-            return
+            throw SignUpError.usernameTaken(username)
         }
 
         let result = try await Auth.auth().createUser(withEmail: email, password: password)
         let uid = result.user.uid
 
-        try await firestoreManager.saveUserProfile(uid: uid, username: username, displayName: displayName)
+        try await firestoreManager.saveUserProfile(
+            uid: uid, username: username, displayName: displayName)
 
         await MainActor.run {
             self.currentUser = result.user
@@ -94,7 +103,6 @@ class AuthManager: AuthManagerProtocol {
             self.errorMsg = nil
         }
     }
-    
 
     func signOut() {
         do {

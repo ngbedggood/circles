@@ -37,15 +37,18 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             if !authManager.isAuthenticated {
-                LoginView(
-                    viewModel: LoginViewModel(
-                        authManager: authManager
+                ZStack {
+                    LoginView(
+                        viewModel: LoginViewModel(
+                            authManager: authManager
+                        )
                     )
-                )
-                    .background(
-                        RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
-                    )
-                    .padding(24)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
+                        )
+                        .padding(24)
+                }
+                .ignoresSafeArea(.keyboard)
             } else {
                 ZStack {
                     if firestoreManager.isLoading {
