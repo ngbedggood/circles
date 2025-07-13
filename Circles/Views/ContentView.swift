@@ -11,7 +11,7 @@ struct ContentView: View {
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var firestoreManager: FirestoreManager
 
-    @State private var horizontalIndex = 0
+    @State private var horizontalIndex = 1
     @State private var verticalIndex: Int? = nil
     @State private var isLoggedIn: Bool = true
     @State private var verticalIndices = Array(repeating: 0, count: 7)
@@ -44,11 +44,10 @@ struct ContentView: View {
                         )
                     )
                         .background(
-                            RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 10)
+                            RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 8)
                         )
                         .padding(24)
                 }
-                .ignoresSafeArea(.keyboard)
             } else {
                 ZStack {
                     if firestoreManager.isLoading {
@@ -66,6 +65,28 @@ struct ContentView: View {
                                     )
                                 )
                             }
+                            // Populate right side history and chat views
+                            ScrollView(.vertical) {
+                                LazyVStack(spacing: 0) {
+                                    HistoryView()
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 20)
+                                                .fill(Color.white)
+                                                .shadow(radius: 8)
+                                        )
+                                        .padding(24)
+                                    ChatView()
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 20)
+                                                .fill(Color.white)
+                                                .shadow(radius: 8)
+                                        )
+                                        .padding(24)
+                                }
+                            }
+                            .scrollTargetBehavior(.paging)
+                            .scrollIndicators(.hidden)
+                            .scrollDisabled(false)
                         }
                         .transition(.opacity)
                         .tabViewStyle(.page(indexDisplayMode: .never))
