@@ -29,6 +29,7 @@ struct LoginView: View {
                     .fontWeight(.bold)
                     .foregroundStyle(.black.opacity(0.75))
                     .padding()
+                    .accessibilityIdentifier("circlesTitleIdentifier")
 
                 HStack {
                     TextField("Email", text: $viewModel.email)
@@ -94,6 +95,8 @@ struct LoginView: View {
                         .foregroundColor(.black.opacity(0.75))
                         .font(.body)
                         .padding(18)
+                        .accessibilityIdentifier("usernameFieldIdentifier")
+
                     }
                     .background(Color.white)
                     .cornerRadius(30)
@@ -104,6 +107,8 @@ struct LoginView: View {
                             .foregroundColor(.black.opacity(0.75))
                             .font(.body)
                             .padding(18)
+                            .accessibilityIdentifier("displayNameFieldIdentifier")
+
                     }
                     .background(Color.white)
                     .cornerRadius(30)
@@ -141,17 +146,19 @@ struct LoginView: View {
                     ) {
                         Circle()
                             .fill(.teal)
-                            .frame(maxWidth: 80)
+                            .frame(width: 80, height: 80)
                             .overlay(
                                 ZStack {
                                     if isLoading {
                                         Text("Loading...")
                                             .foregroundColor(.white)
                                             .font(.system(size: 12))
+                                            .accessibilityIdentifier("loadingIdentifier")
                                     } else {
                                         Text(isSignUp ? "Sign up" : "Login")
                                             .fontWeight(.bold)
                                             .foregroundColor(.white)
+                                            .accessibilityIdentifier("signUpOrLoginTextIdentifier")
                                     }
                                 }
 

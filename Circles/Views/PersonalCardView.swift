@@ -65,6 +65,7 @@ struct PersonalCardView: View {
                         .onTapGesture {
                             viewModel.authManager.signOut()
                         }
+                        .accessibilityIdentifier("signOutDateIdentifier")
                     Spacer()
                     Button {
                         viewModel.deleteEntry()

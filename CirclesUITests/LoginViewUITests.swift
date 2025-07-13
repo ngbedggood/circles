@@ -12,6 +12,7 @@ final class LoginViewUITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
+        
 
         // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
@@ -28,6 +29,11 @@ final class LoginViewUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments.append("UITEST") // MOCK TEST MODE
         app.launch()
+        
+        var signOutDate = app.staticTexts["signOutDateIdentifier"]
+        if signOutDate.exists {
+            signOutDate.tap()
+        }
 
         // Use XCTAssert and related functions to verify your tests produce the correct results.
         let emailTextField = app.textFields["emailTextFieldIdentifier"]
@@ -54,7 +60,72 @@ final class LoginViewUITests: XCTestCase {
         loginButton.tap()
         
         let dayPageViewFriendsButton = app.buttons["showFriendsToggleButtonIdentifier"]
-        XCTAssertTrue(dayPageViewFriendsButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(dayPageViewFriendsButton.waitForExistence(timeout: 3))
+        
+        signOutDate = app.staticTexts["signOutDateIdentifier"]
+        XCTAssertTrue(signOutDate.exists)
+        signOutDate.tap()
+        
+        let loginCirclesTitle = app.staticTexts["circlesTitleIdentifier"]
+        XCTAssertTrue(loginCirclesTitle.waitForExistence(timeout: 3))
+        
+        
+    }
+    
+    func testSignUpWithExistingCredentials() throws {
+        let app = XCUIApplication()
+        app.launchArguments.append("UITEST") // MOCK TEST MODE
+        app.launch()
+        
+        let passwordSecureTextField = app.secureTextFields["passwordFieldIdentifier"]
+        XCTAssertTrue(passwordSecureTextField.exists)
+        passwordSecureTextField.tap()
+        passwordSecureTextField.typeText("test123456")
+        
+        // Toggle password visibility
+        let showPasswordButton = app.buttons["showPasswordButtonIdentifier"]
+        XCTAssertTrue(showPasswordButton.exists)
+        showPasswordButton.tap()
+        
+        let passwordTextField = app.textFields["passwordFieldIdentifier"]
+        XCTAssertTrue(passwordTextField.exists)
+        
+        XCTAssertEqual(passwordTextField.value as? String, "test123456")
+        
+        let emailTextField = app.textFields["emailTextFieldIdentifier"]
+        XCTAssertTrue(emailTextField.exists)
+        sleep(1) // Figured that this was why I needed to tap() twice before, gotta wait for the animations!
+        emailTextField.tap()
+        emailTextField.typeText("test@example.com")
+        
+        app.keyboards.buttons["Return"].tap()
+        
+        // Toggle to show sign up fields
+        let signUpButton = app.buttons["signUpToggleButtonIdentifier"]
+        XCTAssertTrue(signUpButton.exists)
+        signUpButton.tap()
+        
+        
+        let usernameTextField = app.textFields["usernameFieldIdentifier"]
+        XCTAssertTrue(usernameTextField.exists)
+        usernameTextField.tap()
+        usernameTextField.typeText("test")
+        
+        app.keyboards.buttons["Return"].tap()
+        
+        let displayNameTextField = app.textFields["displayNameFieldIdentifier"]
+        XCTAssertTrue(displayNameTextField.exists)
+        displayNameTextField.tap()
+        displayNameTextField.typeText("Test")
+        
+        app.keyboards.buttons["Return"].tap()
+        
+//        let signUpOrLoginText = app.staticTexts["signUpOrLoginTextIdentifier"]
+//        XCTAssertTrue(signUpOrLoginText.exists)
+//        XCTAssertEqual(signUpOrLoginText.label, "Sign up")
+        
+        
+        
     }
 
     func testLaunchPerformance() throws {
