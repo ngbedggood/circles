@@ -11,6 +11,7 @@ struct PersonalCardView: View {
 
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var firestoreManager: FirestoreManager
+    @EnvironmentObject var scrollManager: ScrollManager
 
     @ObservedObject var viewModel: DayPageViewModel
 
@@ -40,7 +41,7 @@ struct PersonalCardView: View {
 
             RoundedRectangle(cornerRadius: 20)
                 .fill(
-                    showFriends
+                    viewModel.showFriends
                         ? Color(red: 0.92, green: 0.88, blue: 0.84)
                         : viewModel.currentMood?.color ?? Color(red: 0.92, green: 0.88, blue: 0.84)
                 )
@@ -51,8 +52,7 @@ struct PersonalCardView: View {
                 HStack {
                     Button {
                         withAnimation {
-                            showFriends.toggle()
-                            viewModel.scrollDisabled.toggle()
+                            viewModel.toggleFriends()
                         }
                     } label: {
                         Image(systemName: showFriends ? "xmark.circle" : "face.smiling")
@@ -70,7 +70,7 @@ struct PersonalCardView: View {
                     Button {
                         viewModel.deleteEntry()
                     } label: {
-                        if !showFriends {
+                        if !viewModel.showFriends {
                             Image(systemName: "trash.circle")
                                 .opacity(viewModel.currentMood == nil ? 0 : 1)
                                 .foregroundColor(.white)
@@ -84,13 +84,13 @@ struct PersonalCardView: View {
                 .fontWeight(.bold)
                 .zIndex(5)
                 .foregroundColor(
-                    showFriends
+                    viewModel.showFriends
                         ? .black.opacity(0.75)
                         : viewModel.currentMood == nil ? .black.opacity(0.75) : .white)
 
                 Spacer()
 
-                if showFriends {
+                if viewModel.showFriends {
                     FriendsView(
                         viewModel: FriendsViewModel(
                             firestoreManager: firestoreManager,
@@ -206,6 +206,9 @@ struct PersonalCardView: View {
                 }
             }
         }
+        .task {
+            viewModel.setup()
+        }
     }
 }
 
@@ -221,7 +224,8 @@ struct PersonalCardView: View {
         var viewModel: DayPageViewModel = DayPageViewModel(
             date: Date(),
             authManager: AuthManager(),
-            firestoreManager: FirestoreManager()
+            firestoreManager: FirestoreManager(),
+            scrollManager: ScrollManager()
         )
 
         var disableScroll: Bool = false

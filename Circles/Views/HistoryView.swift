@@ -19,14 +19,11 @@ struct HistoryView: View {
                     Color(red: 0.92, green: 0.88, blue: 0.84)
                 )
                 .zIndex(-1)
-            //.animation(.easeInOut.speed(0.8), value: viewModel.currentMood)
 
             VStack {
                 HStack {
                     Button {
                         withAnimation {
-                            showFriends.toggle()
-                            //viewModel.scrollDisabled.toggle()
                         }
                     } label: {
                         Image(systemName: showFriends ? "xmark.circle" : "face.smiling")
@@ -37,7 +34,6 @@ struct HistoryView: View {
                     Spacer()
                     Text("1 JUL 2025")
                         .onTapGesture {
-                            //viewModel.authManager.signOut()
                         }
                         .accessibilityIdentifier("signOutDateIdentifier")
                     Spacer()

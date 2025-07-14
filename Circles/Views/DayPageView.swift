@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DayPageView: View {
-
+    @EnvironmentObject var scrollManager: ScrollManager
     @StateObject var viewModel: DayPageViewModel
     var index: Int = 0
 
@@ -33,7 +33,7 @@ struct DayPageView: View {
         }
         .scrollTargetBehavior(.paging)
         .scrollIndicators(.hidden)
-        .scrollDisabled(viewModel.scrollDisabled)
+        .scrollDisabled(scrollManager.isVerticalScrollDisabled)
     }
 }
 
@@ -43,7 +43,8 @@ struct DayPageView: View {
         var viewModel: DayPageViewModel = DayPageViewModel(
             date: Date(),
             authManager: AuthManager(),
-            firestoreManager: FirestoreManager()
+            firestoreManager: FirestoreManager(),
+            scrollManager: ScrollManager()
         )
 
         var index: Int = 0

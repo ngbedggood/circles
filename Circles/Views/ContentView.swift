@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var firestoreManager: FirestoreManager
+    @EnvironmentObject var scrollManager: ScrollManager
 
     @State private var horizontalIndex = 1
     @State private var verticalIndex: Int? = nil
@@ -61,7 +62,8 @@ struct ContentView: View {
                                     viewModel: DayPageViewModel(
                                         date: date,
                                         authManager: authManager,
-                                        firestoreManager: firestoreManager
+                                        firestoreManager: firestoreManager,
+                                        scrollManager: scrollManager
                                     )
                                 )
                             }
@@ -86,13 +88,14 @@ struct ContentView: View {
                             }
                             .scrollTargetBehavior(.paging)
                             .scrollIndicators(.hidden)
-                            .scrollDisabled(false)
+                            .scrollDisabled(scrollManager.isVerticalScrollDisabled)
                         }
                         .transition(.opacity)
                         .tabViewStyle(.page(indexDisplayMode: .never))
                         .onAppear {
                             horizontalIndex = pastDays - 1
                         }
+                        .highPriorityGesture(DragGesture(), isEnabled: scrollManager.isHorizontalScrollDisabled)
                     }
                 }
                 .animation(.easeInOut(duration: 1.5), value: firestoreManager.isLoading)

@@ -214,7 +214,8 @@ struct SocialCardView: View {
         var viewModel: DayPageViewModel = DayPageViewModel(
             date: Date(),
             authManager: AuthManager(),
-            firestoreManager: FirestoreManager()
+            firestoreManager: FirestoreManager(),
+            scrollManager: ScrollManager()
         )
 
         var body: some View {

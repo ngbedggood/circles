@@ -18,14 +18,13 @@ class DayPageViewModel: ObservableObject {
     @Published var isMoodSelectionVisible: Bool = true
     @Published var expanded: Bool = false
     @Published var isVisible: Bool = true
+    @Published var showFriends: Bool = false
 
     // SocialCardView stuff
     @Published var selectedFriend: FriendColor? = nil
     @Published var friendsWithMoods: [FriendWithMood] = []
     @Published var socialCard: SocialCard = SocialCard(date: "", friends: [])
     @Published var isLoading: Bool
-    
-    @Published var scrollDisabled: Bool
 
     // Shared stuff
     @Published var dailyMood: DailyMood?
@@ -34,34 +33,37 @@ class DayPageViewModel: ObservableObject {
 
     let authManager: any AuthManagerProtocol
     let firestoreManager: FirestoreManager
+    
+    private var scrollManager: ScrollManager
 
     let me : FriendColor
     
-    init(date: Date, authManager: any AuthManagerProtocol, firestoreManager: FirestoreManager) {
+    init(date: Date, authManager: any AuthManagerProtocol, firestoreManager: FirestoreManager, scrollManager: ScrollManager) {
+        self.isLoading = true
         self.date = date
         self.authManager = authManager
         self.firestoreManager = firestoreManager
-
-        self.isLoading = true
-
+        self.scrollManager = scrollManager
+        self.me = FriendColor(name: "Me", username: "me", color: .gray, note: "Let's roll?")
+    }
+    
+    func setup() {
         let dateId = DailyMood.dateId(from: date)
         let dailyMood = firestoreManager.pastMoods[dateId]
         
         if dailyMood != nil {
-            scrollDisabled = false
+            scrollManager.isVerticalScrollDisabled = false
         } else {
-            scrollDisabled = true
+            scrollManager.isVerticalScrollDisabled = true
         }
-
+        
         self.dailyMood = dailyMood
         self.currentMood = dailyMood?.mood
         self.note = dailyMood?.noteContent ?? ""
         self.isMoodSelectionVisible = dailyMood?.mood == nil
         self.expanded = dailyMood?.mood != nil
         
-        self.me = FriendColor(name: "Me", username: "me", color: .gray, note: "Let's roll?")
-        
-
+        self.isLoading = false
     }
 
     // SOCIAL VIEW METHODS
@@ -173,7 +175,7 @@ class DayPageViewModel: ObservableObject {
         }
         isMoodSelectionVisible = false
         expanded = false
-        scrollDisabled = false
+        scrollManager.isVerticalScrollDisabled = false
     }
 
     func deleteEntry() {
@@ -195,6 +197,32 @@ class DayPageViewModel: ObservableObject {
         currentMood = nil
         expanded = false
         isVisible = true
-        scrollDisabled = true
+        scrollManager.isVerticalScrollDisabled = true
     }
+    
+//    func disableVerticalScroll() {
+//        scrollManager.isVerticalScrollDisabled = true
+//    }
+//    func enableVerticalScroll() {
+//        scrollManager.isVerticalScrollDisabled = false
+//    }
+//    func disableHorizontalScroll() {
+//        scrollManager.isHorizontalScrollDisabled = true
+//    }
+//    func enableHorizontalScroll() {
+//        scrollManager.isHorizontalScrollDisabled = false
+//    }
+    
+    func toggleFriends() {
+        if showFriends {
+            scrollManager.isVerticalScrollDisabled = false
+            scrollManager.isHorizontalScrollDisabled = false
+            showFriends = false
+        } else {
+            scrollManager.isVerticalScrollDisabled = true
+            scrollManager.isHorizontalScrollDisabled = true
+            showFriends = true
+        }
+    }
+    
 }

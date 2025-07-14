@@ -28,6 +28,7 @@ struct CirclesApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject var firestoreManager = FirestoreManager()
     @StateObject var authManager = AuthManager()
+    @StateObject var scrollManager = ScrollManager()
 
     init() {
         UIView.appearance().overrideUserInterfaceStyle = .light
@@ -38,6 +39,7 @@ struct CirclesApp: App {
             ContentView()
                 .environmentObject(authManager)
                 .environmentObject(firestoreManager)
+                .environmentObject(scrollManager)
                 .onAppear {
                     authManager.setFirestoreManager(firestoreManager)
                 }
