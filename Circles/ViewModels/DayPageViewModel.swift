@@ -28,6 +28,7 @@ class DayPageViewModel: ObservableObject {
 
     // Shared stuff
     @Published var dailyMood: DailyMood?
+    @Published var isDayVerticalScrollDisabled: Bool = false
 
     let date: Date
 
@@ -45,18 +46,9 @@ class DayPageViewModel: ObservableObject {
         self.firestoreManager = firestoreManager
         self.scrollManager = scrollManager
         self.me = FriendColor(name: "Me", username: "me", color: .gray, note: "Let's roll?")
-    }
-    
-    func setup() {
+        
         let dateId = DailyMood.dateId(from: date)
         let dailyMood = firestoreManager.pastMoods[dateId]
-        
-        if dailyMood != nil {
-            scrollManager.isVerticalScrollDisabled = false
-        } else {
-            scrollManager.isVerticalScrollDisabled = true
-        }
-        
         self.dailyMood = dailyMood
         self.currentMood = dailyMood?.mood
         self.note = dailyMood?.noteContent ?? ""
@@ -64,6 +56,15 @@ class DayPageViewModel: ObservableObject {
         self.expanded = dailyMood?.mood != nil
         
         self.isLoading = false
+    }
+    
+    func setup() {
+        
+        if dailyMood != nil {
+            self.isDayVerticalScrollDisabled = false
+        } else {
+            self.isDayVerticalScrollDisabled = true
+        }
     }
 
     // SOCIAL VIEW METHODS
@@ -175,7 +176,7 @@ class DayPageViewModel: ObservableObject {
         }
         isMoodSelectionVisible = false
         expanded = false
-        scrollManager.isVerticalScrollDisabled = false
+        self.isDayVerticalScrollDisabled = false
     }
 
     func deleteEntry() {
@@ -197,7 +198,7 @@ class DayPageViewModel: ObservableObject {
         currentMood = nil
         expanded = false
         isVisible = true
-        scrollManager.isVerticalScrollDisabled = true
+        self.isDayVerticalScrollDisabled = true
     }
     
 //    func disableVerticalScroll() {
@@ -215,11 +216,11 @@ class DayPageViewModel: ObservableObject {
     
     func toggleFriends() {
         if showFriends {
-            scrollManager.isVerticalScrollDisabled = false
+            self.isDayVerticalScrollDisabled = false
             scrollManager.isHorizontalScrollDisabled = false
             showFriends = false
         } else {
-            scrollManager.isVerticalScrollDisabled = true
+            self.isDayVerticalScrollDisabled = true
             scrollManager.isHorizontalScrollDisabled = true
             showFriends = true
         }
