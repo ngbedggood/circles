@@ -68,27 +68,27 @@ struct ContentView: View {
                                 )
                             }
                             // Populate right side history and chat views
-                            ScrollView(.vertical) {
-                                LazyVStack(spacing: 0) {
-                                    HistoryView()
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .fill(Color.white)
-                                                .shadow(radius: 8)
-                                        )
-                                        .padding(24)
-                                    ChatView()
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .fill(Color.white)
-                                                .shadow(radius: 8)
-                                        )
-                                        .padding(24)
-                                }
-                            }
-                            .scrollTargetBehavior(.paging)
-                            .scrollIndicators(.hidden)
-                            .scrollDisabled(scrollManager.isVerticalScrollDisabled)
+//                            ScrollView(.vertical) {
+//                                LazyVStack(spacing: 0) {
+//                                    HistoryView()
+//                                        .background(
+//                                            RoundedRectangle(cornerRadius: 20)
+//                                                .fill(Color.white)
+//                                                .shadow(radius: 8)
+//                                        )
+//                                        .padding(24)
+//                                    ChatView()
+//                                        .background(
+//                                            RoundedRectangle(cornerRadius: 20)
+//                                                .fill(Color.white)
+//                                                .shadow(radius: 8)
+//                                        )
+//                                        .padding(24)
+//                                }
+//                            }
+//                            .scrollTargetBehavior(.paging)
+//                            .scrollIndicators(.hidden)
+//                            .scrollDisabled(scrollManager.isVerticalScrollDisabled)
                         }
                         .transition(.opacity)
                         .tabViewStyle(.page(indexDisplayMode: .never))

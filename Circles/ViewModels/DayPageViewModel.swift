@@ -201,19 +201,6 @@ class DayPageViewModel: ObservableObject {
         self.isDayVerticalScrollDisabled = true
     }
     
-//    func disableVerticalScroll() {
-//        scrollManager.isVerticalScrollDisabled = true
-//    }
-//    func enableVerticalScroll() {
-//        scrollManager.isVerticalScrollDisabled = false
-//    }
-//    func disableHorizontalScroll() {
-//        scrollManager.isHorizontalScrollDisabled = true
-//    }
-//    func enableHorizontalScroll() {
-//        scrollManager.isHorizontalScrollDisabled = false
-//    }
-    
     func toggleFriends() {
         if showFriends {
             self.isDayVerticalScrollDisabled = false

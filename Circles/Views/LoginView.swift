@@ -142,12 +142,10 @@ struct LoginView: View {
                                     
                                     do {
                                         if isSignUp {
-                                            try await viewModel.signUp()
+                                            await viewModel.signUp()
                                         } else {
-                                            try await viewModel.login()
+                                            await viewModel.login()
                                         }
-                                    } catch {
-                                        print("Authentication failed: \(error.localizedDescription)")
                                     }
                                 }
                             }

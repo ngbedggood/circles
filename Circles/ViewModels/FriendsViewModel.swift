@@ -9,6 +9,7 @@ import Foundation
 import Combine
 
 class FriendsViewModel: ObservableObject {
+    @Published var newDisplayName: String = ""
     @Published var searchQuery = ""
     @Published var searchResults: [UserProfile] = []
     @Published var pendingRequests: [FriendRequest] = []
@@ -25,6 +26,20 @@ class FriendsViewModel: ObservableObject {
     init(firestoreManager: FirestoreManager, authManager: any AuthManagerProtocol) {
         self.firestoreManager = firestoreManager
         self.authManager = authManager
+    }
+    
+    func updateDisplayName() {
+        guard let currentUserID = authManager.currentUser?.uid else { return }
+        Task {
+            do {
+                try await firestoreManager.updateDisplayName(uid: currentUserID, newName: newDisplayName)
+                print("New diplay name is: \(newDisplayName)")
+            } catch {
+                await MainActor.run {
+                    self.error = error.localizedDescription
+                }
+            }
+        }
     }
 
     func searchUsers() {

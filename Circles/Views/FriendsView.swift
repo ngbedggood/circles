@@ -16,110 +16,83 @@ struct FriendsView: View {
 
     var body: some View {
         ZStack {
-            VStack(spacing: 24) {
+            VStack {
                 VStack {
+                    Text("Profile")
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(.black.opacity(0.75))
                     HStack {
-                        TextField("Search Username", text: $viewModel.searchQuery)
+                        TextField("New Display Name", text: $viewModel.newDisplayName)
                             //.frame(height: 48)
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
                             .foregroundColor(.black.opacity(0.75))
                             .font(.body)
                             .padding(18)
-                        //.background(.white)
+                        //.background(.white)s
 
                         Button(action: {
-                            viewModel.searchUsers()
+                            viewModel.updateDisplayName()
                         }) {
-                            Image(systemName: "magnifyingglass.circle.fill")
-                                .font(.system(size: 32))
-                                .foregroundColor(Color(red: 0.75, green: 0.75, blue: 0.75))
+                            Text("Update")
+                                .font(.system(size: 14))
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                                .padding(8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 30)
+                                        .fill(Color(red: 0.75, green: 0.75, blue: 0.75))
+                                )
                                 .padding(.horizontal, 12)
-                        }
-                    }
-                    if !viewModel.searchResults.isEmpty {
-                        VStack(spacing: 12) {
-                            ForEach(viewModel.searchResults) { user in
-                                HStack {
-                                    Text("\(user.displayName) (\(user.username))")
-                                        .foregroundColor(.gray)
-                                        .font(.body)
-                                        .padding(.leading, 4)
-
-                                    Spacer()
-
-                                    Button("Add") {
-                                        viewModel.sendRequest(to: user)
-                                    }
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 6)
-                                    .foregroundColor(.white)
-                                    .background(Color.teal)
-                                    .clipShape(Capsule())
-                                    .font(.callout)
-                                }
-                                .padding(.horizontal, 14)
-                            }
-                        }
-                        .padding(.bottom, 12)
-                        .transition(
-                            .asymmetric(
-                                insertion: .move(edge: .top),
-                                removal: .move(edge: .top)
-                            )
-                            .combined(with: .scale)
-                        )
-                    }
-
-                }
-                .background(Color.white)
-                .cornerRadius(30)
-                .shadow(radius: 4)
-
-                VStack {
-                    HStack {
-                        Text("Pending Requests")
-                            .foregroundColor(.black.opacity(0.75))
-                            .font(.body)
-                            .padding(18)
-                        Spacer()
-                        if viewModel.isLoadingPendingRequests {
-                            Image(systemName: "hourglass.circle.fill")
-                                .font(.system(size: 32))
-                                .foregroundColor(Color(red: 0.75, green: 0.75, blue: 0.75))
-                                .padding(.horizontal, 12)
-                        } else {
-                            Button(action: {
-                                withAnimation(.snappy) {
-                                    expandPendingRequests.toggle()
-                                }
-                            }) {
-                                Image(systemName: "arrowshape.down.circle.fill")
-                                    .font(.system(size: 32))
-                                    .foregroundColor(Color(red: 0.75, green: 0.75, blue: 0.75))
-                                    .padding(.horizontal, 12)
-                                    .rotationEffect(.degrees(expandPendingRequests ? 180 : 0))
-                            }
                         }
                     }
                     .background(Color.white)
-                    .zIndex(2)
+                    .cornerRadius(30)
+                    .shadow(radius: 4)
+                }
 
-                    if expandPendingRequests {
-                        ScrollView {
+                Text("Friends")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(.black.opacity(0.75))
+                    .padding(.top, 16)
+                VStack(spacing: 24) {
+                    VStack {
+                        HStack {
+                            TextField("Search Username", text: $viewModel.searchQuery)
+                                //.frame(height: 48)
+                                .autocapitalization(.none)
+                                .disableAutocorrection(true)
+                                .foregroundColor(.black.opacity(0.75))
+                                .font(.body)
+                                .padding(18)
+                            //.background(.white)
+
+                            Button(action: {
+                                viewModel.searchUsers()
+                            }) {
+                                Image(systemName: "magnifyingglass.circle.fill")
+                                    .font(.system(size: 32))
+                                    .foregroundColor(Color(red: 0.75, green: 0.75, blue: 0.75))
+                                    .padding(.horizontal, 12)
+                            }
+                        }
+                        if !viewModel.searchResults.isEmpty {
                             VStack(spacing: 12) {
-                                ForEach(viewModel.pendingRequestsWithUsers) { item in
+                                ForEach(viewModel.searchResults) { user in
                                     HStack {
-                                        Text(item.user.username)
+                                        Text("\(user.displayName) (\(user.username))")
                                             .foregroundColor(.gray)
                                             .font(.body)
                                             .padding(.leading, 4)
+
                                         Spacer()
 
-                                        Button("Accept") {
-                                            viewModel.acceptRequest(item.request)
+                                        Button("Add") {
+                                            viewModel.sendRequest(to: user)
                                         }
-                                        .padding(.horizontal, 12)
+                                        .padding(.horizontal, 10)
                                         .padding(.vertical, 6)
                                         .foregroundColor(.white)
                                         .background(Color.teal)
@@ -135,92 +108,161 @@ struct FriendsView: View {
                                     insertion: .move(edge: .top),
                                     removal: .move(edge: .top)
                                 )
-                                .combined(with: .opacity)
+                                .combined(with: .scale)
                             )
-                            .zIndex(0)
                         }
-                        .frame(maxHeight: 170)
-                        .background(Color.white)
-                        .cornerRadius(30)
+
                     }
+                    .background(Color.white)
+                    .cornerRadius(30)
+                    .shadow(radius: 4)
 
-                }
-                .background(Color.white)
-                .cornerRadius(30)
-                .shadow(radius: 4)
-
-                VStack {
-                    HStack {
-                        Text("Friends List")
-                            .foregroundColor(.black.opacity(0.75))
-                            .font(.body)
-                            .padding(18)
-                        Spacer()
-                        if viewModel.isLoadingFriendsList {
-                            Image(systemName: "hourglass.circle.fill")
-                                .font(.system(size: 32))
-                                .foregroundColor(Color(red: 0.75, green: 0.75, blue: 0.75))
-                                .padding(.horizontal, 12)
-                        } else {
-                            Button(action: {
-                                withAnimation(.snappy) {
-                                    expandFriendsList.toggle()
-                                }
-                            }) {
-                                Image(systemName: "arrowshape.down.circle.fill")
+                    VStack {
+                        HStack {
+                            Text("Pending Requests")
+                                .foregroundColor(.black.opacity(0.75))
+                                .font(.body)
+                                .padding(18)
+                            Spacer()
+                            if viewModel.isLoadingPendingRequests {
+                                Image(systemName: "hourglass.circle.fill")
                                     .font(.system(size: 32))
                                     .foregroundColor(Color(red: 0.75, green: 0.75, blue: 0.75))
                                     .padding(.horizontal, 12)
-                                    .rotationEffect(.degrees(expandFriendsList ? 180 : 0))
+                            } else {
+                                Button(action: {
+                                    withAnimation(.snappy) {
+                                        expandPendingRequests.toggle()
+                                    }
+                                }) {
+                                    Image(systemName: "arrowshape.down.circle.fill")
+                                        .font(.system(size: 32))
+                                        .foregroundColor(Color(red: 0.75, green: 0.75, blue: 0.75))
+                                        .padding(.horizontal, 12)
+                                        .rotationEffect(.degrees(expandPendingRequests ? 180 : 0))
+                                }
                             }
+                        }
+                        .background(Color.white)
+                        .zIndex(2)
+
+                        if expandPendingRequests {
+                            ScrollView {
+                                VStack(spacing: 12) {
+                                    ForEach(viewModel.pendingRequestsWithUsers) { item in
+                                        HStack {
+                                            Text(item.user.username)
+                                                .foregroundColor(.gray)
+                                                .font(.body)
+                                                .padding(.leading, 4)
+                                            Spacer()
+
+                                            Button("Accept") {
+                                                viewModel.acceptRequest(item.request)
+                                            }
+                                            .padding(.horizontal, 12)
+                                            .padding(.vertical, 6)
+                                            .foregroundColor(.white)
+                                            .background(Color.teal)
+                                            .clipShape(Capsule())
+                                            .font(.callout)
+                                        }
+                                        .padding(.horizontal, 14)
+                                    }
+                                }
+                                .padding(.bottom, 12)
+                                .transition(
+                                    .asymmetric(
+                                        insertion: .move(edge: .top),
+                                        removal: .move(edge: .top)
+                                    )
+                                    .combined(with: .opacity)
+                                )
+                                .zIndex(0)
+                            }
+                            .frame(maxHeight: 170)
+                            .background(Color.white)
+                            .cornerRadius(30)
+                        }
+
+                    }
+                    .background(Color.white)
+                    .cornerRadius(30)
+                    .shadow(radius: 4)
+
+                    VStack {
+                        HStack {
+                            Text("Friends List")
+                                .foregroundColor(.black.opacity(0.75))
+                                .font(.body)
+                                .padding(18)
+                            Spacer()
+                            if viewModel.isLoadingFriendsList {
+                                Image(systemName: "hourglass.circle.fill")
+                                    .font(.system(size: 32))
+                                    .foregroundColor(Color(red: 0.75, green: 0.75, blue: 0.75))
+                                    .padding(.horizontal, 12)
+                            } else {
+                                Button(action: {
+                                    withAnimation(.snappy) {
+                                        expandFriendsList.toggle()
+                                    }
+                                }) {
+                                    Image(systemName: "arrowshape.down.circle.fill")
+                                        .font(.system(size: 32))
+                                        .foregroundColor(Color(red: 0.75, green: 0.75, blue: 0.75))
+                                        .padding(.horizontal, 12)
+                                        .rotationEffect(.degrees(expandFriendsList ? 180 : 0))
+                                }
+                            }
+                        }
+                        .background(Color.white)
+                        .zIndex(2)
+                        if expandFriendsList {
+                            ScrollView {
+                                VStack(spacing: 12) {
+                                    ForEach(viewModel.friendsList) { item in
+                                        HStack {
+                                            Text("\(item.name) (\(item.username))")
+                                                .foregroundColor(.gray)
+                                                .font(.body)
+                                                .padding(.leading, 4)
+
+                                            Spacer()
+
+                                            Button("Delete") {
+
+                                            }
+                                            .padding(.horizontal, 12)
+                                            .padding(.vertical, 6)
+                                            .foregroundColor(.white)
+                                            .background(Color.red)
+                                            .clipShape(Capsule())
+                                            .font(.callout)
+                                        }
+                                        .padding(.horizontal, 14)
+                                    }
+                                }
+                                .padding(.bottom, 12)
+                                .transition(
+                                    .asymmetric(
+                                        insertion: .move(edge: .top),
+                                        removal: .move(edge: .top)
+                                    )
+                                    .combined(with: .opacity)
+                                )
+                                .zIndex(0)
+                            }
+                            .frame(maxHeight: 170)
+                            .background(Color.white)
+                            .cornerRadius(30)
                         }
                     }
                     .background(Color.white)
-                    .zIndex(2)
-                    if expandFriendsList {
-                        ScrollView {
-                            VStack(spacing: 12) {
-                                ForEach(viewModel.friendsList) { item in
-                                    HStack {
-                                        Text("\(item.name) (\(item.username))")
-                                            .foregroundColor(.gray)
-                                            .font(.body)
-                                            .padding(.leading, 4)
-
-                                        Spacer()
-
-                                        Button("Profile?") {
-
-                                        }
-                                        .padding(.horizontal, 12)
-                                        .padding(.vertical, 6)
-                                        .foregroundColor(.white)
-                                        .background(Color.teal)
-                                        .clipShape(Capsule())
-                                        .font(.callout)
-                                    }
-                                    .padding(.horizontal, 14)
-                                }
-                            }
-                            .padding(.bottom, 12)
-                            .transition(
-                                .asymmetric(
-                                    insertion: .move(edge: .top),
-                                    removal: .move(edge: .top)
-                                )
-                                .combined(with: .opacity)
-                            )
-                            .zIndex(0)
-                        }
-                        .frame(maxHeight: 170)
-                        .background(Color.white)
-                        .cornerRadius(30)
-                    }
+                    .cornerRadius(30)
+                    .padding(.bottom, 16)
+                    .shadow(radius: 4)
                 }
-                .background(Color.white)
-                .cornerRadius(30)
-                .padding(.bottom, 16)
-                .shadow(radius: 4)
 
                 Spacer()
             }

@@ -33,6 +33,16 @@ class FirestoreManager: FirestoreManagerProtocol {
         let doc = try await db.collection("usernames").document(username).getDocument()
         return !doc.exists
     }
+    
+    func updateDisplayName(uid: String, newName: String) async throws {
+
+        let db = Firestore.firestore()
+        let userRef = db.collection("users").document(uid)
+
+        try await userRef.updateData([
+            "displayName": newName
+        ])
+    }
 
     func saveUserProfile(uid: String, username: String, displayName: String) async throws {
         let userRef = db.collection("users").document(uid)
@@ -87,6 +97,21 @@ class FirestoreManager: FirestoreManagerProtocol {
             }
         }
     }
+    
+    func fetchUsername(for uid: String) async throws -> String? {
+        let querySnapshot = try await db.collection("usernames")
+            .whereField("uid", isEqualTo: uid)
+            .limit(to: 1)
+            .getDocuments()
+
+        if let document = querySnapshot.documents.first {
+            return document.documentID
+        } else {
+            return nil
+        }
+    }
+    
+    
 
     // SOCIAL STUFF
     func searchUsers(byUsername username: String, excludingUserID: String) async throws
