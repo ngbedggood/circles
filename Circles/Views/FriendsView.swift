@@ -149,23 +149,35 @@ struct FriendsView: View {
                         if expandPendingRequests {
                             ScrollView {
                                 VStack(spacing: 12) {
-                                    ForEach(viewModel.pendingRequestsWithUsers) { item in
+                                    if !viewModel.pendingRequestsWithUsers.isEmpty {
+                                        ForEach(viewModel.pendingRequestsWithUsers) { item in
+                                            HStack {
+                                                Text(item.user.username)
+                                                    .foregroundColor(.gray)
+                                                    .font(.body)
+                                                    .padding(.leading, 4)
+                                                Spacer()
+
+                                                Button("Accept") {
+                                                    viewModel.acceptRequest(item.request)
+                                                }
+                                                .padding(.horizontal, 12)
+                                                .padding(.vertical, 6)
+                                                .foregroundColor(.white)
+                                                .background(Color.teal)
+                                                .clipShape(Capsule())
+                                                .font(.callout)
+                                            }
+                                            .padding(.horizontal, 14)
+                                            .transition(.opacity.combined(with: .move(edge: .top)))
+                                        }
+                                    } else {
                                         HStack {
-                                            Text(item.user.username)
+                                            Text("No pending requests")
                                                 .foregroundColor(.gray)
                                                 .font(.body)
                                                 .padding(.leading, 4)
                                             Spacer()
-
-                                            Button("Accept") {
-                                                viewModel.acceptRequest(item.request)
-                                            }
-                                            .padding(.horizontal, 12)
-                                            .padding(.vertical, 6)
-                                            .foregroundColor(.white)
-                                            .background(Color.teal)
-                                            .clipShape(Capsule())
-                                            .font(.callout)
                                         }
                                         .padding(.horizontal, 14)
                                         .transition(.opacity.combined(with: .move(edge: .top)))
@@ -181,7 +193,7 @@ struct FriendsView: View {
                                 )
                                 .zIndex(0)
                             }
-                            .frame(maxHeight: 170)
+                            //.frame(maxHeight: 170)
                             .background(Color.white)
                             .cornerRadius(30)
                         }
@@ -257,7 +269,7 @@ struct FriendsView: View {
                                 )
                                 .zIndex(0)
                             }
-                            .frame(maxHeight: 170)
+                            //.frame(minHeight: 100)
                             .background(Color.white)
                             .cornerRadius(30)
                         }

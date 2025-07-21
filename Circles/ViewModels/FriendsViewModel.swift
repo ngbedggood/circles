@@ -76,6 +76,12 @@ class FriendsViewModel: ObservableObject {
         guard let toID = user.uid else { return }
         Task {
             try? await firestoreManager.sendFriendRequest(from: fromID, to: toID)
+            await MainActor.run {
+                self.showToast = false
+                self.toastMessage = "Added friend!"
+                self.toastStyle = .success
+                self.showToast = true
+            }
         }
     }
 
