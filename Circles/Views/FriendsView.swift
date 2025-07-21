@@ -229,18 +229,20 @@ struct FriendsView: View {
                                                 .padding(.leading, 4)
 
                                             Spacer()
-
-                                            Button("Delete") {
-
+                                            
+                                            Button(action: {
+                                                viewModel.deleteFriend(item.username)
+                                                //viewModel.fetchFriendList()
+                                            }) {
+                                                Image(systemName: "xmark.bin.circle.fill")
+                                                    //.padding(.horizontal, 12)
+                                                    //.padding(.vertical, 6)
+                                                    .foregroundColor(.red)
+                                                    //.background(Color.teal)
+                                                    .font(.system(size: 32))
                                             }
-                                            .padding(.horizontal, 12)
-                                            .padding(.vertical, 6)
-                                            .foregroundColor(.white)
-                                            .background(Color.red)
-                                            .clipShape(Capsule())
-                                            .font(.callout)
                                         }
-                                        .padding(.horizontal, 14)
+                                        .padding(.horizontal, 12)
                                     }
                                 }
                                 .padding(.bottom, 12)
@@ -278,6 +280,12 @@ struct FriendsView: View {
                 }
             }
         }
+        .toast(
+            isShown: $viewModel.showToast,
+            type: viewModel.toastStyle,
+            title: "Success",
+            message: viewModel.toastMessage
+        )
     }
 }
 

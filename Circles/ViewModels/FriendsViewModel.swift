@@ -10,6 +10,7 @@ import Combine
 
 class FriendsViewModel: ObservableObject {
     @Published var newDisplayName: String = ""
+    @Published var newDisplayNameChangeSuccess: Bool = false
     @Published var searchQuery = ""
     @Published var searchResults: [UserProfile] = []
     @Published var pendingRequests: [FriendRequest] = []
@@ -19,6 +20,10 @@ class FriendsViewModel: ObservableObject {
     
     @Published var isLoadingFriendsList: Bool = true
     @Published var isLoadingPendingRequests: Bool = true
+    
+    @Published var showToast: Bool = false
+    @Published var toastMessage: String = ""
+    @Published var toastStyle: ToastStyle = .success
 
     private let firestoreManager: FirestoreManager
     private let authManager: any AuthManagerProtocol
@@ -33,7 +38,13 @@ class FriendsViewModel: ObservableObject {
         Task {
             do {
                 try await firestoreManager.updateDisplayName(uid: currentUserID, newName: newDisplayName)
-                print("New diplay name is: \(newDisplayName)")
+                await MainActor.run {
+                    self.showToast = false
+                    self.showToast = true
+                    self.toastMessage = "Updated display name"
+                    self.toastStyle = .success
+                }
+                
             } catch {
                 await MainActor.run {
                     self.error = error.localizedDescription
@@ -109,6 +120,10 @@ class FriendsViewModel: ObservableObject {
             try? await firestoreManager.acceptFriendRequest(requestID: requestID, userID: request.to, friendID: request.from)
             await MainActor.run {
                 self.pendingRequests.removeAll { $0.id == request.id }
+                self.showToast = false
+                self.showToast = true
+                self.toastMessage = "Accepted friend request!"
+                self.toastStyle = .success
             }
         }
         print("Accepted request from: \(requestID)")
@@ -140,6 +155,28 @@ class FriendsViewModel: ObservableObject {
                 self.isLoadingFriendsList = false
             }
 
+        }
+    }
+    
+    func deleteFriend(_ friendUsername: String) {
+        guard let userID = authManager.currentUser?.uid else { return }
+        
+        Task {
+            do {
+                let friendID = try await firestoreManager.usernameToUID(username: friendUsername)
+                try await firestoreManager.deleteFriend(userID: userID, friendID: friendID)
+                await MainActor.run {
+                    if let index = friendsList.firstIndex(where: { $0.username == friendUsername }) {
+                        friendsList.remove(at: index)
+                    }
+                    self.showToast = false
+                    self.toastMessage = "Deleted friend!"
+                    self.toastStyle = .warning
+                    self.showToast = true
+                }
+            } catch {
+                print("FVM - Error deleting friend: \(error.localizedDescription)")
+            }
         }
     }
 }

@@ -181,6 +181,41 @@ class FirestoreManager: FirestoreManagerProtocol {
 
         return snapshot.documents.map { $0.documentID }  // Return documentID (friend's UID) from array of QueryDocumentSnapshot
     }
+    
+    func deleteFriend(userID: String, friendID: String) async throws {
+        let currentUserFriendRef = db.collection("users").document(userID)
+                .collection("friends").document(friendID)
+        let otherUserFriendRef = db.collection("users").document(friendID)
+            .collection("friends").document(userID)
+        let batch = db.batch()
+        batch.deleteDocument(currentUserFriendRef)
+        batch.deleteDocument(otherUserFriendRef)
+
+        // Firebase doesn’t support async batches yet, so we wrap it manually:
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            batch.commit { error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+        
+    }
+    
+    func usernameToUID(username: String) async throws -> String {
+        let ref = db.collection("usernames").document(username)
+
+            let snapshot = try await ref.getDocument()
+
+            if let data = snapshot.data(),
+               let uid = data["uid"] as? String {
+                return uid
+            } else {
+                return ""
+            }
+    }
 
     // DAILY MOOD RELATED METHODS
     func saveDailyMood(date: Date, mood: MoodColor, content: String?, forUserID userId: String)

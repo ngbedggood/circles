@@ -36,18 +36,18 @@ struct PersonalCardView: View {
     ]
 
     var body: some View {
-
+        
         ZStack {
-
+            
             RoundedRectangle(cornerRadius: 20)
                 .fill(
                     viewModel.showFriends
-                        ? Color(red: 0.92, green: 0.88, blue: 0.84)
-                        : viewModel.currentMood?.color ?? Color(red: 0.92, green: 0.88, blue: 0.84)
+                    ? Color(red: 0.92, green: 0.88, blue: 0.84)
+                    : viewModel.currentMood?.color ?? Color(red: 0.92, green: 0.88, blue: 0.84)
                 )
                 .zIndex(-1)
                 .animation(.easeInOut.speed(0.8), value: viewModel.currentMood)
-
+            
             VStack {
                 HStack {
                     Button {
@@ -56,7 +56,7 @@ struct PersonalCardView: View {
                         }
                     } label: {
                         Image(systemName: showFriends ? "xmark.circle" : "face.smiling")
-
+                        
                     }
                     .frame(minWidth: 48)
                     .accessibilityIdentifier("showFriendsToggleButtonIdentifier")
@@ -85,11 +85,11 @@ struct PersonalCardView: View {
                 .zIndex(5)
                 .foregroundColor(
                     viewModel.showFriends
-                        ? .black.opacity(0.75)
-                        : viewModel.currentMood == nil ? .black.opacity(0.75) : .white)
-
+                    ? .black.opacity(0.75)
+                    : viewModel.currentMood == nil ? .black.opacity(0.75) : .white)
+                
                 Spacer()
-
+                
                 if viewModel.showFriends {
                     FriendsView(
                         viewModel: FriendsViewModel(
@@ -100,16 +100,16 @@ struct PersonalCardView: View {
                     )
                 } else {
                     ZStack {
-
+                        
                         ZStack {
                             ForEach(moodCircles, id: \.color) { mood in
                                 Circle()
                                     .fill(mood.fill)
                                     .frame(
                                         width: viewModel.expanded
-                                            ? mood.expandedSize : mood.defaultSize,
+                                        ? mood.expandedSize : mood.defaultSize,
                                         height: viewModel.expanded
-                                            ? mood.expandedSize : mood.defaultSize
+                                        ? mood.expandedSize : mood.defaultSize
                                     )
                                     .scaleEffect(viewModel.currentMood == mood.color ? 16 : 1)
                                     .animation(.easeInOut.speed(0.8), value: viewModel.currentMood)
@@ -123,7 +123,7 @@ struct PersonalCardView: View {
                                     )
                                     .opacity(
                                         viewModel.isMoodSelectionVisible
-                                            || viewModel.currentMood == mood.color ? 1 : 0
+                                        || viewModel.currentMood == mood.color ? 1 : 0
                                     )
                                     .zIndex(isFront[mood.index] ? 6 : -1)
                                     .onTapGesture {
@@ -138,7 +138,7 @@ struct PersonalCardView: View {
                                     }
                                     .shadow(color: .black.opacity(0.2), radius: 4)
                             }
-
+                            
                             if viewModel.currentMood == nil && viewModel.isVisible {
                                 Circle()
                                     .fill(Color.brown.opacity(0.001))
@@ -152,7 +152,7 @@ struct PersonalCardView: View {
                         }
                         .opacity(viewModel.isMoodSelectionVisible ? 1.0 : 0.0)
                         .animation(.easeInOut, value: viewModel.isMoodSelectionVisible)
-
+                        
                         TextField(
                             "What makes you feel that way today?", text: $viewModel.note,
                             axis: .vertical
@@ -174,9 +174,9 @@ struct PersonalCardView: View {
                         .animation(.easeInOut, value: isFocused)
                         .animation(.easeInOut, value: viewModel.isMoodSelectionVisible)
                     }
-
+                    
                     Spacer()
-
+                    
                     ZStack {
                         Text("Select today's mood before seeing your friends below")
                             .font(.caption)
