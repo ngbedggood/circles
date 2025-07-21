@@ -168,6 +168,7 @@ struct FriendsView: View {
                                             .font(.callout)
                                         }
                                         .padding(.horizontal, 14)
+                                        .transition(.opacity.combined(with: .move(edge: .top)))
                                     }
                                 }
                                 .padding(.bottom, 12)
@@ -243,6 +244,7 @@ struct FriendsView: View {
                                             }
                                         }
                                         .padding(.horizontal, 12)
+                                        .transition(.opacity.combined(with: .move(edge: .top)))
                                     }
                                 }
                                 .padding(.bottom, 12)

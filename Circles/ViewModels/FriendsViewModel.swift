@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import SwiftUI
 
 class FriendsViewModel: ObservableObject {
     @Published var newDisplayName: String = ""
@@ -123,7 +124,9 @@ class FriendsViewModel: ObservableObject {
                     pendingRequests.remove(at: index)
                 }
                 if let index = pendingRequestsWithUsers.firstIndex(where: { $0.id == request.id }) {
-                    pendingRequestsWithUsers.remove(at: index)
+                    withAnimation {
+                        pendingRequestsWithUsers.remove(at: index)
+                    }
                 }
                 //self.pendingRequests.removeAll { $0.id == request.id }
                 self.showToast = false
@@ -173,7 +176,9 @@ class FriendsViewModel: ObservableObject {
                 try await firestoreManager.deleteFriend(userID: userID, friendID: friendID)
                 await MainActor.run {
                     if let index = friendsList.firstIndex(where: { $0.username == friendUsername }) {
-                        friendsList.remove(at: index)
+                        withAnimation {
+                            friendsList.remove(at: index)
+                        }
                     }
                     self.showToast = false
                     self.toastMessage = "Deleted friend!"
