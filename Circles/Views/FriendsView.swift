@@ -13,6 +13,8 @@ struct FriendsView: View {
 
     @State var expandPendingRequests: Bool = false
     @State var expandFriendsList: Bool = false
+    
+    @FocusState var isFocused: Bool
 
     var body: some View {
         ZStack {
@@ -30,10 +32,12 @@ struct FriendsView: View {
                             .foregroundColor(.black.opacity(0.75))
                             .font(.body)
                             .padding(18)
+                            .focused($isFocused)
                         //.background(.white)s
 
                         Button(action: {
                             viewModel.updateDisplayName()
+                            isFocused = false
                         }) {
                             Text("Update")
                                 .font(.system(size: 14))
@@ -67,10 +71,12 @@ struct FriendsView: View {
                                 .foregroundColor(.black.opacity(0.75))
                                 .font(.body)
                                 .padding(18)
+                                .focused($isFocused)
                             //.background(.white)
 
                             Button(action: {
                                 viewModel.searchUsers()
+                                isFocused = false
                             }) {
                                 Image(systemName: "magnifyingglass.circle.fill")
                                     .font(.system(size: 32))
@@ -100,6 +106,7 @@ struct FriendsView: View {
                                         .font(.callout)
                                     }
                                     .padding(.horizontal, 14)
+                                    .transition(.opacity.combined(with: .move(edge: .top)))
                                 }
                             }
                             .padding(.bottom, 12)
