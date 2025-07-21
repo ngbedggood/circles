@@ -62,10 +62,6 @@ struct PersonalCardView: View {
                     .accessibilityIdentifier("showFriendsToggleButtonIdentifier")
                     Spacer()
                     Text(viewModel.formattedDate())
-                        .onTapGesture {
-                            viewModel.authManager.signOut()
-                        }
-                        .accessibilityIdentifier("signOutDateIdentifier")
                     Spacer()
                     Button {
                         viewModel.deleteEntry()
@@ -74,6 +70,13 @@ struct PersonalCardView: View {
                             Image(systemName: "trash.circle")
                                 .opacity(viewModel.currentMood == nil ? 0 : 1)
                                 .foregroundColor(.white)
+                        } else {
+                            Text("Sign\nOut")
+                                .font(.system(size: 12))
+                                .onTapGesture {
+                                    viewModel.authManager.signOut()
+                            }
+                            .accessibilityIdentifier("signOutDateIdentifier")
                         }
                     }
                     .frame(minWidth: 48)
