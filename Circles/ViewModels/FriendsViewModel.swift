@@ -119,11 +119,17 @@ class FriendsViewModel: ObservableObject {
         Task {
             try? await firestoreManager.acceptFriendRequest(requestID: requestID, userID: request.to, friendID: request.from)
             await MainActor.run {
-                self.pendingRequests.removeAll { $0.id == request.id }
+                if let index = pendingRequests.firstIndex(where: { $0.id == request.id }) {
+                    pendingRequests.remove(at: index)
+                }
+                if let index = pendingRequestsWithUsers.firstIndex(where: { $0.id == request.id }) {
+                    pendingRequestsWithUsers.remove(at: index)
+                }
+                //self.pendingRequests.removeAll { $0.id == request.id }
                 self.showToast = false
-                self.showToast = true
                 self.toastMessage = "Accepted friend request!"
                 self.toastStyle = .success
+                self.showToast = true
             }
         }
         print("Accepted request from: \(requestID)")
