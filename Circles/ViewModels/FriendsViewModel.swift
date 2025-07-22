@@ -18,6 +18,7 @@ class FriendsViewModel: ObservableObject {
     @Published var pendingRequestsWithUsers: [RequestWithUser] = []
     @Published var friendsList: [FriendColor] = []
     @Published var error: String?
+    @Published var hasSearched: Bool = false
     
     @Published var isLoadingFriendsList: Bool = true
     @Published var isLoadingPendingRequests: Bool = true
@@ -55,6 +56,9 @@ class FriendsViewModel: ObservableObject {
     }
 
     func searchUsers() {
+        withAnimation {
+            hasSearched = false
+        }
         guard let currentUserID = authManager.currentUser?.uid else { return }
         Task {
             do {
@@ -62,7 +66,9 @@ class FriendsViewModel: ObservableObject {
                 await MainActor.run {
                     withAnimation {
                         self.searchResults = results
+                        hasSearched = true
                     }
+                    
                     //print("Search results: \(results)")
                 }
             } catch {

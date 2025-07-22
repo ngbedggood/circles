@@ -115,10 +115,29 @@ struct FriendsView: View {
                                     insertion: .move(edge: .top),
                                     removal: .move(edge: .top)
                                 )
-                                .combined(with: .scale)
+                                .combined(with: .opacity)
+                            )
+                        } else if viewModel.hasSearched {
+                            VStack(spacing: 12) {
+                                HStack {
+                                    Text("No users found.")
+                                        .foregroundColor(.gray)
+                                        .font(.body)
+                                        .padding(.leading, 4)
+                                    
+                                    Spacer()
+                                }
+                                .padding(.horizontal, 14)
+                            }
+                            .padding(.bottom, 12)
+                            .transition(
+                                .asymmetric(
+                                    insertion: .move(edge: .top),
+                                    removal: .move(edge: .top)
+                                )
+                                .combined(with: .opacity)
                             )
                         }
-
                     }
                     .background(Color.white)
                     .cornerRadius(30)
