@@ -11,21 +11,22 @@ import SwiftUI
 
 class FriendsViewModel: ObservableObject {
     @Published var newDisplayName: String = ""
-    @Published var newDisplayNameChangeSuccess: Bool = false
     @Published var searchQuery = ""
-    @Published var searchResults: [UserProfile] = []
-    @Published var pendingRequests: [FriendRequest] = []
-    @Published var pendingRequestsWithUsers: [RequestWithUser] = []
-    @Published var friendsList: [FriendColor] = []
-    @Published var error: String?
-    @Published var hasSearched: Bool = false
+    @Published private(set) var newDisplayNameChangeSuccess: Bool = false
+    @Published private(set) var searchResults: [UserProfile] = []
+    @Published private(set) var pendingRequests: [FriendRequest] = []
+    @Published private(set) var pendingRequestsWithUsers: [RequestWithUser] = []
+    @Published private(set) var friendsList: [FriendColor] = []
+    @Published private(set) var error: String?
+    @Published private(set) var hasSearched: Bool = false
     
-    @Published var isLoadingFriendsList: Bool = true
-    @Published var isLoadingPendingRequests: Bool = true
+    @Published private(set) var isLoadingFriendsList: Bool = true
+    @Published private(set) var isLoadingPendingRequests: Bool = true
     
+    // Toast related
     @Published var showToast: Bool = false
-    @Published var toastMessage: String = ""
-    @Published var toastStyle: ToastStyle = .success
+    @Published private(set) var toastMessage: String = ""
+    @Published private(set) var toastStyle: ToastStyle = .success
 
     private let firestoreManager: FirestoreManager
     private let authManager: any AuthManagerProtocol
@@ -42,9 +43,9 @@ class FriendsViewModel: ObservableObject {
                 try await firestoreManager.updateDisplayName(uid: currentUserID, newName: newDisplayName)
                 await MainActor.run {
                     self.showToast = false
-                    self.showToast = true
                     self.toastMessage = "Updated display name"
                     self.toastStyle = .success
+                    self.showToast = true
                 }
                 
             } catch {
@@ -138,7 +139,7 @@ class FriendsViewModel: ObservableObject {
                     pendingRequests.remove(at: index)
                 }
                 if let index = pendingRequestsWithUsers.firstIndex(where: { $0.id == request.id }) {
-                    withAnimation {
+                    _ = withAnimation {
                         pendingRequestsWithUsers.remove(at: index)
                     }
                 }
@@ -190,7 +191,7 @@ class FriendsViewModel: ObservableObject {
                 try await firestoreManager.deleteFriend(userID: userID, friendID: friendID)
                 await MainActor.run {
                     if let index = friendsList.firstIndex(where: { $0.username == friendUsername }) {
-                        withAnimation {
+                        _ = withAnimation {
                             friendsList.remove(at: index)
                         }
                     }

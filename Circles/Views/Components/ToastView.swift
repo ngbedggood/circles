@@ -10,6 +10,7 @@ import SwiftUI
 struct ToastView: View {
 
     @Binding var isShown: Bool
+    @State private var internalToastID = UUID()
     var type: ToastStyle
     var title: String
     var message: String
@@ -18,6 +19,13 @@ struct ToastView: View {
     var body: some View {
         VStack {
             Spacer()
+            ZStack {
+                RoundedRectangle(cornerRadius: 30)
+                    .fill(.white)
+                    .frame(maxWidth: 330, maxHeight: 50)
+                    .shadow(radius: 8)
+                    .padding(24)
+            
                 VStack {
                     HStack {
                         Image(systemName: type.iconFileName)
@@ -38,24 +46,24 @@ struct ToastView: View {
                                 .fontWeight(.bold)
                         }
                     }
+                    .frame(maxWidth: 300, maxHeight: 50)
                 }
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 30)
-                        .fill(.white)
-                        .shadow(radius: 8)
-
-                    //.padding()
-                )
-                .padding(24)
-                .opacity(isShown ? 1 : 0)
-                .offset(y: isShown ? 0 : 300)
-                .animation(.spring(response: 0.4, dampingFraction: 0.8, blendDuration: 0.3), value: isShown)
-                .onChange(of: isShown) {
+            }
+            .opacity(isShown ? 1 : 0)
+            .offset(y: isShown ? -10 : 300)
+            .animation(.spring(response: 0.4, dampingFraction: 0.8, blendDuration: 0.3), value: isShown)
+            .onChange(of: isShown) { _, newValue in
+                if newValue {
+                    internalToastID = UUID()
+                    let capturedID = internalToastID
+                    
                     DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                        isShown = false
+                        if internalToastID == capturedID {
+                            isShown = false
+                        }
                     }
                 }
+            }
         }
         .ignoresSafeArea()
 

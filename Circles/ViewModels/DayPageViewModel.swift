@@ -15,20 +15,20 @@ class DayPageViewModel: ObservableObject {
     // PersonalCardView stuff
     @Published var currentMood: MoodColor?
     @Published var note: String = ""
-    @Published var isMoodSelectionVisible: Bool = true
     @Published var expanded: Bool = false
     @Published var isVisible: Bool = true
-    @Published var showFriends: Bool = false
+    @Published private(set) var isMoodSelectionVisible: Bool = true
+    @Published private(set) var showFriends: Bool = false
 
     // SocialCardView stuff
     @Published var selectedFriend: FriendColor? = nil
-    @Published var friendsWithMoods: [FriendWithMood] = []
-    @Published var socialCard: SocialCard = SocialCard(date: "", friends: [])
-    @Published var isLoading: Bool
+    @Published private(set) var friendsWithMoods: [FriendWithMood] = []
+    @Published private(set) var socialCard: SocialCard = SocialCard(date: "", friends: [])
+    @Published private(set) var isLoading: Bool
 
     // Shared stuff
-    @Published var dailyMood: DailyMood?
-    @Published var isDayVerticalScrollDisabled: Bool = false
+    @Published private(set) var dailyMood: DailyMood?
+    @Published private(set) var isDayVerticalScrollDisabled: Bool = false
 
     let date: Date
 

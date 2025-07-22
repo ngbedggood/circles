@@ -15,6 +15,11 @@ class LoginViewModel: ObservableObject {
     @Published var username: String = ""
     @Published var displayName: String = ""
     @Published var errorMessage: String?
+    
+    // Toast related
+    @Published var showToast: Bool = false
+    @Published private(set) var toastMessage: String = ""
+    @Published private(set) var toastStyle: ToastStyle = .success
 
     let authManager: any AuthManagerProtocol
 
@@ -27,6 +32,12 @@ class LoginViewModel: ObservableObject {
         guard !email.isEmpty && !password.isEmpty && !username.isEmpty && !displayName.isEmpty
         else {
             self.errorMessage = "Fields cannot be empty."
+            await MainActor.run {
+                self.showToast = false
+                self.toastMessage = self.errorMessage ?? "An error occurred!"
+                self.toastStyle = .warning
+                self.showToast = true
+            }
             return
         }
         do {
@@ -40,6 +51,12 @@ class LoginViewModel: ObservableObject {
         } catch {
             self.errorMessage = error.localizedDescription
             print(error.localizedDescription)
+            await MainActor.run {
+                self.showToast = false
+                self.toastMessage = self.errorMessage ?? "An error occurred!"
+                self.toastStyle = .error
+                self.showToast = true
+            }
         }
     }
 
@@ -48,6 +65,13 @@ class LoginViewModel: ObservableObject {
         guard !email.isEmpty && !password.isEmpty
         else {
             self.errorMessage = "Fields cannot be empty."
+            await MainActor.run {
+                self.showToast = false
+                self.toastMessage = self.errorMessage ?? "An error occurred!"
+                self.toastStyle = .warning
+                self.showToast = true
+            }
+            
             return
         }
         do {
@@ -58,6 +82,13 @@ class LoginViewModel: ObservableObject {
             self.errorMessage = nil
         } catch {
             self.errorMessage = error.localizedDescription
+            print(error.localizedDescription)
+            await MainActor.run {
+                self.showToast = false
+                self.toastMessage = self.errorMessage ?? "An error occurred!"
+                self.toastStyle = .error
+                self.showToast = true
+            }
         }
     }
 }

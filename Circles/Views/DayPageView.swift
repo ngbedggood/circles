@@ -13,27 +13,21 @@ struct DayPageView: View {
     var index: Int = 0
 
     var body: some View {
-        ScrollView(.vertical) {
-            LazyVStack(spacing: 0) {
-                PersonalCardView(viewModel: viewModel)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.white)
-                            .shadow(radius: 8)
-                    )
-                    .padding(24)
-                SocialCardView(viewModel: viewModel)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.white)
-                            .shadow(radius: 8)
-                    )
-                    .padding(24)
+        GeometryReader { geometry in
+            let screenWidth = geometry.size.width
+            let screenHeight = geometry.size.height
+            ScrollView(.vertical) {
+                VStack(spacing: 0) {
+                    PersonalCardView(viewModel: viewModel)
+                        .frame(height: screenHeight)
+                    SocialCardView(viewModel: viewModel)
+                        .frame(height: screenHeight)
+                }
             }
+            .scrollTargetBehavior(.paging)
+            .scrollIndicators(.hidden)
+            .scrollDisabled(viewModel.isDayVerticalScrollDisabled)
         }
-        .scrollTargetBehavior(.paging)
-        .scrollIndicators(.hidden)
-        .scrollDisabled(viewModel.isDayVerticalScrollDisabled)
     }
 }
 

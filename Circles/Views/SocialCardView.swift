@@ -19,19 +19,6 @@ struct SocialCardView: View {
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color(red: 0.92, green: 0.88, blue: 0.84))
-                .onTapGesture {
-                    withAnimation(
-                        .spring(
-                            response: 0.55,
-                            dampingFraction: 0.69,
-                            blendDuration: 0
-                        )
-                    ) {
-                        viewModel.clearSelection()
-                    }
-                }
             VStack {
                 VStack {
                     Image(systemName: "arrowshape.up.fill")
@@ -53,8 +40,6 @@ struct SocialCardView: View {
                     .padding()
             }
         }
-        .frame(height: 720)
-        .clipShape(RoundedRectangle(cornerRadius: 20))
         .onScrollVisibilityChange { isVisible in
             if isVisible {
                 Task {
@@ -75,6 +60,21 @@ struct SocialCardView: View {
         .onChange(of: viewModel.dailyMood) { _, newValue in
             circleAppeared = Array(repeating: false, count: viewModel.socialCard.friends.count)
         }
+        .background(
+            RoundedRectangle(cornerRadius: 20).fill(Color(red: 0.92, green: 0.88, blue: 0.84)).shadow(radius: 8)
+        )
+        .onTapGesture {
+            withAnimation(
+                .spring(
+                    response: 0.55,
+                    dampingFraction: 0.69,
+                    blendDuration: 0
+                )
+            ) {
+                viewModel.clearSelection()
+            }
+        }
+        .padding(24)
     }
 
     private func animateCirclesInSequence() {

@@ -44,10 +44,6 @@ struct ContentView: View {
                             authManager: authManager
                         )
                     )
-                    .background(
-                        RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 8)
-                    )
-                    .padding(24)
                 }
             } else {
                 ZStack {
