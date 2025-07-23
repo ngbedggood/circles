@@ -19,6 +19,7 @@ class FriendsViewModel: ObservableObject {
     @Published private(set) var friendsList: [FriendColor] = []
     @Published private(set) var error: String?
     @Published private(set) var hasSearched: Bool = false
+    @Published var errorMessage: String?
     
     @Published private(set) var isLoadingFriendsList: Bool = true
     @Published private(set) var isLoadingPendingRequests: Bool = true
@@ -36,7 +37,18 @@ class FriendsViewModel: ObservableObject {
         self.authManager = authManager
     }
     
-    func updateDisplayName() {
+    func updateDisplayName() async {
+        guard !newDisplayName.isEmpty
+        else {
+            await MainActor.run {
+                self.errorMessage = "Username can't be empty."
+                self.showToast = false
+                self.toastMessage = self.errorMessage ?? "An error occurred!"
+                self.toastStyle = .error
+                self.showToast = true
+            }
+            return
+        }
         guard let currentUserID = authManager.currentUser?.uid else { return }
         Task {
             do {

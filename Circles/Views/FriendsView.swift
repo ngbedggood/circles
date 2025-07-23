@@ -71,7 +71,11 @@ struct FriendsView: View {
                                     .focused($isFocused)
 
                                 Button(action: {
-                                    viewModel.updateDisplayName()
+                                    Task {
+                                        do {
+                                            await viewModel.updateDisplayName()
+                                        }
+                                    }
                                     isFocused = false
                                 }) {
                                     Text("Update")
