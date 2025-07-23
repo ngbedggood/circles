@@ -19,62 +19,69 @@ struct SocialCardView: View {
 
     var body: some View {
         ZStack {
-            VStack {
+            GeometryReader { geometry in
+                let screenWidth = geometry.size.width
+                let screenHeight = geometry.size.height
+                let baseWidth: CGFloat = 650
+                let screenScale = min(1, screenHeight / baseWidth)
                 VStack {
-                    Image(systemName: "arrowshape.up.fill")
-                        .foregroundStyle(.white)
-                }
-                .padding()
-
-                ZStack {
-                    GeometryReader { geometry in
-                        friendCircles(in: geometry)
+                    VStack {
+                        Image(systemName: "arrowshape.up.fill")
+                            .foregroundStyle(.white)
                     }
-                }
-
-                Text(viewModel.formattedDate())
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .zIndex(1)
-                    .foregroundColor(.black.opacity(0.75))
                     .padding()
-            }
-        }
-        .onScrollVisibilityChange { isVisible in
-            if isVisible {
-                Task {
-                    withAnimation {
-                        showPersonalCircle = true
+                    
+                    ZStack {
+                        GeometryReader { geometry in
+                            friendCircles(in: geometry)
+                                .scaleEffect(screenScale)
+                        }
                     }
-                    await viewModel.retrieveFriendsWithMoods()
+                    
+                    Text(viewModel.formattedDate())
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .zIndex(1)
+                        .foregroundColor(.black.opacity(0.75))
+                        .padding()
                 }
-            } else {
+            }
+            .onScrollVisibilityChange { isVisible in
+                if isVisible {
+                    Task {
+                        withAnimation {
+                            showPersonalCircle = true
+                        }
+                        await viewModel.retrieveFriendsWithMoods()
+                    }
+                } else {
+                    circleAppeared = Array(repeating: false, count: viewModel.socialCard.friends.count)
+                    showPersonalCircle = false
+                }
+            }
+            .onChange(of: viewModel.socialCard.friends) { _, friends in
+                circleAppeared = Array(repeating: false, count: friends.count)
+                animateCirclesInSequence()
+            }
+            .onChange(of: viewModel.dailyMood) { _, newValue in
                 circleAppeared = Array(repeating: false, count: viewModel.socialCard.friends.count)
-                showPersonalCircle = false
             }
-        }
-        .onChange(of: viewModel.socialCard.friends) { _, friends in
-            circleAppeared = Array(repeating: false, count: friends.count)
-            animateCirclesInSequence()
-        }
-        .onChange(of: viewModel.dailyMood) { _, newValue in
-            circleAppeared = Array(repeating: false, count: viewModel.socialCard.friends.count)
-        }
-        .background(
-            RoundedRectangle(cornerRadius: 20).fill(Color(red: 0.92, green: 0.88, blue: 0.84)).shadow(radius: 8)
-        )
-        .onTapGesture {
-            withAnimation(
-                .spring(
-                    response: 0.55,
-                    dampingFraction: 0.69,
-                    blendDuration: 0
-                )
-            ) {
-                viewModel.clearSelection()
+            .background(
+                RoundedRectangle(cornerRadius: 20).fill(Color(red: 0.92, green: 0.88, blue: 0.84)).shadow(radius: 8)
+            )
+            .onTapGesture {
+                withAnimation(
+                    .spring(
+                        response: 0.55,
+                        dampingFraction: 0.69,
+                        blendDuration: 0
+                    )
+                ) {
+                    viewModel.clearSelection()
+                }
             }
+            .padding(24)
         }
-        .padding(24)
     }
 
     private func animateCirclesInSequence() {
