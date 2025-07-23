@@ -18,6 +18,8 @@ struct ContentView: View {
     @State private var verticalIndices = Array(repeating: 0, count: 7)
 
     @State private var localDailyMoods: [String: DailyMood] = [:]
+    
+    @StateObject private var navigationManager = NavigationManager()
 
     let pastDays = 7
 
@@ -51,48 +53,38 @@ struct ContentView: View {
                         LoadingView()
                             .transition(.opacity)
                     } else {
-                        TabView(selection: $horizontalIndex) {
-                            ForEach(0..<pastDays, id: \.self) { index in
-                                let date = datesToDisplay[index]
-                                DayPageView(
-                                    viewModel: DayPageViewModel(
-                                        date: date,
-                                        authManager: authManager,
-                                        firestoreManager: firestoreManager,
-                                        scrollManager: scrollManager
-                                    )
+                        switch navigationManager.currentView {
+                        case .friends:
+                            FriendsView(
+                                viewModel: FriendsViewModel(
+                                    firestoreManager: firestoreManager,
+                                    authManager: authManager
                                 )
+                            )
+                            .environmentObject(navigationManager)
+                        case .dayPage:
+                            TabView(selection: $horizontalIndex) {
+                                ForEach(0..<pastDays, id: \.self) { index in
+                                    let date = datesToDisplay[index]
+                                    DayPageView(
+                                        viewModel: DayPageViewModel(
+                                            date: date,
+                                            authManager: authManager,
+                                            firestoreManager: firestoreManager,
+                                            scrollManager: scrollManager
+                                        )
+                                    )
+                                    .environmentObject(navigationManager)
+                                }
                             }
-                            // Populate right side history and chat views
-                            //                            ScrollView(.vertical) {
-                            //                                LazyVStack(spacing: 0) {
-                            //                                    HistoryView()
-                            //                                        .background(
-                            //                                            RoundedRectangle(cornerRadius: 20)
-                            //                                                .fill(Color.white)
-                            //                                                .shadow(radius: 8)
-                            //                                        )
-                            //                                        .padding(24)
-                            //                                    ChatView()
-                            //                                        .background(
-                            //                                            RoundedRectangle(cornerRadius: 20)
-                            //                                                .fill(Color.white)
-                            //                                                .shadow(radius: 8)
-                            //                                        )
-                            //                                        .padding(24)
-                            //                                }
-                            //                            }
-                            //                            .scrollTargetBehavior(.paging)
-                            //                            .scrollIndicators(.hidden)
-                            //                            .scrollDisabled(scrollManager.isVerticalScrollDisabled)
+                            .transition(.opacity)
+                            .tabViewStyle(.page(indexDisplayMode: .never))
+                            .onAppear {
+                                horizontalIndex = pastDays - 1
+                            }
+                            .highPriorityGesture(
+                                DragGesture(), isEnabled: scrollManager.isHorizontalScrollDisabled)
                         }
-                        .transition(.opacity)
-                        .tabViewStyle(.page(indexDisplayMode: .never))
-                        .onAppear {
-                            horizontalIndex = pastDays - 1
-                        }
-                        .highPriorityGesture(
-                            DragGesture(), isEnabled: scrollManager.isHorizontalScrollDisabled)
                     }
                 }
                 .animation(.easeInOut(duration: 1.5), value: firestoreManager.isLoading)
@@ -104,5 +96,11 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    struct PreviewWrapper: View {
+        var body: some View {
+            ContentView()
+        }
+    }
+    
+    return PreviewWrapper()
 }

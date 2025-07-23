@@ -28,8 +28,8 @@ class FriendsViewModel: ObservableObject {
     @Published private(set) var toastMessage: String = ""
     @Published private(set) var toastStyle: ToastStyle = .success
 
-    private let firestoreManager: FirestoreManager
-    private let authManager: any AuthManagerProtocol
+    let firestoreManager: FirestoreManager
+    let authManager: any AuthManagerProtocol
 
     init(firestoreManager: FirestoreManager, authManager: any AuthManagerProtocol) {
         self.firestoreManager = firestoreManager

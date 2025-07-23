@@ -49,6 +49,7 @@ struct ToastView: View {
                     .frame(maxWidth: 300, maxHeight: 50)
                 }
             }
+            .drawingGroup()
             .opacity(isShown ? 1 : 0)
             .offset(y: isShown ? -10 : 300)
             .animation(.spring(response: 0.4, dampingFraction: 0.8, blendDuration: 0.3), value: isShown)

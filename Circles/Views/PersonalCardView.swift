@@ -12,6 +12,7 @@ struct PersonalCardView: View {
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var firestoreManager: FirestoreManager
     @EnvironmentObject var scrollManager: ScrollManager
+    @EnvironmentObject var navigationManager: NavigationManager
 
     @ObservedObject var viewModel: DayPageViewModel
 
@@ -61,10 +62,10 @@ struct PersonalCardView: View {
                         HStack {
                             Button {
                                 withAnimation {
-                                    viewModel.toggleFriends()
+                                    navigationManager.currentView = .friends
                                 }
                             } label: {
-                                Image(systemName: showFriends ? "xmark.circle" : "face.smiling")
+                                Image(systemName: "face.smiling")
                                 
                             }
                             .frame(minWidth: 48)
@@ -75,18 +76,9 @@ struct PersonalCardView: View {
                             Button {
                                 viewModel.deleteEntry()
                             } label: {
-                                if !viewModel.showFriends {
                                     Image(systemName: "trash.circle")
                                         .opacity(viewModel.currentMood == nil ? 0 : 1)
                                         .foregroundColor(.white)
-                                } else {
-                                    Text("Sign\nOut")
-                                        .font(.system(size: 12))
-                                        .onTapGesture {
-                                            viewModel.authManager.signOut()
-                                        }
-                                        .accessibilityIdentifier("signOutDateIdentifier")
-                                }
                             }
                             .frame(minWidth: 48)
                         }
@@ -100,16 +92,6 @@ struct PersonalCardView: View {
                         .padding()
                         
                         Spacer()
-                        
-                        if viewModel.showFriends {
-                            FriendsView(
-                                viewModel: FriendsViewModel(
-                                    firestoreManager: firestoreManager,
-                                    authManager: authManager
-                                ),
-                                showFriends: $showFriends
-                            )
-                        } else {
                             
                             ZStack {
                                 
@@ -204,7 +186,6 @@ struct PersonalCardView: View {
                             }
                             .animation(.easeInOut, value: viewModel.currentMood)
                             .padding()
-                        }
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 20))
                     .padding(24)
