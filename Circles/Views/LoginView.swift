@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum FieldFocus: Hashable {
-    case secure, plain
+    case secure, plain, email, username, displayname
 }
 
 struct LoginView: View {
@@ -19,6 +19,7 @@ struct LoginView: View {
     @State private var isSignUp: Bool = false
     @State private var isLoading: Bool = false
     @FocusState private var focusedField: FieldFocus?
+    @FocusState private var isFocused: Bool
 
     var body: some View {
         GeometryReader { geometry in
@@ -35,12 +36,15 @@ struct LoginView: View {
                             Text("Circles")
                                 .font(.system(size: 36))
                                 .fontWeight(.bold)
-                                //.padding()
+                                .scaleEffect(focusedField != nil ? 0.7 : 1)
+                                .offset(y: focusedField != nil ? 12 : 0)
+                                .animation(.easeInOut, value: focusedField)
                                 .accessibilityIdentifier("circlesTitleIdentifier")
                             
                             Group{
                                 HStack {
                                     TextField("Email", text: $viewModel.email)
+                                        .focused($focusedField, equals: .email)
                                         .keyboardType(.emailAddress)
                                         .font(.body)
                                         .padding(18)
@@ -103,6 +107,7 @@ struct LoginView: View {
                                             }
                                         )
                                     )
+                                    .focused($focusedField, equals: .username)
                                     .autocapitalization(.none)
                                     .disableAutocorrection(true)
                                     .foregroundColor(.black.opacity(0.75))
@@ -117,6 +122,7 @@ struct LoginView: View {
                                 
                                 HStack {
                                     TextField("Display Name", text: $viewModel.displayName)
+                                        .focused($focusedField, equals: .displayname)
                                         .foregroundColor(.black.opacity(0.75))
                                         .font(.body)
                                         .padding(18)
@@ -196,12 +202,16 @@ struct LoginView: View {
                         }
                         .frame(maxWidth: screenWidth)
                         .padding(24)
-                        .offset(y: -20)
+                        .offset(y: focusedField != nil ? -160 : -20)
+                        .animation(.easeInOut, value: focusedField)
                     }
                     .frame(height: screenHeight, alignment: .center)
                 }
             }
             .scrollDisabled(true) // Stupid hack to stop keyboard from shifting content
+            .onTapGesture {
+                focusedField = nil
+            }
 //            .background(
 //                RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(radius: 8)
 //            )

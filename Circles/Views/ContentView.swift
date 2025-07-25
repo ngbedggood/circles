@@ -39,7 +39,7 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            if !authManager.isAuthenticated {
+            if !authManager.isAuthenticated { //|| !authManager.isVerified {
                 ZStack {
                     LoginView(
                         viewModel: LoginViewModel(

@@ -47,7 +47,14 @@ class LoginViewModel: ObservableObject {
                 username: username,
                 displayName: displayName
             )
-            self.errorMessage = nil
+            await MainActor.run {
+                self.showToast = false
+                self.errorMessage = "A verfication email was sent"
+                self.toastMessage = self.errorMessage ?? "An error occurred!"
+                self.toastStyle = .success
+                self.showToast = true
+            }
+            
         } catch {
             self.errorMessage = error.localizedDescription
             print(error.localizedDescription)

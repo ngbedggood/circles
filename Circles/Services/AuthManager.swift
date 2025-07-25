@@ -14,11 +14,14 @@ extension User: UserProtocol {}
 
 enum SignUpError: LocalizedError {
     case usernameTaken(String)
+    case emailNotVerified
 
     var errorDescription: String? {
         switch self {
             case .usernameTaken(let username):
                 return "Username '\(username)' is already taken."
+            case .emailNotVerified:
+                return "Please check your inbox for a verification email."
         }
     }
 }
@@ -26,6 +29,7 @@ enum SignUpError: LocalizedError {
 class AuthManager: AuthManagerProtocol {
     @Published var currentUser: UserProtocol?  // Firebase user object
     @Published var isAuthenticated: Bool = false
+    @Published var isVerified: Bool = false
     @Published var isAvailable: Bool = true
     @Published var errorMsg: String?
 
@@ -62,8 +66,17 @@ class AuthManager: AuthManagerProtocol {
     }
 
     func login(email: String, password: String) async throws {
+        
         let result = try await Auth.auth().signIn(withEmail: email, password: password)
         let uid = result.user.uid
+        
+        await MainActor.run {
+            self.isVerified = result.user.isEmailVerified
+        }
+        
+        if !result.user.isEmailVerified {
+            throw SignUpError.emailNotVerified
+        }
 
         await MainActor.run {
             self.errorMsg = nil
@@ -88,20 +101,19 @@ class AuthManager: AuthManagerProtocol {
 
         let result = try await Auth.auth().createUser(withEmail: email, password: password)
         let uid = result.user.uid
+        
+        try await result.user.sendEmailVerification()
 
         try await firestoreManager.saveUserProfile(
             uid: uid, username: username, displayName: displayName)
-
+        
         await MainActor.run {
+            self.errorMsg = nil
             self.currentUser = result.user
             self.isAuthenticated = true
         }
-
-        await MainActor.run {
-            self.firestoreManager.loadUserProfile(for: uid)
-            self.firestoreManager.loadPastMoods(forUserId: uid)
-            self.errorMsg = nil
-        }
+        
+        
     }
 
     func signOut() {

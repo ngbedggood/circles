@@ -20,7 +20,6 @@ struct SocialCardView: View {
     var body: some View {
         ZStack {
             GeometryReader { geometry in
-                let screenWidth = geometry.size.width
                 let screenHeight = geometry.size.height
                 let baseWidth: CGFloat = 650
                 let screenScale = min(1, screenHeight / baseWidth)

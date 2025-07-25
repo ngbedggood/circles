@@ -14,7 +14,6 @@ struct DayPageView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let screenWidth = geometry.size.width
             let screenHeight = geometry.size.height
             ScrollView(.vertical) {
                 VStack(spacing: 0) {

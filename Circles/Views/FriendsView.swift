@@ -23,7 +23,6 @@ struct FriendsView: View {
                 .shadow(radius: 8)
             GeometryReader { geometry in
                 let screenWidth = geometry.size.width
-                let screenHeight = geometry.size.height
                 ZStack {
                     VStack {
                         HStack {
