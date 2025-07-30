@@ -38,8 +38,7 @@ struct SocialCardView: View {
                     }
                     
                     Text(viewModel.formattedDate())
-                        .font(.title)
-                        .fontWeight(.bold)
+                        .font(.satoshi(.title, weight: .bold))
                         .zIndex(1)
                         .foregroundColor(.black.opacity(0.75))
                         .padding()
@@ -135,8 +134,9 @@ struct SocialCardView: View {
                         : "Me"
                 )
                 .lineLimit(7)
-                .fontWeight(viewModel.isMeSelected ? .regular : .bold)
-                .font(viewModel.isMeSelected ? .system(size: 24) : .system(size: 30))
+                //.fontWeight(viewModel.isMeSelected ? .regular : .bold)
+                //.font(viewModel.isMeSelected ? .system(size: 24) : .system(size: 30))
+                    //.font(.satoshi())
                 .multilineTextAlignment(.center)
                 .minimumScaleFactor(4 / 24)
                 .foregroundColor(.white)
@@ -177,8 +177,8 @@ struct SocialCardView: View {
                     ZStack {
                         Text(isSelected ? friend.note : friend.name)
                             .lineLimit(7)
-                            .fontWeight(isSelected ? .regular : .bold)
-                            .font(isSelected ? .system(size: 24) : .system(size: 20))
+                            //.fontWeight(isSelected ? .regular : .bold)
+                            //.font(isSelected ? .system(size: 24) : .system(size: 20))
                             .multilineTextAlignment(.center)
                             .minimumScaleFactor(4 / 24)
                             .foregroundColor(.white)

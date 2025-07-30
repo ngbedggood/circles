@@ -6,6 +6,11 @@ Circles.xcodeproj
 
 *.plist
 
+.firebase/
+.firebaserc
+firebase.json
+public/
+
 ## User settings
 xcuserdata/
 

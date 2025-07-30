@@ -32,6 +32,7 @@ struct FriendsView: View {
                                 }
                             } label: {
                                 Image(systemName: "xmark.circle")
+                                    .font(.system(size: 32))
                             }
                             .frame(minWidth: 48)
                             .accessibilityIdentifier("showFriendsToggleButtonIdentifier")
@@ -42,7 +43,7 @@ struct FriendsView: View {
                                 
                             } label: {
                                 Text("Sign\nOut")
-                                    .font(.system(size: 12))
+                                    .font(.satoshi(.caption, weight: .bold))
                                     .onTapGesture {
                                         viewModel.authManager.signOut()
                                     }
@@ -50,22 +51,19 @@ struct FriendsView: View {
                             }
                             .frame(minWidth: 48)
                         }
-                        .font(.title)
-                        .fontWeight(.bold)
+                        .font(.satoshi(.body, weight: .regular))
                         .zIndex(5)
                         .foregroundColor(
                             .black.opacity(0.75))
                         VStack {
                             Text("Profile")
-                                .font(.title3)
-                                .fontWeight(.bold)
+                                .font(.satoshi(.title, weight: 700))
                                 .foregroundColor(.black.opacity(0.75))
                             HStack {
                                 TextField("New Display Name", text: $viewModel.newDisplayName)
                                     .autocapitalization(.none)
                                     .disableAutocorrection(true)
                                     .foregroundColor(.black.opacity(0.75))
-                                    .font(.body)
                                     .padding(18)
                                     .focused($isFocused)
 
@@ -78,8 +76,7 @@ struct FriendsView: View {
                                     isFocused = false
                                 }) {
                                     Text("Update")
-                                        .font(.system(size: 14))
-                                        .fontWeight(.bold)
+                                        .font(.satoshi(.caption, weight: 900))
                                         .foregroundColor(.white)
                                         .padding(8)
                                         .background(
@@ -95,8 +92,7 @@ struct FriendsView: View {
                         }
 
                         Text("Friends")
-                            .font(.title3)
-                            .fontWeight(.bold)
+                            .font(.satoshi(.title2, weight: 600))
                             .foregroundColor(.black.opacity(0.75))
                             .padding(.top, 16)
                         VStack(spacing: 24) {
@@ -129,8 +125,8 @@ struct FriendsView: View {
                                             HStack {
                                                 Text("\(user.displayName) (\(user.username))")
                                                     .foregroundColor(.gray)
-                                                    .font(.body)
                                                     .padding(.leading, 4)
+                                                    .offset(y: -4)
 
                                                 Spacer()
 
@@ -142,7 +138,6 @@ struct FriendsView: View {
                                                 .foregroundColor(.white)
                                                 .background(Color.teal)
                                                 .clipShape(Capsule())
-                                                .font(.callout)
                                             }
                                             .padding(.horizontal, 14)
                                             .transition(.opacity.combined(with: .move(edge: .top)))
@@ -161,7 +156,6 @@ struct FriendsView: View {
                                         HStack {
                                             Text("No users found.")
                                                 .foregroundColor(.gray)
-                                                .font(.body)
                                                 .padding(.leading, 4)
 
                                             Spacer()
@@ -186,7 +180,6 @@ struct FriendsView: View {
                                 HStack {
                                     Text("Pending Requests")
                                         .foregroundColor(.black.opacity(0.75))
-                                        .font(.body)
                                         .padding(18)
                                     Spacer()
                                     if viewModel.isLoadingPendingRequests {
@@ -375,6 +368,7 @@ struct FriendsView: View {
             title: "Success",
             message: viewModel.toastMessage
         )
+        //.font(.satoshi(.body))
     }
 }
 
