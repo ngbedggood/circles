@@ -2,14 +2,17 @@
 #
 # gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
 
-Circles.xcodeproj
-
+*.xcodeproj/
+*.xctestplan
 *.plist
 
 .firebase/
 .firebaserc
 firebase.json
 public/
+*.entitlements
+
+Resources/
 
 ## User settings
 xcuserdata/

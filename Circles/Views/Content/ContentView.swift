@@ -91,6 +91,7 @@ struct ContentView: View {
             }
         }
         .ignoresSafeArea(.keyboard)
+        .font(.satoshi(.body))
     }
 
 }

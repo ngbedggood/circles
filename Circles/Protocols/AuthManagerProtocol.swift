@@ -15,8 +15,12 @@ protocol AuthManagerProtocol: ObservableObject {
     var isAvailable: Bool { get set }
     var errorMsg: String? { get set }
     var firestoreManager: any FirestoreManagerProtocol { get }
+    var isVerified: Bool { get }
+    var isVerifiedPublisher: Published<Bool>.Publisher { get }
 
     func login(email: String, password: String) async throws
     func signUp(email: String, password: String, username: String, displayName: String) async throws
+    func sendVerificationEmail(email: String) async throws
     func signOut()
+    func handleIncomingURL(url: URL) async
 }

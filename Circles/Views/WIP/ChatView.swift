@@ -19,6 +19,7 @@ struct ChatView: View {
                     Color(red: 0.92, green: 0.88, blue: 0.84)
                 )
                 .zIndex(-1)
+                .shadow(radius: 8)
 
             VStack {
                 HStack {
@@ -32,7 +33,8 @@ struct ChatView: View {
                     .frame(minWidth: 48)
                     .accessibilityIdentifier("showFriendsToggleButtonIdentifier")
                     Spacer()
-                    Text("1 JUL 2025")
+                    Text("1 Jul 2025")
+                        .font(.satoshi(.title))
                         .onTapGesture {
                         }
                         .accessibilityIdentifier("signOutDateIdentifier")
@@ -54,14 +56,40 @@ struct ChatView: View {
 
                 Spacer()
 
-                Text("FRIENDS CHATS")
-                    .fontWeight(.bold)
+                VStack(alignment: .leading, spacing: 20) {
+                    VStack(alignment: .leading, spacing: 20) {
+
+                        Text("abcdefghijklmnopqrstuvwxyz")
+                            .font(.satoshi(.body, weight: .medium))
+                        Text("abcdefghijklmnopqrstuvwxyz")
+                        Text("Large Title").font(.largeTitle)
+                        Text("Title").font(.title)
+                        Text("Title2").font(.title2) // available iOS 14
+                        Text("Title3").font(.title3) // available iOS 14
+
+                        Divider()
+
+                        Text("Headline").font(.headline)
+                        Text("Subheadline").font(.subheadline)
+                    }
+
+                    Divider()
+
+                    VStack(alignment: .leading, spacing: 20) {
+                        Text("Body").font(.body)  // --> default font
+                        Text("Callout").font(.callout)
+                        Text("Footnote").font(.footnote)
+                        Text("Caption").font(.caption)
+                        Text("Caption2").font(.caption2) // available iOS 14
+                    }
+                }
+                .padding()
 
                 Spacer()
             }
         }
-        .frame(height: 720)
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .padding(24)
+        
     }
 }
 

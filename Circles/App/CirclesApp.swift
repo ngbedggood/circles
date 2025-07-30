@@ -8,6 +8,20 @@
 import FirebaseCore
 import SwiftUI
 
+struct GlobalFontModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.custom("Satoshi Variable", size: 17))
+            .environment(\.font, .custom("Satoshi Variable", size: 17))
+    }
+}
+
+extension View {
+    func globalSatoshiFont() -> some View {
+        self.modifier(GlobalFontModifier())
+    }
+}
+
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
         _ application: UIApplication,
@@ -32,6 +46,7 @@ struct CirclesApp: App {
 
     init() {
         UIView.appearance().overrideUserInterfaceStyle = .light
+        UILabel.appearance().font = UIFont(name: "Satoshi Variable", size: 17)
     }
 
     var body: some Scene {
@@ -42,6 +57,12 @@ struct CirclesApp: App {
                 .environmentObject(scrollManager)
                 .onAppear {
                     authManager.setFirestoreManager(firestoreManager)
+                }
+                .font(.satoshi(.body))
+                .onOpenURL { url in
+                    Task {
+                        await authManager.handleIncomingURL(url: url)
+                    }
                 }
         }
     }

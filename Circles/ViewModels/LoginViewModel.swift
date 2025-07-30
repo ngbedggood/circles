@@ -21,10 +21,16 @@ class LoginViewModel: ObservableObject {
     @Published private(set) var toastMessage: String = ""
     @Published private(set) var toastStyle: ToastStyle = .success
 
-    let authManager: any AuthManagerProtocol
+    @Published var authManager: any AuthManagerProtocol
+    
+    @Published var isVerified: Bool = false
+    //private var cancellables = Set<AnyCancellable>()
 
     init(authManager: any AuthManagerProtocol) {
         self.authManager = authManager
+        authManager.isVerifiedPublisher
+               .receive(on: DispatchQueue.main)
+               .assign(to: &$isVerified)
     }
 
     @MainActor
@@ -87,6 +93,36 @@ class LoginViewModel: ObservableObject {
                 password: password
             )
             self.errorMessage = nil
+        } catch {
+            self.errorMessage = error.localizedDescription
+            print(error.localizedDescription)
+            await MainActor.run {
+                self.showToast = false
+                self.toastMessage = self.errorMessage ?? "An error occurred!"
+                self.toastStyle = .error
+                self.showToast = true
+            }
+        }
+    }
+    
+    @MainActor
+    func verifyEmail() async {
+        guard !email.isEmpty
+        else {
+            self.errorMessage = "Email cannot be empty."
+            await MainActor.run {
+                self.showToast = false
+                self.toastMessage = self.errorMessage ?? "An error occurred!"
+                self.toastStyle = .warning
+                self.showToast = true
+            }
+            
+            return
+        }
+        do {
+            try await authManager.sendVerificationEmail(email: email)
+            self.errorMessage = nil
+            print("VM - email sent?")
         } catch {
             self.errorMessage = error.localizedDescription
             print(error.localizedDescription)

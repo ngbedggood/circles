@@ -66,24 +66,25 @@ struct PersonalCardView: View {
                                 }
                             } label: {
                                 Image(systemName: "face.smiling")
+                                    .font(.system(size:32))
                                 
                             }
                             .frame(minWidth: 48)
                             .accessibilityIdentifier("showFriendsToggleButtonIdentifier")
                             Spacer()
                             Text(viewModel.formattedDate())
+                                .font(.satoshi(.title, weight: .bold))
                             Spacer()
                             Button {
                                 viewModel.deleteEntry()
                             } label: {
                                     Image(systemName: "trash.circle")
+                                        .font(.system(size:32))
                                         .opacity(viewModel.currentMood == nil ? 0 : 1)
                                         .foregroundColor(.white)
                             }
                             .frame(minWidth: 48)
                         }
-                        .font(.title)
-                        .fontWeight(.bold)
                         .zIndex(5)
                         .foregroundColor(
                             viewModel.showFriends
@@ -155,7 +156,6 @@ struct PersonalCardView: View {
                                     axis: .vertical
                                 )
                                 .foregroundColor(.black)
-                                .font(.system(size: 14))
                                 .padding(16)
                                 .background(.white)
                                 .cornerRadius(30)
@@ -177,7 +177,6 @@ struct PersonalCardView: View {
                             
                             ZStack {
                                 Text("Select today's mood before seeing your friends below")
-                                    .font(.caption2)
                                     .foregroundStyle(.gray)
                                     .opacity(viewModel.currentMood == nil ? 1.0 : 0.0)
                                 Image(systemName: "arrowshape.down.fill")

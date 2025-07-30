@@ -30,6 +30,7 @@ class AuthManager: AuthManagerProtocol {
     @Published var currentUser: UserProtocol?  // Firebase user object
     @Published var isAuthenticated: Bool = false
     @Published var isVerified: Bool = false
+    var isVerifiedPublisher: Published<Bool>.Publisher { $isVerified } 
     @Published var isAvailable: Bool = true
     @Published var errorMsg: String?
 
@@ -91,6 +92,30 @@ class AuthManager: AuthManagerProtocol {
 
         print("User logged in: \(result.user.email ?? "Unknown")")
     }
+    
+    func sendVerificationEmail(email: String) async throws {
+        let actionCodeSettings = ActionCodeSettings()
+            actionCodeSettings.url = URL(string: "https://circles-nz.firebaseapp.com")
+            actionCodeSettings.handleCodeInApp = true
+            actionCodeSettings.setIOSBundleID(Bundle.main.bundleIdentifier!)
+        
+        print("Attempting to send email to: \(email)")
+        print("Bundle ID: \(Bundle.main.bundleIdentifier ?? "Unknown")")
+        
+        Auth.auth().sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) { [weak self] error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("Firebase Error: \(error)")
+                    print("Error Code: \(error._code)")
+                    self?.errorMsg = "Failed to send email: \(error.localizedDescription)"
+                } else {
+                    print("Email sent successfully")
+                    UserDefaults.standard.set(email, forKey: "AuthEmail")
+                    //self?.isEmailSent = true
+                }
+            }
+        }
+    }
 
     func signUp(email: String, password: String, username: String, displayName: String) async throws
     {
@@ -112,8 +137,6 @@ class AuthManager: AuthManagerProtocol {
             self.currentUser = result.user
             self.isAuthenticated = true
         }
-        
-        
     }
 
     func signOut() {
@@ -125,6 +148,18 @@ class AuthManager: AuthManagerProtocol {
             self.errorMsg = signOutError.localizedDescription
             print("Error signing out: \(signOutError)")
 
+        }
+    }
+    
+    func handleIncomingURL(url: URL) async {
+        print("I received a URL: \(url.absoluteString)")
+        if Auth.auth().isSignIn(withEmailLink: url.absoluteString) {
+            await MainActor.run {
+                self.isVerified = true
+                print("Yeah?")
+            }
+        } else {
+            print("nah not verified")
         }
     }
 }
