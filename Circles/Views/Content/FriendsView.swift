@@ -123,21 +123,29 @@ struct FriendsView: View {
                                     VStack(spacing: 12) {
                                         ForEach(viewModel.searchResults) { user in
                                             HStack {
-                                                Text("\(user.displayName) (\(user.username))")
+                                                Text("\(user.user.displayName) (\(user.user.username))")
                                                     .foregroundColor(.gray)
                                                     .padding(.leading, 4)
                                                     .offset(y: -4)
 
                                                 Spacer()
-
-                                                Button("Add") {
-                                                    viewModel.sendRequest(to: user)
+                                                if user.requestSent {
+                                                    Button("Sent") {}
+                                                    .padding(.horizontal, 10)
+                                                    .padding(.vertical, 6)
+                                                    .foregroundColor(.white)
+                                                    .background(Color.gray)
+                                                    .clipShape(Capsule())
+                                                } else {
+                                                    Button("Add") {
+                                                        viewModel.sendRequest(to: user.user)
+                                                    }
+                                                    .padding(.horizontal, 10)
+                                                    .padding(.vertical, 6)
+                                                    .foregroundColor(.white)
+                                                    .background(Color.teal)
+                                                    .clipShape(Capsule())
                                                 }
-                                                .padding(.horizontal, 10)
-                                                .padding(.vertical, 6)
-                                                .foregroundColor(.white)
-                                                .background(Color.teal)
-                                                .clipShape(Capsule())
                                             }
                                             .padding(.horizontal, 14)
                                             .transition(.opacity.combined(with: .move(edge: .top)))

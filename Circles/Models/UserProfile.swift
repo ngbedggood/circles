@@ -27,3 +27,9 @@ struct RequestWithUser: Identifiable {
     let request: FriendRequest
     let user: UserProfile
 }
+
+struct SearchResultUser: Identifiable {
+    var id: String { user.uid ?? UUID().uuidString }
+    let user: UserProfile
+    var requestSent: Bool
+}

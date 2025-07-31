@@ -114,20 +114,65 @@ class FirestoreManager: FirestoreManagerProtocol {
     
 
     // SOCIAL STUFF
-    func searchUsers(byUsername username: String, excludingUserID: String) async throws
-        -> [UserProfile]
-    {
+    func searchUsersWithRequestStatus(byUsername username: String, excludingUserID: String) async throws
+    -> [SearchResultUser] {
+        var results: [SearchResultUser] = []
+
+        // Get users matching the username
         let snapshot = try await db.collection("users")
-            .whereField("username", isEqualTo: username)
+            .whereField("username", isGreaterThanOrEqualTo: username)
+            .whereField("username", isLessThanOrEqualTo: username + "\u{f8ff}")
             .getDocuments()
 
-        return snapshot.documents.compactMap { doc in
+        let foundUsers = snapshot.documents.compactMap { doc -> UserProfile? in
             let profile = try? doc.data(as: UserProfile.self)
             return profile?.uid != excludingUserID ? profile : nil
         }
-    }
 
+        // Check for each user if a request from the current user exists in THEIR requests
+        results = try await withThrowingTaskGroup(of: SearchResultUser.self) { group in
+            for user in foundUsers {
+                group.addTask {
+                    let requestRef = self.db
+                        .collection("users")
+                        .document(user.uid ?? "")
+                        .collection("friendRequests")
+
+                    let snapshot = try await requestRef
+                        .whereField("from", isEqualTo: excludingUserID)
+                        .limit(to: 1)
+                        .getDocuments()
+
+                    let requestExists = !snapshot.isEmpty
+
+                    return SearchResultUser(user: user, requestSent: requestExists)
+                }
+            }
+
+            return try await group.reduce(into: [SearchResultUser]()) { $0.append($1) }
+        }
+
+        return results
+    }
+    
     func sendFriendRequest(from senderID: String, to receiverID: String) async throws {
+        
+        // First check that there isn't already an existing request
+        let requestsRef = db.collection("users").document(receiverID).collection("friendRequests")
+        
+        let query = requestsRef
+            .whereField("from", isEqualTo: senderID)
+            .whereField("to", isEqualTo: receiverID)
+        
+        let snapshot = try await query.getDocuments()
+        
+        let canSend = snapshot.documents.isEmpty
+        
+        guard canSend else {
+            print("FSM: A friend request with this user already exists")
+            return
+        }
+        
         let data: [String: Any] = [
             "from": senderID,
             "to": receiverID,

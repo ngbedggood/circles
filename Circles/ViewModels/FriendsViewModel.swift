@@ -13,7 +13,7 @@ class FriendsViewModel: ObservableObject {
     @Published var newDisplayName: String = ""
     @Published var searchQuery = ""
     @Published private(set) var newDisplayNameChangeSuccess: Bool = false
-    @Published private(set) var searchResults: [UserProfile] = []
+    @Published private(set) var searchResults: [SearchResultUser] = []
     @Published private(set) var pendingRequests: [FriendRequest] = []
     @Published private(set) var pendingRequestsWithUsers: [RequestWithUser] = []
     @Published private(set) var friendsList: [FriendColor] = []
@@ -72,17 +72,18 @@ class FriendsViewModel: ObservableObject {
         withAnimation {
             hasSearched = false
         }
+        guard !searchQuery.isEmpty else {
+            return
+        }
         guard let currentUserID = authManager.currentUser?.uid else { return }
         Task {
             do {
-                let results = try await firestoreManager.searchUsers(byUsername: searchQuery.lowercased(), excludingUserID: currentUserID)
+                let results = try await firestoreManager.searchUsersWithRequestStatus(byUsername: searchQuery.lowercased(), excludingUserID: currentUserID)
                 await MainActor.run {
                     withAnimation {
                         self.searchResults = results
                         hasSearched = true
                     }
-                    
-                    //print("Search results: \(results)")
                 }
             } catch {
                 await MainActor.run {
@@ -98,8 +99,13 @@ class FriendsViewModel: ObservableObject {
         Task {
             try? await firestoreManager.sendFriendRequest(from: fromID, to: toID)
             await MainActor.run {
+                if let index = searchResults.firstIndex(where: { $0.user.uid == user.uid }) {
+                    withAnimation {
+                        searchResults[index].requestSent = true
+                    }
+                }
                 self.showToast = false
-                self.toastMessage = "Added friend!"
+                self.toastMessage = "A friend request has been sent"
                 self.toastStyle = .success
                 self.showToast = true
             }
