@@ -36,8 +36,6 @@ struct FriendsView: View {
                             }
                             .frame(minWidth: 48)
                             .accessibilityIdentifier("showFriendsToggleButtonIdentifier")
-//                            Spacer()
-//                            Text("1 Jul 2025")
                             Spacer()
                             Button {
                                 

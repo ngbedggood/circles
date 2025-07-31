@@ -177,21 +177,22 @@ struct SocialCardView: View {
                             .lineLimit(7)
                             //.fontWeight(isSelected ? .regular : .bold)
                             //.font(isSelected ? .system(size: 24) : .system(size: 20))
-                            .font(isSelected ? .satoshi(size:22, weight: .regular) : .satoshi(size: 32, weight: .bold))
+                            .font(isSelected ? .satoshi(size:22, weight: .regular) : .satoshi(size: 20, weight: .bold))
                             .multilineTextAlignment(.center)
-                            .minimumScaleFactor(2 / 24)
+                            .minimumScaleFactor(4 / 24)
                             .foregroundColor(.white)
                             .padding(8)
-                        if isSelected {
-                            Button(action: {
-
-                            }) {
-                                Image(systemName: "ellipsis.message.fill")
-                                    .font(.system(size: 28))
-                                    .foregroundColor(.white)
-                            }
-                            .offset(y: 88)
-                        }
+                            //.scaleEffect(scale*1.5)
+//                        if isSelected {
+//                            Button(action: {
+//
+//                            }) {
+//                                Image(systemName: "ellipsis.message.fill")
+//                                    .font(.system(size: 28))
+//                                    .foregroundColor(.white)
+//                            }
+//                            .offset(y: 88)
+//                        }
                     }
                     .transition(.scale)
                 )
