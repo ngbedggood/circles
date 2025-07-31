@@ -28,7 +28,7 @@ class DayPageViewModel: ObservableObject {
 
     // Shared stuff
     @Published private(set) var dailyMood: DailyMood?
-    @Published private(set) var isDayVerticalScrollDisabled: Bool = false
+    @Published var isDayVerticalScrollDisabled: Bool = false
 
     let date: Date
 

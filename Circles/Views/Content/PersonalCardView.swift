@@ -76,6 +76,7 @@ struct PersonalCardView: View {
                                 .font(.satoshi(.title, weight: .bold))
                             Spacer()
                             Button {
+                                isFocused = false
                                 viewModel.deleteEntry()
                             } label: {
                                     Image(systemName: "trash.circle")
@@ -171,6 +172,10 @@ struct PersonalCardView: View {
                                 .offset(y: isFocused ? -90 : 0)
                                 .animation(.easeInOut, value: isFocused)
                                 .animation(.easeInOut, value: viewModel.isMoodSelectionVisible)
+                                .onChange(of: isFocused) { focused in
+                                    scrollManager.isHorizontalScrollDisabled = focused
+                                    viewModel.isDayVerticalScrollDisabled = focused
+                                }
                             }
                             
                             Spacer()
