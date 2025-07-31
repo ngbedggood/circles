@@ -182,6 +182,7 @@ struct PersonalCardView: View {
                             
                             ZStack {
                                 Text("Select today's mood before seeing your friends below")
+                                    .font(.satoshi(.caption))
                                     .foregroundStyle(.gray)
                                     .opacity(viewModel.currentMood == nil ? 1.0 : 0.0)
                                 Image(systemName: "arrowshape.down.fill")

@@ -134,13 +134,11 @@ struct SocialCardView: View {
                         : "Me"
                 )
                 .lineLimit(7)
-                //.fontWeight(viewModel.isMeSelected ? .regular : .bold)
-                //.font(viewModel.isMeSelected ? .system(size: 24) : .system(size: 30))
-                    //.font(.satoshi())
+                .font(viewModel.isMeSelected ? .satoshi(size:22, weight: .regular) : .satoshi(size: 32, weight: .bold))
                 .multilineTextAlignment(.center)
-                .minimumScaleFactor(4 / 24)
+                .minimumScaleFactor(2 / 24)
                 .foregroundColor(.white)
-                .padding(24)
+                .padding(32)
             )
             .position(x: center.x, y: center.y)
             .onTapGesture {
@@ -179,8 +177,9 @@ struct SocialCardView: View {
                             .lineLimit(7)
                             //.fontWeight(isSelected ? .regular : .bold)
                             //.font(isSelected ? .system(size: 24) : .system(size: 20))
+                            .font(isSelected ? .satoshi(size:22, weight: .regular) : .satoshi(size: 32, weight: .bold))
                             .multilineTextAlignment(.center)
-                            .minimumScaleFactor(4 / 24)
+                            .minimumScaleFactor(2 / 24)
                             .foregroundColor(.white)
                             .padding(8)
                         if isSelected {
