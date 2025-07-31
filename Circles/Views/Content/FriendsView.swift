@@ -129,23 +129,15 @@ struct FriendsView: View {
                                                     .offset(y: -4)
 
                                                 Spacer()
-                                                if user.requestSent {
-                                                    Button("Sent") {}
-                                                    .padding(.horizontal, 10)
-                                                    .padding(.vertical, 6)
-                                                    .foregroundColor(.white)
-                                                    .background(Color.gray)
-                                                    .clipShape(Capsule())
-                                                } else {
-                                                    Button("Add") {
+                                                    Button(user.requestSent ? "Sent" : "Add") {
                                                         viewModel.sendRequest(to: user.user)
                                                     }
                                                     .padding(.horizontal, 10)
                                                     .padding(.vertical, 6)
                                                     .foregroundColor(.white)
-                                                    .background(Color.teal)
+                                                    .background(user.requestSent ? Color.gray : Color.teal)
                                                     .clipShape(Capsule())
-                                                }
+                                                    .disabled(user.requestSent == true)
                                             }
                                             .padding(.horizontal, 14)
                                             .transition(.opacity.combined(with: .move(edge: .top)))
@@ -329,8 +321,7 @@ struct FriendsView: View {
                                                     }
                                                 }
                                                 .padding(.horizontal, 12)
-                                                .transition(
-                                                    .opacity.combined(with: .move(edge: .top)))
+                                                .transition(.opacity.combined(with: .move(edge: .top)))
                                             }
                                         }
                                         .padding(.bottom, 12)

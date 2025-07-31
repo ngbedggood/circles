@@ -166,6 +166,7 @@ class FriendsViewModel: ObservableObject {
                 self.toastMessage = "Accepted friend request!"
                 self.toastStyle = .success
                 self.showToast = true
+                fetchFriendList()
             }
         }
         print("Accepted request from: \(requestID)")
