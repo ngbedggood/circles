@@ -35,7 +35,7 @@ class LoginViewModel: ObservableObject {
 
     @MainActor
     func signUp() async {
-        guard !email.isEmpty && !password.isEmpty && !username.isEmpty && !displayName.isEmpty
+        guard !email.isEmpty && !password.isEmpty //&& !username.isEmpty && !displayName.isEmpty
         else {
             self.errorMessage = "Fields cannot be empty."
             await MainActor.run {
@@ -47,11 +47,9 @@ class LoginViewModel: ObservableObject {
             return
         }
         do {
-            try await authManager.signUp(
+            try await authManager.createAccount(
                 email: email,
-                password: password,
-                username: username,
-                displayName: displayName
+                password: password
             )
             await MainActor.run {
                 self.showToast = false
@@ -106,6 +104,19 @@ class LoginViewModel: ObservableObject {
     }
     
     @MainActor
+    func completeProfile() async {
+        do {
+            try await authManager.finishProfile(username: username, displayName: displayName)
+        } catch {
+            await MainActor.run {
+                self.errorMessage = error.localizedDescription
+            }
+            print(error.localizedDescription)
+        }
+        
+    }
+    
+    @MainActor
     func verifyEmail() async {
         guard !email.isEmpty
         else {
@@ -119,18 +130,27 @@ class LoginViewModel: ObservableObject {
             
             return
         }
-        do {
-            try await authManager.sendVerificationEmail(email: email)
-            self.errorMessage = nil
-            print("VM - email sent?")
-        } catch {
-            self.errorMessage = error.localizedDescription
-            print(error.localizedDescription)
+        if (authManager.pendingSignUpEmail) != nil {
             await MainActor.run {
                 self.showToast = false
-                self.toastMessage = self.errorMessage ?? "An error occurred!"
-                self.toastStyle = .error
+                self.toastMessage = "A verificaiton email was already sent, please check your inbox"
+                self.toastStyle = .success
                 self.showToast = true
+            }
+        } else {
+            do {
+                try await authManager.sendVerificationEmail(email: email)
+                self.errorMessage = nil
+                print("LVM - email sent?")
+            } catch {
+                self.errorMessage = error.localizedDescription
+                print(error.localizedDescription)
+                await MainActor.run {
+                    self.showToast = false
+                    self.toastMessage = self.errorMessage ?? "An error occurred!"
+                    self.toastStyle = .error
+                    self.showToast = true
+                }
             }
         }
     }

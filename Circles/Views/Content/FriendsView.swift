@@ -43,6 +43,7 @@ struct FriendsView: View {
                                 Text("Sign\nOut")
                                     .font(.satoshi(.caption, weight: .bold))
                                     .onTapGesture {
+                                        navigationManager.currentView = .dayPage
                                         viewModel.authManager.signOut()
                                     }
                                     .accessibilityIdentifier("signOutDateIdentifier")

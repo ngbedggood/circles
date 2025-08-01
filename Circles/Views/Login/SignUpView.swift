@@ -15,7 +15,7 @@ struct SignUpView: View {
     @State private var isPasswordVisible: Bool = false
     
     var body: some View {
-        ZStack {
+        VStack {
             RoundedRectangle(cornerRadius: 20)
                 .fill(Color(red: 0.92, green: 0.88, blue: 0.84))
                 .shadow(radius: 8)
@@ -96,7 +96,6 @@ struct SignUpView: View {
             }
             .padding()
         }
-        .padding(24)
     }
 }
 

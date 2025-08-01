@@ -9,6 +9,7 @@
 
 import FirebaseFirestore
 import Foundation
+import SwiftUI
 
 class FirestoreManager: FirestoreManagerProtocol {
 
@@ -99,14 +100,30 @@ class FirestoreManager: FirestoreManagerProtocol {
     }
     
     func fetchUsername(for uid: String) async throws -> String? {
+        
+        DispatchQueue.main.async {
+            withAnimation {
+                self.isLoading = true
+            }
+        }
         let querySnapshot = try await db.collection("usernames")
             .whereField("uid", isEqualTo: uid)
             .limit(to: 1)
             .getDocuments()
 
         if let document = querySnapshot.documents.first {
+            DispatchQueue.main.async {
+                withAnimation {
+                    self.isLoading = false
+                }
+            }
             return document.documentID
         } else {
+            DispatchQueue.main.async {
+                withAnimation {
+                    self.isLoading = false
+                }
+            }
             return nil
         }
     }
@@ -365,7 +382,9 @@ class FirestoreManager: FirestoreManagerProtocol {
     }
 
     func loadPastMoods(forUserId userId: String) {
-        self.isLoading = true
+        withAnimation{
+            self.isLoading = true
+        }
         self.errorMsg = ""
         self.pastMoods = [:]
 
@@ -382,7 +401,9 @@ class FirestoreManager: FirestoreManagerProtocol {
         else {
             DispatchQueue.main.async {
                 self.errorMsg = "Failed to calculate start date for past moods."
-                self.isLoading = false
+                withAnimation {
+                    self.isLoading = false
+                }
             }
             print("Could not calculate start date for past moods.")
             return
@@ -396,7 +417,9 @@ class FirestoreManager: FirestoreManagerProtocol {
         else {
             DispatchQueue.main.async {
                 self.errorMsg = "Failed to calculate end date for past moods."
-                self.isLoading = false
+                withAnimation {
+                    self.isLoading = false
+                }
             }
             print("Could not calculate end date for past moods.")
             return
@@ -421,7 +444,9 @@ class FirestoreManager: FirestoreManagerProtocol {
                         "[\(Date())] ERROR: Firestore query failed: \(error.localizedDescription)")
                     DispatchQueue.main.async {
                         self.errorMsg = "Failed to load moods: \(error.localizedDescription)"
-                        self.isLoading = false
+                        withAnimation {
+                            self.isLoading = false
+                        }
                     }
                     return
                 }
@@ -443,10 +468,9 @@ class FirestoreManager: FirestoreManagerProtocol {
 
                 DispatchQueue.main.async {
                     self.pastMoods = fetchedMoods
-                    self.isLoading = false
-                    //                    print(
-                    //                        "[\(Date())] Loaded \(self.pastMoods.count) moods for the past \(self.daysToRetrieve) days for user \(userId)."
-                    //                    )
+                    withAnimation {
+                        self.isLoading = false
+                    }
                 }
             }
     }
@@ -461,7 +485,9 @@ class FirestoreManager: FirestoreManagerProtocol {
         PastMoodsListener?.remove()
         PastMoodsListener = nil
         self.pastMoods = [:]
-        self.isLoading = true
+        withAnimation {
+            self.isLoading = true
+        }
 
         print("All Firestore listeners detached and data cleared.")
     }

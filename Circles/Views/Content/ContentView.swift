@@ -39,13 +39,19 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            if !authManager.isAuthenticated { //|| !authManager.isVerified {
+            if authManager.isInitializing {
+                    LoadingView()
+                    .transition(.opacity)
+            } else if !authManager.isAuthenticated ||
+                !authManager.isVerified ||
+                !authManager.isProfileComplete {
                 ZStack {
                     LoginView(
                         viewModel: LoginViewModel(
                             authManager: authManager
                         )
                     )
+                    .transition(.opacity)
                 }
             } else {
                 ZStack {
@@ -61,6 +67,7 @@ struct ContentView: View {
                                     authManager: authManager
                                 )
                             )
+                            .transition(.opacity)
                             .environmentObject(navigationManager)
                         case .dayPage:
                             TabView(selection: $horizontalIndex) {

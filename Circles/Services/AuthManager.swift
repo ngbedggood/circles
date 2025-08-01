@@ -9,6 +9,7 @@ import Combine
 import FirebaseAuth
 import FirebaseFirestore
 import Foundation
+import SwiftUI
 
 extension User: UserProtocol {}
 
@@ -33,64 +34,89 @@ class AuthManager: AuthManagerProtocol {
     var isVerifiedPublisher: Published<Bool>.Publisher { $isVerified } 
     @Published var isAvailable: Bool = true
     @Published var errorMsg: String?
+    @Published var pendingSignUpEmail: String?
+    
+    @Published var isProfileComplete: Bool = false
+    @Published var isInitializing: Bool = true
+    
 
     private(set) var firestoreManager: any FirestoreManagerProtocol
 
     init() {
         self.firestoreManager = FirestoreManager()
-        // Listen for authentication state changes
+
         _ = Auth.auth().addStateDidChangeListener { [weak self] _, user in
-            DispatchQueue.main.async {
-                guard let self = self else { return }
-                self.currentUser = user
-                self.isAuthenticated = (user != nil)  // If 'user' is not nil, they're authenticated.
-                self.errorMsg = nil
+            guard let self = self else { return }
 
-                if let uid = user?.uid {
-                    // If we have a UID then start downloading the logged in users notes
-                    print("User \(uid) logged in. Starting Firestore past moods listener.")
-                    self.firestoreManager.loadPastMoods(forUserId: uid)
-                    self.firestoreManager.loadUserProfile(for: uid)
+            Task {
+                let username = try await self.firestoreManager.fetchUsername(for: user?.uid ?? "")
 
-                } else {
-                    // If no one is logged in/authenticated then detach all Firestore listeners and clear data.
-                    self.firestoreManager.detachAllListeners()
-                    print("User logged out or not authenticated. Detaching Firestore listeners.")
+                await MainActor.run {
+                    self.currentUser = user
+                    self.isAuthenticated = (user != nil)
+                    self.isVerified = (user?.isEmailVerified ?? false)
+                    self.isProfileComplete = (username != nil)
+                    self.errorMsg = nil
+
+                    if let uid = user?.uid {
+                        print("User \(uid) logged in. Starting Firestore past moods listener.")
+                        print("isAuthenticated: \(self.isAuthenticated)")
+                        print("isVerified: \(self.isVerified)")
+                        print("isProfileComplete: \(self.isProfileComplete)")
+                        self.firestoreManager.loadPastMoods(forUserId: uid)
+                        self.firestoreManager.loadUserProfile(for: uid)
+
+                    } else {
+                        self.firestoreManager.detachAllListeners()
+                        print("User logged out or not authenticated. Detaching Firestore listeners.")
+                    }
                 }
-
-            }
+                await MainActor.run {
+                    withAnimation {
+                        self.isInitializing = false
+                    }
+                }
+    }
         }
     }
-
     func setFirestoreManager(_ firestoreManager: FirestoreManager) {
         self.firestoreManager = firestoreManager
     }
 
     func login(email: String, password: String) async throws {
-        
+        // Attempt sign-in
         let result = try await Auth.auth().signIn(withEmail: email, password: password)
-        let uid = result.user.uid
+        let user = result.user
+        let uid = user.uid
         
+        // Check profile completeness
+        let hasUsername = (try await self.firestoreManager.fetchUsername(for: uid)) != nil
         await MainActor.run {
-            self.isVerified = result.user.isEmailVerified
+            self.isProfileComplete = hasUsername
         }
-        
-        if !result.user.isEmailVerified {
+
+        // Check email verification
+        guard user.isEmailVerified else {
+            await MainActor.run {
+                self.isVerified = false
+            }
             throw SignUpError.emailNotVerified
         }
 
         await MainActor.run {
-            self.errorMsg = nil
-            self.currentUser = result.user
+            self.currentUser = user
             self.isAuthenticated = true
+            self.isVerified = true
+            self.errorMsg = nil
         }
 
+        // Load Firestore content
         await MainActor.run {
             self.firestoreManager.loadUserProfile(for: uid)
             self.firestoreManager.loadPastMoods(forUserId: uid)
         }
 
-        print("User logged in: \(result.user.email ?? "Unknown")")
+        print("User logged in: \(user.email ?? "Unknown")")
     }
     
     func sendVerificationEmail(email: String) async throws {
@@ -111,10 +137,50 @@ class AuthManager: AuthManagerProtocol {
                 } else {
                     print("Email sent successfully")
                     UserDefaults.standard.set(email, forKey: "AuthEmail")
-                    //self?.isEmailSent = true
+                    self?.pendingSignUpEmail = email
                 }
             }
         }
+    }
+    
+    func createAccount(email: String, password: String) async throws {
+        let result = try await Auth.auth().createUser(withEmail: email, password: password)
+        
+        await MainActor.run {
+            self.currentUser = result.user
+            self.errorMsg = nil
+            self.isAuthenticated = true
+        }
+        print("AUTHENTICATION STATUS IS: \(isAuthenticated)")
+        
+        let actionCodeSettings = ActionCodeSettings()
+        actionCodeSettings.url = URL(string: "https://circles-nz.firebaseapp.com")
+        actionCodeSettings.handleCodeInApp = true
+        actionCodeSettings.setIOSBundleID(Bundle.main.bundleIdentifier!)
+        
+        try await result.user.sendEmailVerification(with: actionCodeSettings)
+    }
+    
+    func finishProfile(username: String, displayName: String) async throws {
+        guard let user = Auth.auth().currentUser else {
+            print("No user is currently signed in.")
+            return
+        }
+        
+        let uid = user.uid
+        
+        
+        try await firestoreManager.saveUserProfile(
+            uid: uid, username: username, displayName: displayName)
+        
+        await MainActor.run {
+            self.errorMsg = nil
+            self.currentUser = user
+            self.isAuthenticated = true
+            self.isProfileComplete = true
+        }
+        print("PROFILE COMPLETENESS STATUS IS: \(isProfileComplete)")
+        
     }
 
     func signUp(email: String, password: String, username: String, displayName: String) async throws
@@ -142,6 +208,13 @@ class AuthManager: AuthManagerProtocol {
     func signOut() {
         do {
             try Auth.auth().signOut()
+            withAnimation {
+                self.errorMsg = nil
+                self.currentUser = nil
+                self.isAuthenticated = false
+                self.isVerified = false
+                self.isProfileComplete = false
+            }
             firestoreManager.detachAllListeners()
             print("User signed out.")  // Listener handles updating isAuthenticated state
         } catch let signOutError as NSError {
@@ -150,16 +223,67 @@ class AuthManager: AuthManagerProtocol {
 
         }
     }
-    
     func handleIncomingURL(url: URL) async {
-        print("I received a URL: \(url.absoluteString)")
-        if Auth.auth().isSignIn(withEmailLink: url.absoluteString) {
-            await MainActor.run {
-                self.isVerified = true
-                print("Yeah?")
+        print("at the start?")
+        
+        if let user = Auth.auth().currentUser {
+            // Reload the user's data
+            user.reload { error in
+                if let error = error {
+                    print("Error reloading user data: \(error.localizedDescription)")
+                } else {
+                    print("User data reloaded successfully.")
+                    // Access the updated user properties
+                    print("Updated display name: \(user.displayName ?? "N/A")")
+                    print("Updated email: \(user.email ?? "N/A")")
+                    if user.isEmailVerified {
+                        self.errorMsg = nil
+                        self.isVerified = true
+                    } else {
+                        print("Email is not verified")
+                    }
+                }
             }
         } else {
-            print("nah not verified")
+            print("No user is currently signed in.")
         }
+        print("VERIFIED STATUS IS: \(isVerified)")
+        print("PROFILE COMPLETENESS STATUS IS: \(isProfileComplete)")
     }
+    
+//    func handleIncomingURL(url: URL) async {
+//        
+//        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+//              let linkItem = components.queryItems?.first(where: { $0.name == "link" }),
+//              let firebaseLink = linkItem.value,
+//              Auth.auth().isSignIn(withEmailLink: firebaseLink)
+//        else {
+//            print("Not a valid sign-in link")
+//            await MainActor.run { self.isVerified = false }
+//            return
+//        }
+//        
+//    
+//        print("I received a URL: \(firebaseLink)")
+//        
+//        guard let email = pendingSignUpEmail else {
+//            print("Missing pending sign-up email.")
+//            return
+//        }
+//        
+//        do {
+//            let result = try await Auth.auth().signIn(withEmail: email, link: firebaseLink)
+//            
+//            await MainActor.run {
+//                self.isVerified = true
+//                print("Successfully signed in as \(result.user.email ?? "unknown email")")
+//            }
+//            
+//        } catch {
+//            await MainActor.run {
+//                print("Failed to sign in with link: \(error.localizedDescription)")
+//                self.isVerified = false
+//            }
+//        }
+//    }
 }
