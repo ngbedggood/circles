@@ -15,6 +15,7 @@ struct ToastView: View {
     var title: String
     var message: String
     var onCancelTapped: (() -> Void)
+    @State private var toastDismissTask: Task<Void, Never>? = nil
 
     var body: some View {
         VStack {
@@ -57,12 +58,24 @@ struct ToastView: View {
                 if newValue {
                     internalToastID = UUID()
                     let capturedID = internalToastID
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+
+                    // Cancel any existing task
+                    toastDismissTask?.cancel()
+
+                    toastDismissTask = Task {
+                        try? await Task.sleep(nanoseconds: 3 * 1_000_000_000)
+                        if Task.isCancelled { return }
+
                         if internalToastID == capturedID {
-                            isShown = false
+                            await MainActor.run {
+                                isShown = false
+                            }
                         }
                     }
+                } else {
+                    // If manually dismissed, cancel task
+                    toastDismissTask?.cancel()
+                    toastDismissTask = nil
                 }
             }
         }

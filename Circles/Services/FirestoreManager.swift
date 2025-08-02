@@ -101,7 +101,7 @@ class FirestoreManager: FirestoreManagerProtocol {
     
     func fetchUsername(for uid: String) async throws -> String? {
         
-        DispatchQueue.main.async {
+       Task { @MainActor in
             withAnimation {
                 self.isLoading = true
             }
@@ -112,14 +112,14 @@ class FirestoreManager: FirestoreManagerProtocol {
             .getDocuments()
 
         if let document = querySnapshot.documents.first {
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 withAnimation {
                     self.isLoading = false
                 }
             }
             return document.documentID
         } else {
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 withAnimation {
                     self.isLoading = false
                 }
@@ -381,6 +381,7 @@ class FirestoreManager: FirestoreManagerProtocol {
         }
     }
 
+    @MainActor
     func loadPastMoods(forUserId userId: String) {
         withAnimation{
             self.isLoading = true
@@ -394,38 +395,21 @@ class FirestoreManager: FirestoreManagerProtocol {
         let now = Date()
         let todayStartOfDay = calendar.startOfDay(for: now)
 
-        // Calculate the startDate for the query range
-        guard
-            let queryDate = calendar.date(
-                byAdding: .day, value: -(daysToRetrieve - 1), to: todayStartOfDay)
-        else {
-            DispatchQueue.main.async {
-                self.errorMsg = "Failed to calculate start date for past moods."
+        // Calculate the start and end date for the query range
+        guard let startDate = calendar.date(byAdding: .day, value: -(daysToRetrieve - 1), to: todayStartOfDay),
+                  let endDate = calendar.date(byAdding: .day, value: 1, to: todayStartOfDay)
+            else {
+                self.errorMsg = "Failed to calculate date range for past moods."
                 withAnimation {
                     self.isLoading = false
                 }
+                return
             }
-            print("Could not calculate start date for past moods.")
-            return
-        }
 
-        // Generate the lower bound document ID string
-        let startDocID = DailyMood.dateId(from: queryDate)
-
-        // Generate the upper bound document ID string (the day AFTER today, exclusive)
-        guard let endDateForQuery = calendar.date(byAdding: .day, value: 1, to: todayStartOfDay)
-        else {
-            DispatchQueue.main.async {
-                self.errorMsg = "Failed to calculate end date for past moods."
-                withAnimation {
-                    self.isLoading = false
-                }
-            }
-            print("Could not calculate end date for past moods.")
-            return
-        }
-        let endDocID = DailyMood.dateId(from: endDateForQuery)
-
+        // Generate the lower and upper bound document ID string
+        let startDocID = DailyMood.dateId(from: startDate)
+        let endDocID = DailyMood.dateId(from: endDate)
+        
         print(
             "[\(Date())] FirestoreManager: Initiating fetch for moods with Document IDs from \(startDocID) (inclusive) to \(endDocID) (exclusive)."
         )
@@ -434,20 +418,18 @@ class FirestoreManager: FirestoreManagerProtocol {
             // Using Document ID instead of createBy date for filtering
             .whereField(FieldPath.documentID(), isGreaterThanOrEqualTo: startDocID)
             .whereField(FieldPath.documentID(), isLessThan: endDocID)
-
             .order(by: FieldPath.documentID(), descending: false)  // Chronological
             .addSnapshotListener { [weak self] querySnapshot, error in
                 guard let self = self else { return }
 
                 if let error = error {
-                    print(
-                        "[\(Date())] ERROR: Firestore query failed: \(error.localizedDescription)")
-                    DispatchQueue.main.async {
-                        self.errorMsg = "Failed to load moods: \(error.localizedDescription)"
-                        withAnimation {
-                            self.isLoading = false
+                    print("[\(Date())] ERROR: Firestore query failed: \(error.localizedDescription)")
+                        Task { @MainActor in
+                            self.errorMsg = "Failed to load moods: \(error.localizedDescription)"
+                            withAnimation {
+                                self.isLoading = false
+                            }
                         }
-                    }
                     return
                 }
 
@@ -466,7 +448,7 @@ class FirestoreManager: FirestoreManagerProtocol {
                     }
                 }
 
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     self.pastMoods = fetchedMoods
                     withAnimation {
                         self.isLoading = false

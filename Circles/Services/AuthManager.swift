@@ -31,7 +31,6 @@ class AuthManager: AuthManagerProtocol {
     @Published var currentUser: UserProtocol?  // Firebase user object
     @Published var isAuthenticated: Bool = false
     @Published var isVerified: Bool = false
-    var isVerifiedPublisher: Published<Bool>.Publisher { $isVerified } 
     @Published var isAvailable: Bool = true
     @Published var errorMsg: String?
     @Published var pendingSignUpEmail: String?
@@ -130,7 +129,7 @@ class AuthManager: AuthManagerProtocol {
         print("Bundle ID: \(Bundle.main.bundleIdentifier ?? "Unknown")")
         
         Auth.auth().sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) { [weak self] error in
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 if let error = error {
                     print("Firebase Error: \(error)")
                     print("Error Code: \(error._code)")

@@ -24,13 +24,9 @@ class LoginViewModel: ObservableObject {
     @Published var authManager: any AuthManagerProtocol
     
     @Published var isVerified: Bool = false
-    //private var cancellables = Set<AnyCancellable>()
 
     init(authManager: any AuthManagerProtocol) {
         self.authManager = authManager
-        authManager.isVerifiedPublisher
-               .receive(on: DispatchQueue.main)
-               .assign(to: &$isVerified)
     }
 
     @MainActor

@@ -146,11 +146,9 @@ struct LoginView: View {
                                             Button(action: {
                                                 let wasFocused = focusedField
                                                 isPasswordVisible.toggle()
-                                                DispatchQueue.main.async {
-                                                    if wasFocused != nil {
-                                                        focusedField =
-                                                            isPasswordVisible ? .plain : .secure
-                                                    }
+                                                if wasFocused != nil {
+                                                    focusedField =
+                                                        isPasswordVisible ? .plain : .secure
                                                 }
 
                                             }) {

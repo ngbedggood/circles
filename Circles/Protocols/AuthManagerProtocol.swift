@@ -17,7 +17,6 @@ protocol AuthManagerProtocol: ObservableObject {
     var pendingSignUpEmail: String? { get set }
     var firestoreManager: any FirestoreManagerProtocol { get }
     var isVerified: Bool { get }
-    var isVerifiedPublisher: Published<Bool>.Publisher { get }
     var isProfileComplete: Bool { get }
     var isInitializing: Bool { get }
 
