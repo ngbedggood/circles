@@ -57,6 +57,14 @@ struct PersonalCardView: View {
                         .animation(.easeInOut.speed(0.8), value: viewModel.currentMood)
                         .padding(24)
                         .shadow(radius: 8)
+                        .onTapGesture {
+                            if isFocused {
+                                viewModel.saveEntry()
+                                UIApplication.shared.sendAction(
+                                    #selector(UIResponder.resignFirstResponder), to: nil, from: nil,
+                                    for: nil)
+                            }
+                        }
                     
                     VStack {
                         HStack {

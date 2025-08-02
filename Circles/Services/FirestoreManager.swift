@@ -426,9 +426,9 @@ class FirestoreManager: FirestoreManagerProtocol {
         }
         let endDocID = DailyMood.dateId(from: endDateForQuery)
 
-        //        print(
-        //            "[\(Date())] FirestoreManager: Initiating fetch for moods with Document IDs from \(startDocID) (inclusive) to \(endDocID) (exclusive)."
-        //        )
+        print(
+            "[\(Date())] FirestoreManager: Initiating fetch for moods with Document IDs from \(startDocID) (inclusive) to \(endDocID) (exclusive)."
+        )
 
         PastMoodsListener = db.collection("users").document(userId).collection("dailyMoods")
             // Using Document ID instead of createBy date for filtering

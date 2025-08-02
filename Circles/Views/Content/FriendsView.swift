@@ -21,6 +21,13 @@ struct FriendsView: View {
             RoundedRectangle(cornerRadius: 20)
                 .fill(Color(red: 0.92, green: 0.88, blue: 0.84))
                 .shadow(radius: 8)
+                .onTapGesture {
+                    if isFocused {
+                        UIApplication.shared.sendAction(
+                            #selector(UIResponder.resignFirstResponder), to: nil, from: nil,
+                            for: nil)
+                    }
+                }
             GeometryReader { geometry in
                 let screenWidth = geometry.size.width
                 ZStack {

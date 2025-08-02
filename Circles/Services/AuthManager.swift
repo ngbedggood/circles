@@ -114,6 +114,7 @@ class AuthManager: AuthManagerProtocol {
         await MainActor.run {
             self.firestoreManager.loadUserProfile(for: uid)
             self.firestoreManager.loadPastMoods(forUserId: uid)
+            print("")
         }
 
         print("User logged in: \(user.email ?? "Unknown")")
@@ -250,40 +251,4 @@ class AuthManager: AuthManagerProtocol {
         print("VERIFIED STATUS IS: \(isVerified)")
         print("PROFILE COMPLETENESS STATUS IS: \(isProfileComplete)")
     }
-    
-//    func handleIncomingURL(url: URL) async {
-//        
-//        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-//              let linkItem = components.queryItems?.first(where: { $0.name == "link" }),
-//              let firebaseLink = linkItem.value,
-//              Auth.auth().isSignIn(withEmailLink: firebaseLink)
-//        else {
-//            print("Not a valid sign-in link")
-//            await MainActor.run { self.isVerified = false }
-//            return
-//        }
-//        
-//    
-//        print("I received a URL: \(firebaseLink)")
-//        
-//        guard let email = pendingSignUpEmail else {
-//            print("Missing pending sign-up email.")
-//            return
-//        }
-//        
-//        do {
-//            let result = try await Auth.auth().signIn(withEmail: email, link: firebaseLink)
-//            
-//            await MainActor.run {
-//                self.isVerified = true
-//                print("Successfully signed in as \(result.user.email ?? "unknown email")")
-//            }
-//            
-//        } catch {
-//            await MainActor.run {
-//                print("Failed to sign in with link: \(error.localizedDescription)")
-//                self.isVerified = false
-//            }
-//        }
-//    }
 }
