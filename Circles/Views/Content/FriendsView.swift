@@ -108,7 +108,6 @@ struct FriendsView: View {
                                         .autocapitalization(.none)
                                         .disableAutocorrection(true)
                                         .foregroundColor(.black.opacity(0.75))
-                                        .font(.body)
                                         .padding(18)
                                         .focused($isFocused)
                                     //.background(.white)
@@ -228,12 +227,13 @@ struct FriendsView: View {
                                                     HStack {
                                                         Text(item.user.username)
                                                             .foregroundColor(.gray)
-                                                            .font(.body)
                                                             .padding(.leading, 4)
                                                         Spacer()
 
                                                         Button("Accept") {
-                                                            viewModel.acceptRequest(item.request)
+                                                            Task {
+                                                                await viewModel.acceptRequest(item.request)
+                                                            }
                                                         }
                                                         .padding(.horizontal, 12)
                                                         .padding(.vertical, 6)
@@ -250,7 +250,6 @@ struct FriendsView: View {
                                                 HStack {
                                                     Text("No pending requests")
                                                         .foregroundColor(.gray)
-                                                        .font(.body)
                                                         .padding(.leading, 4)
                                                     Spacer()
                                                 }
@@ -281,7 +280,6 @@ struct FriendsView: View {
                                 HStack {
                                     Text("Friends List")
                                         .foregroundColor(.black.opacity(0.75))
-                                        .font(.body)
                                         .padding(18)
                                     Spacer()
                                     if viewModel.isLoadingFriendsList {
@@ -317,7 +315,6 @@ struct FriendsView: View {
                                                 HStack {
                                                     Text("\(item.name) (\(item.username))")
                                                         .foregroundColor(.gray)
-                                                        .font(.body)
                                                         .padding(.leading, 4)
 
                                                     Spacer()
@@ -334,6 +331,15 @@ struct FriendsView: View {
                                                 .transition(
                                                     .opacity.combined(with: .move(edge: .top)))
                                             }
+                                            HStack(alignment: .center) {
+                                                Text("\(viewModel.friendsList.count)/8")
+                                                    .foregroundColor(.gray)
+                                                    .font(.satoshi(.caption))
+                                                    .padding(.leading, 4)
+                                            }
+                                            .padding(.horizontal, 12)
+                                            .transition(
+                                                .opacity.combined(with: .move(edge: .top)))
                                         }
                                         .padding(.bottom, 12)
                                         .transition(
@@ -378,7 +384,6 @@ struct FriendsView: View {
             title: "Success",
             message: viewModel.toastMessage
         )
-        //.font(.satoshi(.body))
     }
 }
 

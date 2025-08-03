@@ -147,27 +147,33 @@ class FriendsViewModel: ObservableObject {
             }
         }
     }
-
-    func acceptRequest(_ request: FriendRequest) {
+    
+    @MainActor
+    func acceptRequest(_ request: FriendRequest) async {
         guard let requestID = request.id else { return }
-        Task {
-            try? await firestoreManager.acceptFriendRequest(requestID: requestID, userID: request.to, friendID: request.from)
-            await MainActor.run {
-                if let index = pendingRequests.firstIndex(where: { $0.id == request.id }) {
-                    pendingRequests.remove(at: index)
-                }
-                if let index = pendingRequestsWithUsers.firstIndex(where: { $0.id == request.id }) {
-                    _ = withAnimation {
-                        pendingRequestsWithUsers.remove(at: index)
-                    }
-                }
-                //self.pendingRequests.removeAll { $0.id == request.id }
-                self.showToast = false
-                self.toastMessage = "Accepted friend request!"
-                self.toastStyle = .success
-                self.showToast = true
-                fetchFriendList()
+        guard friendsList.count < 8 else {
+            self.showToast = false
+            self.toastMessage = "You've already reached the maximum nunber of friends"
+            self.toastStyle = .warning
+            self.showToast = true
+            return
+        }
+        try? await firestoreManager.acceptFriendRequest(requestID: requestID, userID: request.to, friendID: request.from)
+        await MainActor.run {
+            if let index = pendingRequests.firstIndex(where: { $0.id == request.id }) {
+                pendingRequests.remove(at: index)
             }
+            if let index = pendingRequestsWithUsers.firstIndex(where: { $0.id == request.id }) {
+                _ = withAnimation {
+                    pendingRequestsWithUsers.remove(at: index)
+                }
+            }
+            //self.pendingRequests.removeAll { $0.id == request.id }
+            self.showToast = false
+            self.toastMessage = "Accepted friend request!"
+            self.toastStyle = .success
+            self.showToast = true
+            fetchFriendList()
         }
         print("Accepted request from: \(requestID)")
     }
@@ -177,7 +183,6 @@ class FriendsViewModel: ObservableObject {
     func fetchFriendList() {
         self.isLoadingFriendsList = true
         guard let userID = authManager.currentUser?.uid else { return }
-
         Task {
             do {
                 let friendsUID = try await firestoreManager.fetchFriends(userID: userID)
