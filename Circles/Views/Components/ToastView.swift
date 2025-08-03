@@ -26,7 +26,7 @@ struct ToastView: View {
                     .frame(maxWidth: 330, maxHeight: 50)
                     .shadow(radius: 8)
                     .padding(24)
-            
+
                 VStack {
                     HStack {
                         Image(systemName: type.iconFileName)
@@ -53,7 +53,9 @@ struct ToastView: View {
             .drawingGroup()
             .opacity(isShown ? 1 : 0)
             .offset(y: isShown ? -10 : 300)
-            .animation(.spring(response: 0.4, dampingFraction: 0.8, blendDuration: 0.3), value: isShown)
+            .animation(
+                .spring(response: 0.4, dampingFraction: 0.8, blendDuration: 0.3), value: isShown
+            )
             .onChange(of: isShown) { _, newValue in
                 if newValue {
                     internalToastID = UUID()
@@ -85,11 +87,14 @@ struct ToastView: View {
 }
 
 extension View {
-    func toast(isShown: Binding<Bool>, type: ToastStyle, title: String, message: String) -> some View {
-        
+    func toast(isShown: Binding<Bool>, type: ToastStyle, title: String, message: String)
+        -> some View
+    {
+
         ZStack {
             self
-            ToastView(isShown: isShown, type: type, title: title, message: message, onCancelTapped: {})
+            ToastView(
+                isShown: isShown, type: type, title: title, message: message, onCancelTapped: {})
         }
     }
 }
@@ -99,14 +104,7 @@ extension View {
         @State private var isShown = true
 
         var body: some View {
-//            ToastView(
-//                isShown: $isShown,
-//                type: .success,
-//                title: "Success:",
-//                message: "Updated display name successfully!",
-//                onCancelTapped: {}
-//            )
-            VStack{}
+            VStack {}
                 .toast(
                     isShown: $isShown,
                     type: .success,

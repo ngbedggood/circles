@@ -5,10 +5,8 @@
 //  Created by Nathaniel Bedggood on 05/07/2025.
 //
 
-
-import Foundation
 import Combine
-
+import Foundation
 
 class DayPageViewModel: ObservableObject {
 
@@ -34,19 +32,22 @@ class DayPageViewModel: ObservableObject {
 
     let authManager: any AuthManagerProtocol
     let firestoreManager: FirestoreManager
-    
+
     private var scrollManager: ScrollManager
 
-    let me : FriendColor
-    
-    init(date: Date, authManager: any AuthManagerProtocol, firestoreManager: FirestoreManager, scrollManager: ScrollManager) {
+    let me: FriendColor
+
+    init(
+        date: Date, authManager: any AuthManagerProtocol, firestoreManager: FirestoreManager,
+        scrollManager: ScrollManager
+    ) {
         self.isLoading = true
         self.date = date
         self.authManager = authManager
         self.firestoreManager = firestoreManager
         self.scrollManager = scrollManager
         self.me = FriendColor(name: "Me", username: "me", color: .gray, note: "Let's roll?")
-        
+
         let dateId = DailyMood.dateId(from: date)
         let dailyMood = firestoreManager.pastMoods[dateId]
         self.dailyMood = dailyMood
@@ -54,12 +55,11 @@ class DayPageViewModel: ObservableObject {
         self.note = dailyMood?.noteContent ?? ""
         self.isMoodSelectionVisible = dailyMood?.mood == nil
         self.expanded = dailyMood?.mood != nil
-        
+
         self.isLoading = false
     }
-    
+
     func setup() {
-        
         if dailyMood != nil {
             self.isDayVerticalScrollDisabled = false
         } else {
@@ -100,10 +100,6 @@ class DayPageViewModel: ObservableObject {
                     //print("Failed to process friend \(uid): \(error.localizedDescription)")
                 }
             }
-
-            //for friend in results {
-            //    print("\(friend.name) - \(friend.color?.color) - \(friend.note.prefix(40))")
-            //}
 
             let todayString = DailyMood.dateId(from: date)
             self.socialCard = SocialCard(date: todayString, friends: results)
@@ -146,7 +142,8 @@ class DayPageViewModel: ObservableObject {
     }
 
     // PERSONAL VIEW METHODS
-    func saveEntry() {
+    @MainActor
+    func saveEntry() async {
         guard let userId = authManager.currentUser?.uid else {
             print("Error: User not logged in. Cannot save note.")
             return
@@ -161,38 +158,35 @@ class DayPageViewModel: ObservableObject {
         self.dailyMood = entry
 
         let newNote = note
-        Task {
-            do {
-                try await firestoreManager.saveDailyMood(
-                    date: date,
-                    mood: currentMood ?? MoodColor.none,
-                    content: newNote.isEmpty ? nil : newNote,
-                    forUserID: userId
-                )
-                print("Daily entry saved successfully")
-            } catch {
-                print("Error saving daily entry: \(error.localizedDescription)")
-            }
+        do {
+            try await firestoreManager.saveDailyMood(
+                date: date,
+                mood: currentMood ?? MoodColor.none,
+                content: newNote.isEmpty ? nil : newNote,
+                forUserID: userId
+            )
+            print("Daily entry saved successfully")
+        } catch {
+            print("Error saving daily entry: \(error.localizedDescription)")
         }
         isMoodSelectionVisible = false
         expanded = false
         self.isDayVerticalScrollDisabled = false
     }
 
-    func deleteEntry() {
+    @MainActor
+    func deleteEntry() async {
         guard let userId = authManager.currentUser?.uid else {
             print("Error: User not logged in. Cannot delete note.")
             return
         }
-        Task {
-            do {
-                try await firestoreManager.deleteDailyMood(date: date, forUserID: userId)
-                print("Daily entry for \(date) deleted successfully")
-            } catch {
-                print(
-                    "Error deleting daily entry: \(error.localizedDescription)"
-                )
-            }
+        do {
+            try await firestoreManager.deleteDailyMood(date: date, forUserID: userId)
+            print("Daily entry for \(date) deleted successfully")
+        } catch {
+            print(
+                "Error deleting daily entry: \(error.localizedDescription)"
+            )
         }
         isMoodSelectionVisible = true
         currentMood = nil
@@ -200,7 +194,8 @@ class DayPageViewModel: ObservableObject {
         isVisible = true
         self.isDayVerticalScrollDisabled = true
     }
-    
+
+    @MainActor
     func toggleFriends() {
         if showFriends {
             self.isDayVerticalScrollDisabled = false
@@ -212,5 +207,5 @@ class DayPageViewModel: ObservableObject {
             showFriends = true
         }
     }
-    
+
 }

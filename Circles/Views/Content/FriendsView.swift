@@ -45,7 +45,7 @@ struct FriendsView: View {
                             .accessibilityIdentifier("showFriendsToggleButtonIdentifier")
                             Spacer()
                             Button {
-                                
+
                             } label: {
                                 Text("Sign\nOut")
                                     .font(.satoshi(.caption, weight: .bold))
@@ -129,21 +129,25 @@ struct FriendsView: View {
                                     VStack(spacing: 12) {
                                         ForEach(viewModel.searchResults) { user in
                                             HStack {
-                                                Text("\(user.user.displayName) (\(user.user.username))")
-                                                    .foregroundColor(.gray)
-                                                    .padding(.leading, 4)
-                                                    .offset(y: -4)
+                                                Text(
+                                                    "\(user.user.displayName) (\(user.user.username))"
+                                                )
+                                                .foregroundColor(.gray)
+                                                .padding(.leading, 4)
+                                                .offset(y: -4)
 
                                                 Spacer()
-                                                    Button(user.requestSent ? "Sent" : "Add") {
-                                                        viewModel.sendRequest(to: user.user)
-                                                    }
-                                                    .padding(.horizontal, 10)
-                                                    .padding(.vertical, 6)
-                                                    .foregroundColor(.white)
-                                                    .background(user.requestSent ? Color.gray : Color.teal)
-                                                    .clipShape(Capsule())
-                                                    .disabled(user.requestSent == true)
+                                                Button(user.requestSent ? "Sent" : "Add") {
+                                                    viewModel.sendRequest(to: user.user)
+                                                }
+                                                .padding(.horizontal, 10)
+                                                .padding(.vertical, 6)
+                                                .foregroundColor(.white)
+                                                .background(
+                                                    user.requestSent ? Color.gray : Color.teal
+                                                )
+                                                .clipShape(Capsule())
+                                                .disabled(user.requestSent == true)
                                             }
                                             .padding(.horizontal, 14)
                                             .transition(.opacity.combined(with: .move(edge: .top)))
@@ -327,7 +331,8 @@ struct FriendsView: View {
                                                     }
                                                 }
                                                 .padding(.horizontal, 12)
-                                                .transition(.opacity.combined(with: .move(edge: .top)))
+                                                .transition(
+                                                    .opacity.combined(with: .move(edge: .top)))
                                             }
                                         }
                                         .padding(.bottom, 12)
@@ -357,12 +362,12 @@ struct FriendsView: View {
                         viewModel.fetchFriendRequests()
                         viewModel.fetchFriendList()
                     }
-//                    .onChange(of: showFriends) {
-//                        if showFriends {
-//                            viewModel.fetchFriendRequests()
-//                            viewModel.fetchFriendList()
-//                        }
-//                    }
+                    //                    .onChange(of: showFriends) {
+                    //                        if showFriends {
+                    //                            viewModel.fetchFriendRequests()
+                    //                            viewModel.fetchFriendList()
+                    //                        }
+                    //                    }
                 }
             }
         }

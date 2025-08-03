@@ -29,14 +29,14 @@ struct SocialCardView: View {
                             .foregroundStyle(.white)
                     }
                     .padding()
-                    
+
                     ZStack {
                         GeometryReader { geometry in
                             friendCircles(in: geometry)
                                 .scaleEffect(screenScale)
                         }
                     }
-                    
+
                     Text(viewModel.formattedDate())
                         .font(.satoshi(.title, weight: .bold))
                         .zIndex(1)
@@ -53,7 +53,8 @@ struct SocialCardView: View {
                         await viewModel.retrieveFriendsWithMoods()
                     }
                 } else {
-                    circleAppeared = Array(repeating: false, count: viewModel.socialCard.friends.count)
+                    circleAppeared = Array(
+                        repeating: false, count: viewModel.socialCard.friends.count)
                     showPersonalCircle = false
                 }
             }
@@ -65,7 +66,8 @@ struct SocialCardView: View {
                 circleAppeared = Array(repeating: false, count: viewModel.socialCard.friends.count)
             }
             .background(
-                RoundedRectangle(cornerRadius: 20).fill(Color(red: 0.92, green: 0.88, blue: 0.84)).shadow(radius: 8)
+                RoundedRectangle(cornerRadius: 20).fill(Color(red: 0.92, green: 0.88, blue: 0.84))
+                    .shadow(radius: 8)
             )
             .onTapGesture {
                 withAnimation(
@@ -134,7 +136,10 @@ struct SocialCardView: View {
                         : "Me"
                 )
                 .lineLimit(7)
-                .font(viewModel.isMeSelected ? .satoshi(size:22, weight: .regular) : .satoshi(size: 32, weight: .bold))
+                .font(
+                    viewModel.isMeSelected
+                        ? .satoshi(size: 22, weight: .regular) : .satoshi(size: 32, weight: .bold)
+                )
                 .multilineTextAlignment(.center)
                 .minimumScaleFactor(2 / 24)
                 .foregroundColor(.white)
@@ -175,24 +180,26 @@ struct SocialCardView: View {
                     ZStack {
                         Text(isSelected ? friend.note : friend.name)
                             .lineLimit(7)
-                            //.fontWeight(isSelected ? .regular : .bold)
-                            //.font(isSelected ? .system(size: 24) : .system(size: 20))
-                            .font(isSelected ? .satoshi(size:22, weight: .regular) : .satoshi(size: 20, weight: .bold))
+                            .font(
+                                isSelected
+                                    ? .satoshi(size: 22, weight: .regular)
+                                    : .satoshi(size: 20, weight: .bold)
+                            )
                             .multilineTextAlignment(.center)
                             .minimumScaleFactor(4 / 24)
                             .foregroundColor(.white)
                             .padding(8)
-                            //.scaleEffect(scale*1.5)
-//                        if isSelected {
-//                            Button(action: {
-//
-//                            }) {
-//                                Image(systemName: "ellipsis.message.fill")
-//                                    .font(.system(size: 28))
-//                                    .foregroundColor(.white)
-//                            }
-//                            .offset(y: 88)
-//                        }
+                        // Message icon for future chat functionality
+                        //                        if isSelected {
+                        //                            Button(action: {
+                        //
+                        //                            }) {
+                        //                                Image(systemName: "ellipsis.message.fill")
+                        //                                    .font(.system(size: 28))
+                        //                                    .foregroundColor(.white)
+                        //                            }
+                        //                            .offset(y: 88)
+                        //                        }
                     }
                     .transition(.scale)
                 )

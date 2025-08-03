@@ -34,10 +34,9 @@ class AuthManager: AuthManagerProtocol {
     @Published var isAvailable: Bool = true
     @Published var errorMsg: String?
     @Published var pendingSignUpEmail: String?
-    
+
     @Published var isProfileComplete: Bool = false
     @Published var isInitializing: Bool = true
-    
 
     private(set) var firestoreManager: any FirestoreManagerProtocol
 
@@ -67,7 +66,8 @@ class AuthManager: AuthManagerProtocol {
 
                     } else {
                         self.firestoreManager.detachAllListeners()
-                        print("User logged out or not authenticated. Detaching Firestore listeners.")
+                        print(
+                            "User logged out or not authenticated. Detaching Firestore listeners.")
                     }
                 }
                 await MainActor.run {
@@ -75,7 +75,7 @@ class AuthManager: AuthManagerProtocol {
                         self.isInitializing = false
                     }
                 }
-    }
+            }
         }
     }
     func setFirestoreManager(_ firestoreManager: FirestoreManager) {
@@ -87,7 +87,7 @@ class AuthManager: AuthManagerProtocol {
         let result = try await Auth.auth().signIn(withEmail: email, password: password)
         let user = result.user
         let uid = user.uid
-        
+
         // Check profile completeness
         let hasUsername = (try await self.firestoreManager.fetchUsername(for: uid)) != nil
         await MainActor.run {
@@ -118,17 +118,18 @@ class AuthManager: AuthManagerProtocol {
 
         print("User logged in: \(user.email ?? "Unknown")")
     }
-    
+
     func sendVerificationEmail(email: String) async throws {
         let actionCodeSettings = ActionCodeSettings()
-            actionCodeSettings.url = URL(string: "https://circles-nz.firebaseapp.com")
-            actionCodeSettings.handleCodeInApp = true
-            actionCodeSettings.setIOSBundleID(Bundle.main.bundleIdentifier!)
-        
+        actionCodeSettings.url = URL(string: "https://circles-nz.firebaseapp.com")
+        actionCodeSettings.handleCodeInApp = true
+        actionCodeSettings.setIOSBundleID(Bundle.main.bundleIdentifier!)
+
         print("Attempting to send email to: \(email)")
         print("Bundle ID: \(Bundle.main.bundleIdentifier ?? "Unknown")")
-        
-        Auth.auth().sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) { [weak self] error in
+
+        Auth.auth().sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) {
+            [weak self] error in
             Task { @MainActor in
                 if let error = error {
                     print("Firebase Error: \(error)")
@@ -142,37 +143,36 @@ class AuthManager: AuthManagerProtocol {
             }
         }
     }
-    
+
     func createAccount(email: String, password: String) async throws {
         let result = try await Auth.auth().createUser(withEmail: email, password: password)
-        
+
         await MainActor.run {
             self.currentUser = result.user
             self.errorMsg = nil
             self.isAuthenticated = true
         }
         print("AUTHENTICATION STATUS IS: \(isAuthenticated)")
-        
+
         let actionCodeSettings = ActionCodeSettings()
         actionCodeSettings.url = URL(string: "https://circles-nz.firebaseapp.com")
         actionCodeSettings.handleCodeInApp = true
         actionCodeSettings.setIOSBundleID(Bundle.main.bundleIdentifier!)
-        
+
         try await result.user.sendEmailVerification(with: actionCodeSettings)
     }
-    
+
     func finishProfile(username: String, displayName: String) async throws {
         guard let user = Auth.auth().currentUser else {
             print("No user is currently signed in.")
             return
         }
-        
+
         let uid = user.uid
-        
-        
+
         try await firestoreManager.saveUserProfile(
             uid: uid, username: username, displayName: displayName)
-        
+
         await MainActor.run {
             self.errorMsg = nil
             self.currentUser = user
@@ -180,7 +180,7 @@ class AuthManager: AuthManagerProtocol {
             self.isProfileComplete = true
         }
         print("PROFILE COMPLETENESS STATUS IS: \(isProfileComplete)")
-        
+
     }
 
     func signUp(email: String, password: String, username: String, displayName: String) async throws
@@ -192,12 +192,12 @@ class AuthManager: AuthManagerProtocol {
 
         let result = try await Auth.auth().createUser(withEmail: email, password: password)
         let uid = result.user.uid
-        
+
         try await result.user.sendEmailVerification()
 
         try await firestoreManager.saveUserProfile(
             uid: uid, username: username, displayName: displayName)
-        
+
         await MainActor.run {
             self.errorMsg = nil
             self.currentUser = result.user
@@ -225,7 +225,7 @@ class AuthManager: AuthManagerProtocol {
     }
     func handleIncomingURL(url: URL) async {
         print("at the start?")
-        
+
         if let user = Auth.auth().currentUser {
             // Reload the user's data
             user.reload { error in

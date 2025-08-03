@@ -18,7 +18,7 @@ struct ContentView: View {
     @State private var verticalIndices = Array(repeating: 0, count: 7)
 
     @State private var localDailyMoods: [String: DailyMood] = [:]
-    
+
     @StateObject private var navigationManager = NavigationManager()
 
     let pastDays = 7
@@ -40,11 +40,11 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             if authManager.isInitializing {
-                    LoadingView()
+                LoadingView()
                     .transition(.opacity)
-            } else if !authManager.isAuthenticated ||
-                !authManager.isVerified ||
-                !authManager.isProfileComplete {
+            } else if !authManager.isAuthenticated || !authManager.isVerified
+                || !authManager.isProfileComplete
+            {
                 ZStack {
                     LoginView(
                         viewModel: LoginViewModel(
@@ -60,37 +60,38 @@ struct ContentView: View {
                             .transition(.opacity)
                     } else {
                         switch navigationManager.currentView {
-                        case .friends:
-                            FriendsView(
-                                viewModel: FriendsViewModel(
-                                    firestoreManager: firestoreManager,
-                                    authManager: authManager
-                                )
-                            )
-                            .transition(.opacity)
-                            .environmentObject(navigationManager)
-                        case .dayPage:
-                            TabView(selection: $horizontalIndex) {
-                                ForEach(0..<pastDays, id: \.self) { index in
-                                    let date = datesToDisplay[index]
-                                    DayPageView(
-                                        viewModel: DayPageViewModel(
-                                            date: date,
-                                            authManager: authManager,
-                                            firestoreManager: firestoreManager,
-                                            scrollManager: scrollManager
-                                        )
+                            case .friends:
+                                FriendsView(
+                                    viewModel: FriendsViewModel(
+                                        firestoreManager: firestoreManager,
+                                        authManager: authManager
                                     )
-                                    .environmentObject(navigationManager)
+                                )
+                                .transition(.opacity)
+                                .environmentObject(navigationManager)
+                            case .dayPage:
+                                TabView(selection: $horizontalIndex) {
+                                    ForEach(0..<pastDays, id: \.self) { index in
+                                        let date = datesToDisplay[index]
+                                        DayPageView(
+                                            viewModel: DayPageViewModel(
+                                                date: date,
+                                                authManager: authManager,
+                                                firestoreManager: firestoreManager,
+                                                scrollManager: scrollManager
+                                            )
+                                        )
+                                        .environmentObject(navigationManager)
+                                    }
                                 }
-                            }
-                            .transition(.opacity)
-                            .tabViewStyle(.page(indexDisplayMode: .never))
-                            .onAppear {
-                                horizontalIndex = pastDays - 1
-                            }
-                            .highPriorityGesture(
-                                DragGesture(), isEnabled: scrollManager.isHorizontalScrollDisabled)
+                                .transition(.opacity)
+                                .tabViewStyle(.page(indexDisplayMode: .never))
+                                .onAppear {
+                                    horizontalIndex = pastDays - 1
+                                }
+                                .highPriorityGesture(
+                                    DragGesture(),
+                                    isEnabled: scrollManager.isHorizontalScrollDisabled)
                         }
                     }
                 }
@@ -109,6 +110,6 @@ struct ContentView: View {
             ContentView()
         }
     }
-    
+
     return PreviewWrapper()
 }

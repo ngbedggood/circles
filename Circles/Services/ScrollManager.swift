@@ -10,11 +10,11 @@ import Foundation
 class ScrollManager: ObservableObject {
     @Published var isHorizontalScrollDisabled: Bool = false
     @Published var isVerticalScrollDisabled: Bool = false
-    
+
     func disableHorizontalScroll(state: Bool) {
         isHorizontalScrollDisabled = state
     }
-    
+
     func disabledVerticalScroll(state: Bool) {
         isVerticalScrollDisabled = state
     }

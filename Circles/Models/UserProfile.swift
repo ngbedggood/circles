@@ -5,8 +5,8 @@
 //  Created by Nathaniel Bedggood on 28/06/2025.
 //
 
-import Foundation
 import FirebaseFirestore
+import Foundation
 
 struct FriendRequest: Identifiable, Codable {
     @DocumentID var id: String?

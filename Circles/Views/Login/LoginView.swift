@@ -85,8 +85,9 @@ struct LoginView: View {
                                         .shadow(radius: 4)
                                         Button(
                                             action: {
-                                                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
-                                                                                    to: nil, from: nil, for: nil)
+                                                UIApplication.shared.sendAction(
+                                                    #selector(UIResponder.resignFirstResponder),
+                                                    to: nil, from: nil, for: nil)
                                                 Task {
                                                     do {
                                                         await viewModel.completeProfile()
@@ -173,12 +174,12 @@ struct LoginView: View {
                                     VStack {
                                         Button(
                                             action: {
-                                                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
-                                                                                    to: nil, from: nil, for: nil)
+                                                UIApplication.shared.sendAction(
+                                                    #selector(UIResponder.resignFirstResponder),
+                                                    to: nil, from: nil, for: nil)
                                                 Task {
                                                     isLoading = true
                                                     defer { isLoading = false }  // Runs when the Task is complete
-
                                                     do {
                                                         if isSignUp {
                                                             await viewModel.signUp()
@@ -236,7 +237,6 @@ struct LoginView: View {
 
                                     }
                                 }
-                                //.transition(.opacity)
 
                             }
                             .frame(maxWidth: screenWidth)

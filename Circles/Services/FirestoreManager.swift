@@ -34,7 +34,7 @@ class FirestoreManager: FirestoreManagerProtocol {
         let doc = try await db.collection("usernames").document(username).getDocument()
         return !doc.exists
     }
-    
+
     func updateDisplayName(uid: String, newName: String) async throws {
 
         let db = Firestore.firestore()
@@ -98,10 +98,10 @@ class FirestoreManager: FirestoreManagerProtocol {
             }
         }
     }
-    
+
     func fetchUsername(for uid: String) async throws -> String? {
-        
-       Task { @MainActor in
+
+        Task { @MainActor in
             withAnimation {
                 self.isLoading = true
             }
@@ -127,12 +127,12 @@ class FirestoreManager: FirestoreManagerProtocol {
             return nil
         }
     }
-    
-    
 
     // SOCIAL STUFF
-    func searchUsersWithRequestStatus(byUsername username: String, excludingUserID: String) async throws
-    -> [SearchResultUser] {
+    func searchUsersWithRequestStatus(byUsername username: String, excludingUserID: String)
+        async throws
+        -> [SearchResultUser]
+    {
         var results: [SearchResultUser] = []
 
         // Get users matching the username
@@ -155,7 +155,8 @@ class FirestoreManager: FirestoreManagerProtocol {
                         .document(user.uid ?? "")
                         .collection("friendRequests")
 
-                    let snapshot = try await requestRef
+                    let snapshot =
+                        try await requestRef
                         .whereField("from", isEqualTo: excludingUserID)
                         .limit(to: 1)
                         .getDocuments()
@@ -171,25 +172,26 @@ class FirestoreManager: FirestoreManagerProtocol {
 
         return results
     }
-    
+
     func sendFriendRequest(from senderID: String, to receiverID: String) async throws {
-        
+
         // First check that there isn't already an existing request
         let requestsRef = db.collection("users").document(receiverID).collection("friendRequests")
-        
-        let query = requestsRef
+
+        let query =
+            requestsRef
             .whereField("from", isEqualTo: senderID)
             .whereField("to", isEqualTo: receiverID)
-        
+
         let snapshot = try await query.getDocuments()
-        
+
         let canSend = snapshot.documents.isEmpty
-        
+
         guard canSend else {
             print("FSM: A friend request with this user already exists")
             return
         }
-        
+
         let data: [String: Any] = [
             "from": senderID,
             "to": receiverID,
@@ -243,10 +245,10 @@ class FirestoreManager: FirestoreManagerProtocol {
 
         return snapshot.documents.map { $0.documentID }  // Return documentID (friend's UID) from array of QueryDocumentSnapshot
     }
-    
+
     func deleteFriend(userID: String, friendID: String) async throws {
         let currentUserFriendRef = db.collection("users").document(userID)
-                .collection("friends").document(friendID)
+            .collection("friends").document(friendID)
         let otherUserFriendRef = db.collection("users").document(friendID)
             .collection("friends").document(userID)
         let batch = db.batch()
@@ -254,7 +256,8 @@ class FirestoreManager: FirestoreManagerProtocol {
         batch.deleteDocument(otherUserFriendRef)
 
         // Firebase doesn’t support async batches yet, so we wrap it manually:
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+        try await withCheckedThrowingContinuation {
+            (continuation: CheckedContinuation<Void, Error>) in
             batch.commit { error in
                 if let error = error {
                     continuation.resume(throwing: error)
@@ -263,20 +266,21 @@ class FirestoreManager: FirestoreManagerProtocol {
                 }
             }
         }
-        
+
     }
-    
+
     func usernameToUID(username: String) async throws -> String {
         let ref = db.collection("usernames").document(username)
 
-            let snapshot = try await ref.getDocument()
+        let snapshot = try await ref.getDocument()
 
-            if let data = snapshot.data(),
-               let uid = data["uid"] as? String {
-                return uid
-            } else {
-                return ""
-            }
+        if let data = snapshot.data(),
+            let uid = data["uid"] as? String
+        {
+            return uid
+        } else {
+            return ""
+        }
     }
 
     // DAILY MOOD RELATED METHODS
@@ -383,7 +387,7 @@ class FirestoreManager: FirestoreManagerProtocol {
 
     @MainActor
     func loadPastMoods(forUserId userId: String) {
-        withAnimation{
+        withAnimation {
             self.isLoading = true
         }
         self.errorMsg = ""
@@ -396,20 +400,22 @@ class FirestoreManager: FirestoreManagerProtocol {
         let todayStartOfDay = calendar.startOfDay(for: now)
 
         // Calculate the start and end date for the query range
-        guard let startDate = calendar.date(byAdding: .day, value: -(daysToRetrieve - 1), to: todayStartOfDay),
-                  let endDate = calendar.date(byAdding: .day, value: 1, to: todayStartOfDay)
-            else {
-                self.errorMsg = "Failed to calculate date range for past moods."
-                withAnimation {
-                    self.isLoading = false
-                }
-                return
+        guard
+            let startDate = calendar.date(
+                byAdding: .day, value: -(daysToRetrieve - 1), to: todayStartOfDay),
+            let endDate = calendar.date(byAdding: .day, value: 1, to: todayStartOfDay)
+        else {
+            self.errorMsg = "Failed to calculate date range for past moods."
+            withAnimation {
+                self.isLoading = false
             }
+            return
+        }
 
         // Generate the lower and upper bound document ID string
         let startDocID = DailyMood.dateId(from: startDate)
         let endDocID = DailyMood.dateId(from: endDate)
-        
+
         print(
             "[\(Date())] FirestoreManager: Initiating fetch for moods with Document IDs from \(startDocID) (inclusive) to \(endDocID) (exclusive)."
         )
@@ -423,13 +429,14 @@ class FirestoreManager: FirestoreManagerProtocol {
                 guard let self = self else { return }
 
                 if let error = error {
-                    print("[\(Date())] ERROR: Firestore query failed: \(error.localizedDescription)")
-                        Task { @MainActor in
-                            self.errorMsg = "Failed to load moods: \(error.localizedDescription)"
-                            withAnimation {
-                                self.isLoading = false
-                            }
+                    print(
+                        "[\(Date())] ERROR: Firestore query failed: \(error.localizedDescription)")
+                    Task { @MainActor in
+                        self.errorMsg = "Failed to load moods: \(error.localizedDescription)"
+                        withAnimation {
+                            self.isLoading = false
                         }
+                    }
                     return
                 }
 

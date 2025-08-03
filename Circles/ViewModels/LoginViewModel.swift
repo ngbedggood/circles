@@ -8,6 +8,7 @@
 import Combine
 import Foundation
 
+@MainActor
 class LoginViewModel: ObservableObject {
 
     @Published var email: String = ""
@@ -15,23 +16,22 @@ class LoginViewModel: ObservableObject {
     @Published var username: String = ""
     @Published var displayName: String = ""
     @Published var errorMessage: String?
-    
+
     // Toast related
     @Published var showToast: Bool = false
     @Published private(set) var toastMessage: String = ""
     @Published private(set) var toastStyle: ToastStyle = .success
 
     @Published var authManager: any AuthManagerProtocol
-    
+
     @Published var isVerified: Bool = false
 
     init(authManager: any AuthManagerProtocol) {
         self.authManager = authManager
     }
 
-    @MainActor
     func signUp() async {
-        guard !email.isEmpty && !password.isEmpty //&& !username.isEmpty && !displayName.isEmpty
+        guard !email.isEmpty && !password.isEmpty  //&& !username.isEmpty && !displayName.isEmpty
         else {
             self.errorMessage = "Fields cannot be empty."
             await MainActor.run {
@@ -54,7 +54,7 @@ class LoginViewModel: ObservableObject {
                 self.toastStyle = .success
                 self.showToast = true
             }
-            
+
         } catch {
             self.errorMessage = error.localizedDescription
             print(error.localizedDescription)
@@ -67,7 +67,6 @@ class LoginViewModel: ObservableObject {
         }
     }
 
-    @MainActor
     func login() async {
         guard !email.isEmpty && !password.isEmpty
         else {
@@ -78,7 +77,7 @@ class LoginViewModel: ObservableObject {
                 self.toastStyle = .warning
                 self.showToast = true
             }
-            
+
             return
         }
         do {
@@ -98,8 +97,7 @@ class LoginViewModel: ObservableObject {
             }
         }
     }
-    
-    @MainActor
+
     func completeProfile() async {
         do {
             try await authManager.finishProfile(username: username, displayName: displayName)
@@ -109,10 +107,9 @@ class LoginViewModel: ObservableObject {
             }
             print(error.localizedDescription)
         }
-        
+
     }
-    
-    @MainActor
+
     func verifyEmail() async {
         guard !email.isEmpty
         else {
@@ -123,7 +120,7 @@ class LoginViewModel: ObservableObject {
                 self.toastStyle = .warning
                 self.showToast = true
             }
-            
+
             return
         }
         if (authManager.pendingSignUpEmail) != nil {
