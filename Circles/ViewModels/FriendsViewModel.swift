@@ -89,7 +89,8 @@ class FriendsViewModel: ObservableObject {
         }
     }
 
-    func searchUsers() {
+    @MainActor
+    func searchUsers() async {
         withAnimation {
             hasSearched = false
         }
@@ -97,20 +98,17 @@ class FriendsViewModel: ObservableObject {
             return
         }
         guard let currentUserID = authManager.currentUser?.uid else { return }
-        Task {
-            do {
-                let results = try await firestoreManager.searchUsersWithRequestStatus(byUsername: searchQuery.lowercased(), excludingUserID: currentUserID)
-                await MainActor.run {
-                    withAnimation {
-                        self.searchResults = results
-                        hasSearched = true
-                    }
-                }
-            } catch {
-                await MainActor.run {
-                    self.error = error.localizedDescription
-                }
+        do {
+            let results = try await firestoreManager.searchUsersWithRequestStatus(
+                byUsername: searchQuery.lowercased(),
+                excludingUserID: currentUserID
+            )
+            withAnimation {
+                self.searchResults = results
+                hasSearched = true
             }
+        } catch {
+            self.error = error.localizedDescription
         }
     }
 

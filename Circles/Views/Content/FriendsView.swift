@@ -72,12 +72,16 @@ struct FriendsView: View {
                                     .foregroundColor(.black.opacity(0.75))
                                     .padding(18)
                                     .focused($isFocused)
+                                    .submitLabel(.done)
+                                    .onSubmit {
+                                        Task {
+                                            await viewModel.updateDisplayName()
+                                        }
+                                    }
 
                                 Button(action: {
                                     Task {
-                                        do {
-                                            await viewModel.updateDisplayName()
-                                        }
+                                        await viewModel.updateDisplayName()
                                     }
                                     isFocused = false
                                 }) {
@@ -110,11 +114,19 @@ struct FriendsView: View {
                                         .foregroundColor(.black.opacity(0.75))
                                         .padding(18)
                                         .focused($isFocused)
+                                        .submitLabel(.search)
+                                        .onSubmit {
+                                            Task {
+                                                await viewModel.searchUsers()
+                                            }
+                                        }
                                     //.background(.white)
 
                                     Button(action: {
-                                        viewModel.searchUsers()
-                                        isFocused = false
+                                        Task {
+                                            isFocused = false
+                                            await viewModel.searchUsers()
+                                        }
                                     }) {
                                         Image(systemName: "magnifyingglass.circle.fill")
                                             .font(.system(size: 32))
