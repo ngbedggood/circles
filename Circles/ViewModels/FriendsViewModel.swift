@@ -115,6 +115,16 @@ class FriendsViewModel: ObservableObject {
     func sendRequest(to user: UserProfile) {
         guard let fromID = authManager.currentUser?.uid else { return }
         guard let toID = user.uid else { return }
+        
+        // Check if user is already a friend
+        if friendsList.contains(where: { $0.username == user.username }) {
+            self.showToast = false
+            self.toastMessage = "They're already on your friends list."
+            self.toastStyle = .warning
+            self.showToast = true
+            return
+        }
+        
         Task {
             try? await firestoreManager.sendFriendRequest(from: fromID, to: toID)
             await MainActor.run {

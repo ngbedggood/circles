@@ -146,7 +146,7 @@ class FirestoreManager: FirestoreManagerProtocol {
             return profile?.uid != excludingUserID ? profile : nil
         }
 
-        // Check for each user if a request from the current user exists in THEIR requests
+        // Check for each user if a request from the current user exists in their requests
         results = try await withThrowingTaskGroup(of: SearchResultUser.self) { group in
             for user in foundUsers {
                 group.addTask {
