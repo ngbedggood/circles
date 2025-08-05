@@ -463,6 +463,34 @@ class FirestoreManager: FirestoreManagerProtocol {
                 }
             }
     }
+    
+    func uploadFCMToken(uid: String, token: String) async throws {
+        // Set reference
+        let tokenRef = db
+            .collection("users")
+            .document(uid)
+            .collection("deviceTokens")
+            .document(token)
+        
+        do {
+            // First check to minimise unecessary writes
+            let snapshot = try await tokenRef.getDocument()
+            if snapshot.exists {
+                try await tokenRef.updateData([
+                    "lastUpdated": FieldValue.serverTimestamp()
+                ])
+                print("Token already exists for \(uid), timestamp refreshed.")
+                return
+            }
+            try await tokenRef.setData([
+                "token": token,
+                "lastUpdated": FieldValue.serverTimestamp()
+            ])
+            print("Token \(token) uploaded successfully for user \(uid)")
+        } catch {
+            print("Error uploading FCM token for user \(uid): \(error.localizedDescription)")
+        }
+    }
 
     // Call this method when a user logs out to stop all Firestore real-time updates
     // and clear any data that belongs to the previous user.

@@ -384,6 +384,19 @@ struct FriendsView: View {
             title: "Success",
             message: viewModel.toastMessage
         )
+        .alert("Looks like you've added a friend!", isPresented: $viewModel.showNotificationsRequestPrompt) {
+            Button("Allow") {
+                UserDefaults.standard.set(true, forKey: "hasPromptedForPush")
+                Task {
+                    await viewModel.requestNotifications()
+                }
+            }
+            Button("No Thanks", role: .cancel) {
+                UserDefaults.standard.set(true, forKey: "hasPromptedForPush")
+            }
+        } message: {
+            Text("Would you like to know when your friends post a mood?")
+        }
     }
 }
 
@@ -391,7 +404,8 @@ struct FriendsView: View {
     struct PreviewWrapper: View {
         var viewModel: FriendsViewModel = FriendsViewModel(
             firestoreManager: FirestoreManager(),
-            authManager: AuthManager()
+            authManager: AuthManager(),
+            notificationManager: NotificationManager()
         )
 
         @State var showFriends: Bool = true

@@ -11,6 +11,7 @@ struct ContentView: View {
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var firestoreManager: FirestoreManager
     @EnvironmentObject var scrollManager: ScrollManager
+    @EnvironmentObject var notificationManager: NotificationManager
 
     @State private var horizontalIndex = 1
     @State private var verticalIndex: Int? = nil
@@ -64,7 +65,8 @@ struct ContentView: View {
                                 FriendsView(
                                     viewModel: FriendsViewModel(
                                         firestoreManager: firestoreManager,
-                                        authManager: authManager
+                                        authManager: authManager,
+                                        notificationManager: notificationManager
                                     )
                                 )
                                 .transition(.opacity)

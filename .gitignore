@@ -11,6 +11,8 @@
 firebase.json
 public/
 *.entitlements
+functions/
+
 
 Resources/
 

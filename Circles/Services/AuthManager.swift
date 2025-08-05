@@ -81,6 +81,19 @@ class AuthManager: AuthManagerProtocol {
     func setFirestoreManager(_ firestoreManager: FirestoreManager) {
         self.firestoreManager = firestoreManager
     }
+    
+    func uploadFCMToken(_ token: String) async {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            print("No logged in user; cannot upload FCM token yet.")
+            return
+        }
+        do {
+            try await firestoreManager.uploadFCMToken(uid: uid, token: token)       
+            //print("FCM token uploaded to Firestore for user \(uid)")
+        } catch {
+            print("Failed to upload FCM token: \(error.localizedDescription)")
+        }
+    }
 
     func login(email: String, password: String) async throws {
         // Attempt sign-in

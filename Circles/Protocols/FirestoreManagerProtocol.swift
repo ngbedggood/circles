@@ -24,5 +24,6 @@ protocol FirestoreManagerProtocol: ObservableObject {
     func deleteDailyMood(date: Date, forUserID userId: String) async throws
     @MainActor
     func loadPastMoods(forUserId userId: String)
+    func uploadFCMToken(uid: String, token: String) async throws
     func detachAllListeners()
 }

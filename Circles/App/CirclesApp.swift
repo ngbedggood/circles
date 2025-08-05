@@ -6,6 +6,7 @@
 //
 
 import FirebaseCore
+import FirebaseMessaging
 import SwiftUI
 
 struct GlobalFontModifier: ViewModifier {
@@ -22,15 +23,35 @@ extension View {
     }
 }
 
-class AppDelegate: NSObject, UIApplicationDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
+    
+    weak var authManager: AuthManager?
+    
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
+        application.registerForRemoteNotifications()
         FirebaseApp.configure()
+        Messaging.messaging().delegate = self
+        UNUserNotificationCenter.current().delegate = self
         return true
     }
-
+    
+    // Retrieve device token and establish link with Firebase Cloud Messaging
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+            Messaging.messaging().apnsToken = deviceToken
+        }
+        
+    // Retrieve FCM token
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        if let fcmToken = Messaging.messaging().fcmToken {
+            print("fcm", fcmToken)
+            Task { await authManager?.uploadFCMToken(fcmToken) }
+        }
+    }
+    
+    // Lock screen orientation
     func application(
         _ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?
     ) -> UIInterfaceOrientationMask {
@@ -45,6 +66,7 @@ struct CirclesApp: App {
     @StateObject var firestoreManager = FirestoreManager()
     @StateObject var authManager = AuthManager()
     @StateObject var scrollManager = ScrollManager()
+    @StateObject var notificationManager = NotificationManager()
 
     init() {
         UIView.appearance().overrideUserInterfaceStyle = .light
@@ -57,14 +79,14 @@ struct CirclesApp: App {
                 .environmentObject(authManager)
                 .environmentObject(firestoreManager)
                 .environmentObject(scrollManager)
+                .environmentObject(notificationManager)
                 .onAppear {
                     authManager.setFirestoreManager(firestoreManager)
+                    delegate.authManager = authManager
                 }
                 .font(.satoshi(.body))
                 .onOpenURL { url in
-                    Task {
-                        await authManager.handleIncomingURL(url: url)
-                    }
+                    Task { await authManager.handleIncomingURL(url: url) }
                 }
         }
     }

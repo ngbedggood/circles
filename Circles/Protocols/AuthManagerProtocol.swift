@@ -29,4 +29,5 @@ protocol AuthManagerProtocol: ObservableObject {
     func createAccount(email: String, password: String) async throws
     
     func finishProfile(username: String, displayName: String) async throws
+    func uploadFCMToken(_ token: String) async
 }

@@ -45,7 +45,6 @@ struct PersonalCardView: View {
             let screenScale = min(1, screenHeight / baseWidth)
             VStack {
                 ZStack {
-
                     RoundedRectangle(cornerRadius: 20)
                         .fill(
                             viewModel.showFriends

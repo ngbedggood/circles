@@ -24,6 +24,8 @@ class FriendsViewModel: ObservableObject {
     @Published private(set) var isLoadingFriendsList: Bool = true
     @Published private(set) var isLoadingPendingRequests: Bool = true
     
+    @Published var showNotificationsRequestPrompt: Bool = false
+    
     // Toast related
     @Published var showToast: Bool = false
     @Published private(set) var toastMessage: String = ""
@@ -31,10 +33,29 @@ class FriendsViewModel: ObservableObject {
 
     let firestoreManager: FirestoreManager
     let authManager: any AuthManagerProtocol
+    let notificationManager: NotificationManager
 
-    init(firestoreManager: FirestoreManager, authManager: any AuthManagerProtocol) {
+    init(firestoreManager: FirestoreManager, authManager: any AuthManagerProtocol, notificationManager: NotificationManager) {
         self.firestoreManager = firestoreManager
         self.authManager = authManager
+        self.notificationManager = notificationManager
+    }
+    
+    func promptUserForNotifications() {
+        print("before: \(showNotificationsRequestPrompt)")
+        showNotificationsRequestPrompt = true
+        print("before: \(showNotificationsRequestPrompt)")
+    }
+    
+    // Call notificationManager's request method
+    func requestNotifications() async {
+        print("requesting notifications")
+        await notificationManager.requestAuthorization()
+    }
+    
+    func checkNotificationAuthStatus() async -> Bool {
+        await notificationManager.getAuthStatus()
+        return await notificationManager.hasPermission
     }
     
     func updateDisplayName() async {
@@ -198,6 +219,22 @@ class FriendsViewModel: ObservableObject {
                     friendsList.append(friend)
                 }
                 self.isLoadingFriendsList = false
+                
+                // Prompting for permission when a friend is found before the first time the user is prompted
+                if friendsList.count > 0 {
+                    print("UserDefaults - hasPromptedForPush: \(UserDefaults.standard.bool(forKey: "hasPromptedForPush"))")
+                    if !UserDefaults.standard.bool(forKey: "hasPromptedForPush") {
+                        Task {
+                            let isNotificationsEnabled = await checkNotificationAuthStatus()
+                            if !isNotificationsEnabled {
+                                print("About to prompt user for notifications")
+                                promptUserForNotifications()
+                            }
+                        }
+                    }
+                } else {
+                    print("No friends just yet...")
+                }
             } catch {
                 print("FVM - Error fetching friends: \(error.localizedDescription)")
                 self.isLoadingFriendsList = false
