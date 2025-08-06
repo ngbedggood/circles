@@ -48,6 +48,7 @@ class AuthManager: AuthManagerProtocol {
 
             Task {
                 let username = try await self.firestoreManager.fetchUsername(for: user?.uid ?? "")
+                let displayName = try await self.firestoreManager.fetchUserProfile(userID: user?.uid ?? "").displayName
 
                 await MainActor.run {
                     self.currentUser = user
@@ -61,6 +62,8 @@ class AuthManager: AuthManagerProtocol {
                         print("isAuthenticated: \(self.isAuthenticated)")
                         print("isVerified: \(self.isVerified)")
                         print("isProfileComplete: \(self.isProfileComplete)")
+                        UserDefaults.standard.set(username, forKey: "Username")
+                        UserDefaults.standard.set(displayName, forKey: "DisplayName")
                         self.firestoreManager.loadPastMoods(forUserId: uid)
                         self.firestoreManager.loadUserProfile(for: uid)
 
@@ -185,6 +188,8 @@ class AuthManager: AuthManagerProtocol {
 
         try await firestoreManager.saveUserProfile(
             uid: uid, username: username, displayName: displayName)
+        UserDefaults.standard.set(username, forKey: "Username")
+        UserDefaults.standard.set(displayName, forKey: "DisplayName")
 
         await MainActor.run {
             self.errorMsg = nil

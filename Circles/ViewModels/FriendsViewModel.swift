@@ -39,6 +39,7 @@ class FriendsViewModel: ObservableObject {
         self.firestoreManager = firestoreManager
         self.authManager = authManager
         self.notificationManager = notificationManager
+        self.newDisplayName = UserDefaults.standard.string(forKey: "DisplayName") ?? ""
     }
     
     func promptUserForNotifications() {
@@ -76,7 +77,7 @@ class FriendsViewModel: ObservableObject {
             self.toastMessage = "Updated display name"
             self.toastStyle = .success
             self.showToast = true
-            
+            UserDefaults.standard.set(newDisplayName, forKey: "DisplayName")
         } catch {
             self.error = error.localizedDescription
         }

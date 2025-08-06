@@ -44,6 +44,8 @@ struct FriendsView: View {
                             .frame(minWidth: 48)
                             .accessibilityIdentifier("showFriendsToggleButtonIdentifier")
                             Spacer()
+                            Text("(\(UserDefaults.standard.string(forKey: "Username") ?? "No Username"))")
+                                .font(.satoshi(.caption, weight: .regular))
                             Button {
 
                             } label: {
