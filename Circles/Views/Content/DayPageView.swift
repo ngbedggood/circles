@@ -27,6 +27,12 @@ struct DayPageView: View {
             .scrollIndicators(.hidden)
             .scrollDisabled(viewModel.isDayVerticalScrollDisabled)
         }
+        .toast(
+            isShown: $viewModel.showToast,
+            type: viewModel.toastStyle,
+            title: "Success",
+            message: viewModel.toastMessage
+        )
     }
 }
 

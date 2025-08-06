@@ -59,7 +59,7 @@ struct PersonalCardView: View {
                         .onTapGesture {
                             if isFocused {
                                 Task {
-                                    await viewModel.saveEntry()
+                                    await viewModel.saveEntry(isButtonSubmit: false)
                                 }
                                 UIApplication.shared.sendAction(
                                     #selector(UIResponder.resignFirstResponder), to: nil, from: nil,
@@ -148,7 +148,7 @@ struct PersonalCardView: View {
                                                 "Mood index is: \(mood.index) and isFront is: \(isFront[mood.index])"
                                             )
                                             Task {
-                                                await viewModel.saveEntry()
+                                                await viewModel.saveEntry(isButtonSubmit: false)
                                             }
                                         }
                                         .shadow(color: .black.opacity(0.2), radius: 4)
@@ -218,7 +218,7 @@ struct PersonalCardView: View {
                         ToolbarItem(placement: .keyboard) {
                             Button("Done") {
                                 Task {
-                                    await viewModel.saveEntry()
+                                    await viewModel.saveEntry(isButtonSubmit: true)
                                 }
                                 UIApplication.shared.sendAction(
                                     #selector(UIResponder.resignFirstResponder), to: nil, from: nil,

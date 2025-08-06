@@ -149,7 +149,9 @@ struct FriendsView: View {
 
                                                 Spacer()
                                                 Button(user.requestSent ? "Sent" : "Add") {
-                                                    viewModel.sendRequest(to: user.user)
+                                                    Task {
+                                                        await viewModel.sendRequest(to: user.user)
+                                                    }
                                                 }
                                                 .padding(.horizontal, 10)
                                                 .padding(.vertical, 6)
@@ -351,7 +353,9 @@ struct FriendsView: View {
                                                     Spacer()
 
                                                     Button(action: {
-                                                        viewModel.deleteFriend(item.username)
+                                                        Task {
+                                                            await viewModel.deleteFriend(item.username)
+                                                        }
                                                     }) {
                                                         Image(systemName: "xmark.bin.circle.fill")
                                                             .foregroundColor(.red)
@@ -396,15 +400,11 @@ struct FriendsView: View {
                     .frame(maxWidth: screenWidth)
                     .padding()
                     .task {
-                        viewModel.fetchFriendRequests()
-                        viewModel.fetchFriendList()
+                        Task {
+                            await viewModel.fetchFriendRequests()
+                            await viewModel.fetchFriendList()
+                        }
                     }
-                    //                    .onChange(of: showFriends) {
-                    //                        if showFriends {
-                    //                            viewModel.fetchFriendRequests()
-                    //                            viewModel.fetchFriendList()
-                    //                        }
-                    //                    }
                 }
             }
         }

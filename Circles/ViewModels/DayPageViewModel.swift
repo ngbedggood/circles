@@ -36,6 +36,11 @@ class DayPageViewModel: ObservableObject {
     private var scrollManager: ScrollManager
 
     let me: FriendColor
+    
+    // Toast related
+    @Published var showToast: Bool = false
+    @Published private(set) var toastMessage: String = ""
+    @Published private(set) var toastStyle: ToastStyle = .success
 
     init(
         date: Date, authManager: any AuthManagerProtocol, firestoreManager: FirestoreManager,
@@ -100,6 +105,13 @@ class DayPageViewModel: ObservableObject {
                     //print("Failed to process friend \(uid): \(error.localizedDescription)")
                 }
             }
+            
+            if results.isEmpty {
+                self.showToast = false
+                self.toastMessage = "You currently don't have any friends here, go add some!"
+                self.toastStyle = .info
+                self.showToast = true
+            }
 
             let todayString = DailyMood.dateId(from: date)
             self.socialCard = SocialCard(date: todayString, friends: results)
@@ -143,7 +155,7 @@ class DayPageViewModel: ObservableObject {
 
     // PERSONAL VIEW METHODS
     @MainActor
-    func saveEntry() async {
+    func saveEntry(isButtonSubmit: Bool) async {
         guard let userId = authManager.currentUser?.uid else {
             print("Error: User not logged in. Cannot save note.")
             return
@@ -166,6 +178,12 @@ class DayPageViewModel: ObservableObject {
                 forUserID: userId
             )
             print("Daily entry saved successfully")
+            if isButtonSubmit {
+                self.showToast = false
+                self.toastMessage = "Your entry has been saved successfully."
+                self.toastStyle = .success
+                self.showToast = true
+            }
         } catch {
             print("Error saving daily entry: \(error.localizedDescription)")
         }
@@ -183,6 +201,10 @@ class DayPageViewModel: ObservableObject {
         do {
             try await firestoreManager.deleteDailyMood(date: date, forUserID: userId)
             print("Daily entry for \(date) deleted successfully")
+//            self.showToast = false
+//            self.toastMessage = "Daily entry deleted."
+//            self.toastStyle = .warning
+//            self.showToast = true
         } catch {
             print(
                 "Error deleting daily entry: \(error.localizedDescription)"
