@@ -211,19 +211,37 @@ struct FriendsView: View {
                                             )
                                             .padding(.horizontal, 12)
                                     } else {
-                                        Button(action: {
-                                            withAnimation(.snappy) {
-                                                expandPendingRequests.toggle()
+                                        ZStack {
+                                            Button(action: {
+                                                withAnimation(.snappy) {
+                                                    expandPendingRequests.toggle()
+                                                }
+                                            }) {
+                                                Image(systemName: "arrowshape.down.circle.fill")
+                                                    .font(.system(size: 32))
+                                                    .foregroundColor(
+                                                        Color(red: 0.75, green: 0.75, blue: 0.75)
+                                                    )
+                                                    .padding(.horizontal, 12)
+                                                    .rotationEffect(
+                                                        .degrees(expandPendingRequests ? 180 : 0)
+                                                    )
+
                                             }
-                                        }) {
-                                            Image(systemName: "arrowshape.down.circle.fill")
-                                                .font(.system(size: 32))
-                                                .foregroundColor(
-                                                    Color(red: 0.75, green: 0.75, blue: 0.75)
+                                            Circle()
+                                                .fill(Color.red)
+                                                .frame(width: 15, height: 15)
+                                                .overlay(
+                                                    Text(
+                                                        viewModel.pendingRequestsWithUsers.count > 9
+                                                            ? "9+"
+                                                            : "\(viewModel.pendingRequestsWithUsers.count)"
+                                                    )
+                                                    .font(.satoshi(size: 8, weight: .bold))
+                                                    .foregroundColor(.white)
                                                 )
-                                                .padding(.horizontal, 12)
-                                                .rotationEffect(
-                                                    .degrees(expandPendingRequests ? 180 : 0))
+                                                .offset(x: -15, y: -15)
+                                                .opacity(viewModel.pendingRequestsWithUsers.isEmpty ? 0 : 1)
                                         }
                                     }
                                 }
@@ -244,7 +262,8 @@ struct FriendsView: View {
 
                                                         Button("Accept") {
                                                             Task {
-                                                                await viewModel.acceptRequest(item.request)
+                                                                await viewModel.acceptRequest(
+                                                                    item.request)
                                                             }
                                                         }
                                                         .padding(.horizontal, 12)
@@ -396,7 +415,10 @@ struct FriendsView: View {
             title: "Success",
             message: viewModel.toastMessage
         )
-        .alert("Looks like you've added a friend!", isPresented: $viewModel.showNotificationsRequestPrompt) {
+        .alert(
+            "Looks like you've added a friend!",
+            isPresented: $viewModel.showNotificationsRequestPrompt
+        ) {
             Button("Allow") {
                 UserDefaults.standard.set(true, forKey: "hasPromptedForPush")
                 Task {

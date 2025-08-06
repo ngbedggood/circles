@@ -218,6 +218,7 @@ class AuthManager: AuthManagerProtocol {
         }
     }
 
+    @MainActor
     func signOut() {
         do {
             try Auth.auth().signOut()
