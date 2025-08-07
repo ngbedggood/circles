@@ -251,6 +251,11 @@ struct FriendsView: View {
                                 }
                                 .background(Color.white)
                                 .zIndex(2)
+                                .onTapGesture {
+                                    withAnimation(.snappy) {
+                                        expandPendingRequests.toggle()
+                                    }
+                                }
 
                                 if expandPendingRequests {
                                     ScrollView {
@@ -343,6 +348,11 @@ struct FriendsView: View {
                                 }
                                 .background(Color.white)
                                 .zIndex(2)
+                                .onTapGesture {
+                                    withAnimation(.snappy) {
+                                        expandFriendsList.toggle()
+                                    }
+                                }
                                 if expandFriendsList {
                                     ScrollView {
                                         VStack(spacing: 12) {
