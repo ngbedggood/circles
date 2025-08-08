@@ -228,7 +228,8 @@ struct SocialCardView: View {
             date: Date(),
             authManager: AuthManager(),
             firestoreManager: FirestoreManager(),
-            scrollManager: ScrollManager()
+            scrollManager: ScrollManager(),
+            isEditable: true
         )
 
         var body: some View {

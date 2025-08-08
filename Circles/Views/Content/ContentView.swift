@@ -75,12 +75,14 @@ struct ContentView: View {
                                 TabView(selection: $horizontalIndex) {
                                     ForEach(0..<pastDays, id: \.self) { index in
                                         let date = datesToDisplay[index]
+                                        let isEditable = index == datesToDisplay.count - 1
                                         DayPageView(
                                             viewModel: DayPageViewModel(
                                                 date: date,
                                                 authManager: authManager,
                                                 firestoreManager: firestoreManager,
-                                                scrollManager: scrollManager
+                                                scrollManager: scrollManager,
+                                                isEditable: isEditable
                                             )
                                         )
                                         .environmentObject(navigationManager)

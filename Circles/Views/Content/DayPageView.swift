@@ -43,7 +43,8 @@ struct DayPageView: View {
             date: Date(),
             authManager: AuthManager(),
             firestoreManager: FirestoreManager(),
-            scrollManager: ScrollManager()
+            scrollManager: ScrollManager(),
+            isEditable: true
         )
 
         var index: Int = 0

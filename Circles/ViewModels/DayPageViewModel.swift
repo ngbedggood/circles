@@ -29,11 +29,10 @@ class DayPageViewModel: ObservableObject {
     @Published var isDayVerticalScrollDisabled: Bool = false
 
     let date: Date
-
     let authManager: any AuthManagerProtocol
     let firestoreManager: FirestoreManager
-
     private var scrollManager: ScrollManager
+    @Published var isEditable: Bool
 
     let me: FriendColor
     
@@ -44,13 +43,14 @@ class DayPageViewModel: ObservableObject {
 
     init(
         date: Date, authManager: any AuthManagerProtocol, firestoreManager: FirestoreManager,
-        scrollManager: ScrollManager
+        scrollManager: ScrollManager, isEditable: Bool
     ) {
         self.isLoading = true
         self.date = date
         self.authManager = authManager
         self.firestoreManager = firestoreManager
         self.scrollManager = scrollManager
+        self.isEditable = isEditable
         self.me = FriendColor(name: "Me", username: "me", color: .gray, note: "Let's roll?")
 
         let dateId = DailyMood.dateId(from: date)
