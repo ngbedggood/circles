@@ -23,6 +23,7 @@ protocol AuthManagerProtocol: ObservableObject {
     func login(email: String, password: String) async throws
     func signUp(email: String, password: String, username: String, displayName: String) async throws
     func sendVerificationEmail(email: String) async throws
+    @MainActor
     func signOut()
     func handleIncomingURL(url: URL) async
     

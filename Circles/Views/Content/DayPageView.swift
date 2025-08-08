@@ -47,8 +47,6 @@ struct DayPageView: View {
             isEditable: true
         )
 
-        var index: Int = 0
-
         var body: some View {
             DayPageView(viewModel: viewModel)
         }

@@ -53,12 +53,14 @@ struct PersonalCardView: View {
                                 NoteView(
                                     viewModel: viewModel,
                                     isFocused: $isFocused,
-                                    screenWidth: screenWidth
+                                    screenWidth: screenWidth,
+                                    screenScale: screenScale * 1.18
                                 )
                             } else {
                                 Text(viewModel.note.isEmpty ? "No note was left." :"\"\(viewModel.note)\"")
                                     .foregroundColor(viewModel.note.isEmpty ? .black: .white)
                                     .font(.satoshi(size: 20, weight: .regular))
+                                    .padding(24)
                             }
                         }
 

@@ -12,11 +12,13 @@ struct NoteView: View {
     @ObservedObject var viewModel: DayPageViewModel
     @FocusState.Binding var isFocused: Bool
     let screenWidth: CGFloat
+    let screenScale: CGFloat
     var body: some View {
         TextField(
             "What makes you feel that way today?", text: $viewModel.note,
             axis: .vertical
         )
+        .font(.satoshi(size: 17*screenScale))
         .foregroundColor(.black)
         .padding(16)
         .background(.white)
@@ -51,7 +53,8 @@ struct NoteView: View {
             isEditable: true
         ),
         isFocused: $isFocused,
-        screenWidth: 690
+        screenWidth: 690,
+        screenScale: 1.0
         
     )
 }

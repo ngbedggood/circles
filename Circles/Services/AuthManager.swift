@@ -112,6 +112,7 @@ class AuthManager: AuthManagerProtocol {
         }
     }
 
+    @MainActor
     func login(email: String, password: String) async throws {
         // Attempt sign-in
         let result = try await Auth.auth().signIn(withEmail: email, password: password)
@@ -120,31 +121,23 @@ class AuthManager: AuthManagerProtocol {
 
         // Check profile completeness
         let hasUsername = (try await self.firestoreManager.fetchUsername(for: uid)) != nil
-        await MainActor.run {
-            self.isProfileComplete = hasUsername
-        }
+        self.isProfileComplete = hasUsername
 
         // Check email verification
         guard user.isEmailVerified else {
-            await MainActor.run {
-                self.isVerified = false
-            }
+            self.isVerified = false
             throw SignUpError.emailNotVerified
         }
 
-        await MainActor.run {
-            self.currentUser = user
-            self.isAuthenticated = true
-            self.isVerified = true
-            self.errorMsg = nil
-        }
+        self.currentUser = user
+        self.isAuthenticated = true
+        self.isVerified = true
+        self.errorMsg = nil
 
         // Load Firestore content
-        await MainActor.run {
-            self.firestoreManager.loadUserProfile(for: uid)
-            self.firestoreManager.loadPastMoods(forUserId: uid)
-            print("")
-        }
+        self.firestoreManager.loadUserProfile(for: uid)
+        self.firestoreManager.loadPastMoods(forUserId: uid)
+        print("")
 
         print("User logged in: \(user.email ?? "Unknown")")
     }

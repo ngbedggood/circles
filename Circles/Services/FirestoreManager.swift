@@ -347,6 +347,36 @@ class FirestoreManager: FirestoreManagerProtocol {
         }
 
     }
+    
+    func getDailyMoodForViewerLocalDate(
+        forDate viewerDate: Date,
+        forUserId userId: String
+    ) async throws -> DailyMood? {
+        
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = TimeZone.current // viewer's local time zone
+        
+        let start = cal.startOfDay(for: viewerDate)
+        let end = cal.date(byAdding: .day, value: 1, to: start)!
+        
+        // Convert to UTC for query
+        let utcStart = start.convertToUTC(from: TimeZone.current)
+        let utcEnd = end.convertToUTC(from: TimeZone.current)
+        
+        let query = db.collection("users")
+            .document(userId)
+            .collection("dailyMoods")
+            .whereField("createdAt", isGreaterThanOrEqualTo: Timestamp(date: utcStart))
+            .whereField("createdAt", isLessThan: Timestamp(date: utcEnd))
+            .limit(to: 1)
+        
+        let snapshot = try await query.getDocuments()
+        if let doc = snapshot.documents.first {
+            return try doc.data(as: DailyMood.self)
+        }
+        return nil
+    }
+    
 
     // Load all moods
     func loadDailyMoods(forUserId userId: String) {
@@ -509,4 +539,11 @@ class FirestoreManager: FirestoreManagerProtocol {
         print("All Firestore listeners detached and data cleared.")
     }
 
+}
+
+extension Date {
+    func convertToUTC(from timeZone: TimeZone) -> Date {
+        let seconds = TimeInterval(timeZone.secondsFromGMT(for: self))
+        return self.addingTimeInterval(-seconds)
+    }
 }

@@ -89,7 +89,7 @@ class DayPageViewModel: ObservableObject {
             for uid in friendsUID {
                 // do-catch block for each friend stops whole retrieval process from collapsing if a single friends getDailyMood() fails
                 do {
-                    if let mood = try await firestoreManager.getDailyMood(
+                    if let mood = try await firestoreManager.getDailyMoodForViewerLocalDate(
                         forDate: date, forUserId: uid)
                     {
                         let profile = try await firestoreManager.fetchUserProfile(userID: uid)
@@ -108,7 +108,7 @@ class DayPageViewModel: ObservableObject {
             
             if results.isEmpty {
                 self.showToast = false
-                self.toastMessage = "You currently don't have any friends here, go add some!"
+                self.toastMessage = "None of your friends have posted a mood yet."
                 self.toastStyle = .info
                 self.showToast = true
             }

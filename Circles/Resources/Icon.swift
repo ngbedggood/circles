@@ -12,7 +12,6 @@ struct Icon: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 50)
-                //.fill((Color.brown).opacity(0.2))
                 .fill(Color.white)
             Circle()
                 .fill(.gray)
@@ -46,7 +45,7 @@ struct Icon: View {
                 .scaleEffect(0.8 * scale)
             
             Text("Circles")
-                .font(.system(size: 24))
+                .font(.satoshi(size: 24, weight: .bold))
                 .offset(y: 80)
         }
 
