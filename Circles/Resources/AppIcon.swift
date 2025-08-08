@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct Icon: View {
+struct AppIcon: View {
     let scale = 0.8
     var body: some View {
         ZStack {
@@ -53,5 +53,5 @@ struct Icon: View {
 }
 
 #Preview {
-    Icon()
+    AppIcon()
 }

@@ -8,11 +8,24 @@
 import SwiftUI
 
 struct LoadingView: View {
+    let delayInSeconds: Int = 6
+    @State private var showLoading: Bool = false
     var body: some View {
-        VStack {
-            Icon()
+        ZStack {
+            AppIcon()
+            LoadingIcon()
+                .offset(y: 240)
+                .opacity(showLoading ? 1 : 0)
         }
         .background(.white)
+        .onAppear {
+            Task {
+                try? await Task.sleep(nanoseconds: UInt64(delayInSeconds) * 1_000_000_000) // 6 seconds
+                withAnimation {
+                    showLoading = true
+                }
+            }
+        }
     }
 }
 
