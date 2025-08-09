@@ -428,7 +428,7 @@ struct FriendsView: View {
             message: viewModel.toastMessage
         )
         .alert(
-            "Looks like you've added a friend!",
+            "Looks like you've got a friend!",
             isPresented: $viewModel.showNotificationsRequestPrompt
         ) {
             Button("Allow") {

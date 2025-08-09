@@ -46,7 +46,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     // Retrieve FCM token
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         if let fcmToken = Messaging.messaging().fcmToken {
-            print("fcm", fcmToken)
+            //print("fcm", fcmToken)
             Task { await authManager?.uploadFCMToken(fcmToken) }
         }
     }

@@ -98,16 +98,38 @@ class LoginViewModel: ObservableObject {
         }
     }
 
+    @MainActor
     func completeProfile() async {
+        guard !username.isEmpty && !displayName.isEmpty else {
+            self.toastMessage = "Fields cannot be empty."
+            self.toastStyle = .warning
+            self.showToast = true
+            return
+        }
+        
+        do {
+            let isAvailable = try await authManager.firestoreManager.isUsernameAvailable(username)
+            
+            guard isAvailable else {
+                self.toastMessage = "Username already taken."
+                self.toastStyle = .warning
+                self.showToast = true
+                return
+            }
+            
+        } catch {
+            print("Error checking username availability: \(error.localizedDescription)")
+            return
+        }
+        
         do {
             try await authManager.finishProfile(username: username, displayName: displayName)
+//            self.toastMessage = "Profile completed successfully!"
+//            self.toastStyle = .success
+//            self.showToast = true
         } catch {
-            await MainActor.run {
-                self.errorMessage = error.localizedDescription
-            }
-            print(error.localizedDescription)
+            print("Error finishing profile: \(error.localizedDescription)")
         }
-
     }
 
     func verifyEmail() async {

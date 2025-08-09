@@ -63,7 +63,7 @@ class FriendsViewModel: ObservableObject {
     func updateDisplayName() async {
         guard !newDisplayName.isEmpty
         else {
-            self.errorMessage = "Username can't be empty."
+            self.errorMessage = "Name can't be empty."
             self.showToast = false
             self.toastMessage = self.errorMessage ?? "An error occurred!"
             self.toastStyle = .error

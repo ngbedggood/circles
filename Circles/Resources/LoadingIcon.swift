@@ -1,8 +1,8 @@
 //
-//  SwiftUIView.swift
+//  LoadingIcon.swift
 //  Circles
 //
-//  Created by Nathaniel Bedggood on 24/06/2025.
+//  Created by Nathaniel Bedggood on 08/08/2025.
 //
 
 import SwiftUI

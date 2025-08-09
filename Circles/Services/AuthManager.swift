@@ -143,28 +143,28 @@ class AuthManager: AuthManagerProtocol {
     }
 
     func sendVerificationEmail(email: String) async throws {
-        let actionCodeSettings = ActionCodeSettings()
-        actionCodeSettings.url = URL(string: "https://circles-nz.firebaseapp.com")
-        actionCodeSettings.handleCodeInApp = true
-        actionCodeSettings.setIOSBundleID(Bundle.main.bundleIdentifier!)
-
-        print("Attempting to send email to: \(email)")
-        print("Bundle ID: \(Bundle.main.bundleIdentifier ?? "Unknown")")
-
-        Auth.auth().sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) {
-            [weak self] error in
-            Task { @MainActor in
-                if let error = error {
-                    print("Firebase Error: \(error)")
-                    print("Error Code: \(error._code)")
-                    self?.errorMsg = "Failed to send email: \(error.localizedDescription)"
-                } else {
-                    print("Email sent successfully")
-                    UserDefaults.standard.set(email, forKey: "AuthEmail")
-                    self?.pendingSignUpEmail = email
-                }
-            }
-        }
+//        let actionCodeSettings = ActionCodeSettings()
+//        actionCodeSettings.url = URL(string: "https://circles-nz.firebaseapp.com")
+//        actionCodeSettings.handleCodeInApp = true
+//        actionCodeSettings.setIOSBundleID(Bundle.main.bundleIdentifier!)
+//
+//        print("Attempting to send email to: \(email)")
+//        print("Bundle ID: \(Bundle.main.bundleIdentifier ?? "Unknown")")
+//
+//        Auth.auth().sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) {
+//            [weak self] error in
+//            Task { @MainActor in
+//                if let error = error {
+//                    print("Firebase Error: \(error)")
+//                    print("Error Code: \(error._code)")
+//                    self?.errorMsg = "Failed to send email: \(error.localizedDescription)"
+//                } else {
+//                    print("Email sent successfully")
+//                    UserDefaults.standard.set(email, forKey: "AuthEmail")
+//                    self?.pendingSignUpEmail = email
+//                }
+//            }
+//        }
     }
 
     func createAccount(email: String, password: String) async throws {
@@ -249,31 +249,39 @@ class AuthManager: AuthManagerProtocol {
 
         }
     }
+    
+    @MainActor
     func handleIncomingURL(url: URL) async {
-        print("at the start?")
-
-        if let user = Auth.auth().currentUser {
-            // Reload the user's data
-            user.reload { error in
-                if let error = error {
-                    print("Error reloading user data: \(error.localizedDescription)")
-                } else {
-                    print("User data reloaded successfully.")
-                    // Access the updated user properties
-                    print("Updated display name: \(user.displayName ?? "N/A")")
-                    print("Updated email: \(user.email ?? "N/A")")
-                    if user.isEmailVerified {
-                        self.errorMsg = nil
-                        self.isVerified = true
-                    } else {
-                        print("Email is not verified")
-                    }
-                }
-            }
-        } else {
-            print("No user is currently signed in.")
+        print("url: \(url.absoluteString)")
+        
+        guard
+            let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false),
+            let linkQuery = urlComponents.queryItems?.first(where: { $0.name == "link" })?.value,
+            let innerURL = URL(string: linkQuery),
+            let innerComponents = URLComponents(url: innerURL, resolvingAgainstBaseURL: false),
+            let oobCode = innerComponents.queryItems?.first(where: { $0.name == "oobCode" })?.value
+        else {
+            print("Failed to extract oobCode from URL")
+            return
         }
-        print("VERIFIED STATUS IS: \(isVerified)")
-        print("PROFILE COMPLETENESS STATUS IS: \(isProfileComplete)")
+        print("Extracted oobCode: \(oobCode)")
+        
+        do {
+            try await Auth.auth().applyActionCode(oobCode)
+            print("Email verified successfully!")
+            
+            if let user = Auth.auth().currentUser {
+                try await user.reload()
+                print("User reloaded, isEmailVerified: \(user.isEmailVerified)")
+                withAnimation {
+                    self.isVerified = user.isEmailVerified
+                }
+                self.errorMsg = nil
+            }
+            
+        } catch {
+            print("Failed to apply action code: \(error.localizedDescription)")
+            self.errorMsg = error.localizedDescription
+        }
     }
 }
