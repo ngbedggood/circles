@@ -13,6 +13,8 @@ struct ContentView: View {
     @EnvironmentObject var scrollManager: ScrollManager
     @EnvironmentObject var notificationManager: NotificationManager
 
+    @StateObject private var dayPageViewModels: DayPageViewModelsHolder
+
     @State private var horizontalIndex = 1
     @State private var verticalIndex: Int? = nil
     @State private var isLoggedIn: Bool = true
@@ -23,6 +25,11 @@ struct ContentView: View {
     @StateObject private var navigationManager = NavigationManager()
 
     let pastDays = 7
+    
+    init() {
+        // Note: We can't access EnvironmentObjects in init, so we'll initialize in onAppear
+        self._dayPageViewModels = StateObject(wrappedValue: DayPageViewModelsHolder(pastDays: 7))
+    }
 
     var datesToDisplay: [Date] {
         var dates: [Date] = []
@@ -69,31 +76,31 @@ struct ContentView: View {
                                 .transition(.opacity)
                                 .environmentObject(navigationManager)
                             case .dayPage:
-                            if !firestoreManager.isLoading {
-                                TabView(selection: $horizontalIndex) {
-                                    ForEach(0..<pastDays, id: \.self) { index in
-                                        let date = datesToDisplay[index]
-                                        DayPageView(
-                                            viewModel: DayPageViewModel(
-                                                date: date,
+                                if !firestoreManager.isLoading {
+                                    TabView(selection: $horizontalIndex) {
+                                        ForEach(Array(dayPageViewModels.models.enumerated()), id: \.offset) { index, viewModel in
+                                            DayPageView(viewModel: viewModel)
+                                                .environmentObject(navigationManager)
+                                                .tag(index)
+                                        }
+                                    }
+                                    .transition(.opacity)
+                                    .tabViewStyle(.page(indexDisplayMode: .never))
+                                    .onAppear {
+                                        horizontalIndex = pastDays - 1
+                                        if dayPageViewModels.models.isEmpty {
+                                            dayPageViewModels.initializeModels(
+                                                pastDays: pastDays,
                                                 authManager: authManager,
                                                 firestoreManager: firestoreManager,
-                                                scrollManager: scrollManager,
-                                                isEditable: Calendar.current.isDateInToday(date)
+                                                scrollManager: scrollManager
                                             )
-                                        )
-                                        .environmentObject(navigationManager)
+                                        }
                                     }
+                                    .highPriorityGesture(
+                                        DragGesture(),
+                                        isEnabled: scrollManager.isHorizontalScrollDisabled)
                                 }
-                                .transition(.opacity)
-                                .tabViewStyle(.page(indexDisplayMode: .never))
-                                .onAppear {
-                                    horizontalIndex = pastDays - 1
-                                }
-                                .highPriorityGesture(
-                                    DragGesture(),
-                                    isEnabled: scrollManager.isHorizontalScrollDisabled)
-                            }
                         }
                     }
                 }

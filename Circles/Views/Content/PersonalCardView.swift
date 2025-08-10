@@ -27,82 +27,81 @@ struct PersonalCardView: View {
             let screenHeight = geometry.size.height
             let baseWidth: CGFloat = 880
             let screenScale = min(1, screenHeight / baseWidth)
-            VStack {
-                ZStack {
-                    BackgroundCardView(
-                        viewModel: viewModel,
-                        isFocused: isFocused
-                    )
-
-                    VStack {
-                        TopBarView(
+            if !viewModel.isLoading {
+                VStack {
+                    ZStack {
+                        BackgroundCardView(
                             viewModel: viewModel,
-                            isFocused: $isFocused
+                            isFocused: isFocused
                         )
 
-                        Spacer()
+                        VStack {
+                            TopBarView(
+                                viewModel: viewModel,
+                                isFocused: $isFocused
+                            )
 
-                        ZStack {
-                            if viewModel.isEditable {
-                                MoodCirclesView(
-                                    viewModel: viewModel,
-                                    moodCircles: moodCircles,
-                                    screenScale: screenScale,
-                                    isFront: $isFront
-                                )
-                                NoteView(
-                                    viewModel: viewModel,
-                                    isFocused: $isFocused,
-                                    screenWidth: screenWidth,
-                                    screenScale: screenScale * 1.18
-                                )
-                            } else {
-                                Text(viewModel.note.isEmpty ? "No note was left." :"\"\(viewModel.note)\"")
-                                    .foregroundColor(viewModel.note.isEmpty ? .black: .white)
-                                    .font(.satoshi(size: 20, weight: .regular))
-                                    .padding(24)
-                            }
-                        }
+                            Spacer()
 
-                        Spacer()
-                        
-                        if viewModel.isEditable {
                             ZStack {
-                                Text("Select today's mood before seeing your friends below")
-                                    .font(.satoshi(.caption))
-                                    .foregroundStyle(.gray)
-                                    .opacity(viewModel.currentMood == nil ? 1.0 : 0.0)
-                                Image(systemName: "arrowshape.down.fill")
-                                    .foregroundStyle(.white)
-                                    .opacity(viewModel.currentMood != nil ? 1.0 : 0.0)
-                            }
-                            .animation(.easeInOut, value: viewModel.currentMood)
-                            .padding()
-                        } else {
-                            VStack{}
-                                .frame(width: 0, height: 60)
-                        }
-                    }
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
-                    .padding(24)
-                }
-                // Weird way to be able to dismiss keyboard when using axis: .vertical modifier
-                .toolbar {
-                    if isFocused {
-                        ToolbarItem(placement: .keyboard) {
-                            Button("Done") {
-                                Task {
-                                    await viewModel.saveEntry(isButtonSubmit: true)
+                                if viewModel.isEditable {
+                                    MoodCirclesView(
+                                        viewModel: viewModel,
+                                        moodCircles: moodCircles,
+                                        screenScale: screenScale,
+                                        isFront: $isFront
+                                    )
+                                    NoteView(
+                                        viewModel: viewModel,
+                                        isFocused: $isFocused,
+                                        screenWidth: screenWidth,
+                                        screenScale: screenScale * 1.18
+                                    )
+                                } else {
+                                    Text(viewModel.note.isEmpty ? "No note was left." :"\"\(viewModel.note)\"")
+                                        .foregroundColor(viewModel.note.isEmpty ? .black: .white)
+                                        .font(.satoshi(size: 20, weight: .regular))
+                                        .padding(24)
                                 }
-                                UIApplication.shared.sendAction(
-                                    #selector(UIResponder.resignFirstResponder), to: nil, from: nil,
-                                    for: nil)
+                            }
+
+                            Spacer()
+                            
+                            if viewModel.isEditable {
+                                ZStack {
+                                    Text("Select today's mood before seeing your friends below")
+                                        .font(.satoshi(.caption))
+                                        .foregroundStyle(.gray)
+                                        .opacity(viewModel.currentMood == nil ? 1.0 : 0.0)
+                                    Image(systemName: "arrowshape.down.fill")
+                                        .foregroundStyle(.white)
+                                        .opacity(viewModel.currentMood != nil ? 1.0 : 0.0)
+                                }
+                                .animation(.easeInOut, value: viewModel.currentMood)
+                                .padding()
+                            } else {
+                                VStack{}
+                                    .frame(width: 0, height: 60)
+                            }
+                        }
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .padding(24)
+                    }
+                    // Weird way to be able to dismiss keyboard when using axis: .vertical modifier
+                    .toolbar {
+                        if isFocused {
+                            ToolbarItem(placement: .keyboard) {
+                                Button("Done") {
+                                    Task {
+                                        await viewModel.saveEntry(isButtonSubmit: true)
+                                    }
+                                    UIApplication.shared.sendAction(
+                                        #selector(UIResponder.resignFirstResponder), to: nil, from: nil,
+                                        for: nil)
+                                }
                             }
                         }
                     }
-                }
-                .task {
-                    viewModel.setup()
                 }
             }
         }
