@@ -32,7 +32,6 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         application.registerForRemoteNotifications()
-        FirebaseApp.configure()
         Messaging.messaging().delegate = self
         UNUserNotificationCenter.current().delegate = self
         return true
@@ -63,14 +62,20 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
 struct CirclesApp: App {
 
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @StateObject var firestoreManager = FirestoreManager()
-    @StateObject var authManager = AuthManager()
+    @StateObject var authManager: AuthManager
+    @StateObject var firestoreManager: FirestoreManager
     @StateObject var scrollManager = ScrollManager()
     @StateObject var notificationManager = NotificationManager()
 
     init() {
+        FirebaseApp.configure()
         UIView.appearance().overrideUserInterfaceStyle = .light
         UILabel.appearance().font = UIFont(name: "Satoshi Variable", size: 17)
+        let firestore = FirestoreManager()
+        let auth = AuthManager(firestoreManager: firestore)
+        _firestoreManager = StateObject(wrappedValue: firestore)
+        _authManager = StateObject(wrappedValue: auth)
+        delegate.authManager = auth
     }
 
     var body: some Scene {
@@ -80,10 +85,6 @@ struct CirclesApp: App {
                 .environmentObject(firestoreManager)
                 .environmentObject(scrollManager)
                 .environmentObject(notificationManager)
-                .onAppear {
-                    authManager.setFirestoreManager(firestoreManager)
-                    delegate.authManager = authManager
-                }
                 .font(.satoshi(.body))
                 .onOpenURL { url in
                     Task { await authManager.handleIncomingURL(url: url) }

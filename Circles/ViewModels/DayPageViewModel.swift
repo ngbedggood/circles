@@ -52,17 +52,24 @@ class DayPageViewModel: ObservableObject {
         self.scrollManager = scrollManager
         self.isEditable = isEditable
         self.me = FriendColor(name: "Me", username: "me", color: .gray, note: "Let's roll?")
-
-        let dateId = DailyMood.dateId(from: date)
-        let dailyMood = firestoreManager.pastMoods[dateId]
-        self.dailyMood = dailyMood
-        self.currentMood = dailyMood?.mood
-        self.note = dailyMood?.noteContent ?? ""
-        self.isMoodSelectionVisible = dailyMood?.mood == nil
-        self.expanded = dailyMood?.mood != nil
-
-        self.isLoading = false
     }
+    
+    @MainActor
+        func loadInitialData() async {
+            self.isLoading = true
+            let dateId = DailyMood.dateId(from: date)
+
+            let dailyMood = firestoreManager.pastMoods[dateId]
+            
+            self.dailyMood = dailyMood
+            self.currentMood = dailyMood?.mood
+            self.note = dailyMood?.noteContent ?? ""
+            self.isMoodSelectionVisible = dailyMood?.mood == nil
+            self.expanded = dailyMood?.mood != nil
+            
+            setup()
+            self.isLoading = false
+        }
 
     func setup() {
         if dailyMood != nil {

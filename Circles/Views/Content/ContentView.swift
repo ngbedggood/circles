@@ -56,10 +56,7 @@ struct ContentView: View {
                 }
             } else {
                 ZStack {
-                    if firestoreManager.isLoading {
-                        LoadingView()
-                            .transition(.opacity)
-                    } else {
+                    if !firestoreManager.isLoading {
                         switch navigationManager.currentView {
                             case .friends:
                                 FriendsView(
@@ -72,6 +69,7 @@ struct ContentView: View {
                                 .transition(.opacity)
                                 .environmentObject(navigationManager)
                             case .dayPage:
+                            if !firestoreManager.isLoading {
                                 TabView(selection: $horizontalIndex) {
                                     ForEach(0..<pastDays, id: \.self) { index in
                                         let date = datesToDisplay[index]
@@ -95,6 +93,7 @@ struct ContentView: View {
                                 .highPriorityGesture(
                                     DragGesture(),
                                     isEnabled: scrollManager.isHorizontalScrollDisabled)
+                            }
                         }
                     }
                 }

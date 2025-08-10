@@ -15,12 +15,13 @@ class FirestoreManager: FirestoreManagerProtocol {
 
     let daysToRetrieve: Int = 7
 
-    private let db = Firestore.firestore()
+    private let db: Firestore
 
     // reminder, published means that views observing this will update when DailyMoods changes.
     @Published var dailyMoods: [DailyMood] = []
     @Published var pastMoods: [String: DailyMood] = [:]  // Empty dictionary for date ID to mood
     @Published var isLoading: Bool = true
+    @Published var isFirstLoad: Bool = true
     @Published var userProfile: UserProfile?
 
     // This allows a "subscription" to Firestore. Will be managed to stop listening when user logs out.
@@ -28,6 +29,10 @@ class FirestoreManager: FirestoreManagerProtocol {
     private var PastMoodsListener: ListenerRegistration?
 
     private var errorMsg: String = ""
+    
+    init() {
+        db = Firestore.firestore()
+    }
 
     // USER SIGNUP RELATED METHODS
     func isUsernameAvailable(_ username: String) async throws -> Bool {
@@ -36,8 +41,6 @@ class FirestoreManager: FirestoreManagerProtocol {
     }
 
     func updateDisplayName(uid: String, newName: String) async throws {
-
-        let db = Firestore.firestore()
         let userRef = db.collection("users").document(uid)
 
         try await userRef.updateData([
@@ -78,7 +81,7 @@ class FirestoreManager: FirestoreManagerProtocol {
         })
     }
 
-    func loadUserProfile(for uid: String) {
+    func loadUserProfile(for uid: String) async throws {
         let userRef = db.collection("users").document(uid)
         userRef.getDocument { [weak self] snapshot, error in
             guard let self = self else { return }
@@ -416,10 +419,10 @@ class FirestoreManager: FirestoreManagerProtocol {
     }
 
     @MainActor
-    func loadPastMoods(forUserId userId: String) {
-        withAnimation {
-            self.isLoading = true
-        }
+    func loadPastMoods(forUserId userId: String) async throws {
+//        withAnimation {
+//            self.isLoading = true
+//        }
         self.errorMsg = ""
         self.pastMoods = [:]
 
@@ -436,9 +439,9 @@ class FirestoreManager: FirestoreManagerProtocol {
             let endDate = calendar.date(byAdding: .day, value: 1, to: todayStartOfDay)
         else {
             self.errorMsg = "Failed to calculate date range for past moods."
-            withAnimation {
-                self.isLoading = false
-            }
+//            withAnimation {
+//                self.isLoading = false
+//            }
             return
         }
 
@@ -487,9 +490,9 @@ class FirestoreManager: FirestoreManagerProtocol {
 
                 Task { @MainActor in
                     self.pastMoods = fetchedMoods
-                    withAnimation {
-                        self.isLoading = false
-                    }
+//                    withAnimation {
+//                        self.isLoading = false
+//                    }
                 }
             }
     }

@@ -70,7 +70,7 @@ struct LoginView: View {
 
     struct PreviewWrapper: View {
 
-        let viewModel = LoginViewModel(authManager: AuthManager())
+        let viewModel = LoginViewModel(authManager: AuthManager(firestoreManager: FirestoreManager()))
 
         var body: some View {
             LoginView(

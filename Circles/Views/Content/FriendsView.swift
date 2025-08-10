@@ -8,9 +8,8 @@
 import SwiftUI
 
 struct FriendsView: View {
-    @EnvironmentObject var navigationManager: NavigationManager
     @StateObject var viewModel: FriendsViewModel
-
+    @EnvironmentObject var navigationManager: NavigationManager
     @State var expandPendingRequests: Bool = false
     @State var expandFriendsList: Bool = false
 
@@ -52,8 +51,10 @@ struct FriendsView: View {
                                 Text("Sign\nOut")
                                     .font(.satoshi(.caption, weight: .bold))
                                     .onTapGesture {
-                                        navigationManager.currentView = .dayPage
-                                        viewModel.authManager.signOut()
+                                        Task {
+                                            await viewModel.signOut()
+                                            navigationManager.currentView = .dayPage
+                                        }
                                     }
                                     .accessibilityIdentifier("signOutDateIdentifier")
                             }
@@ -450,7 +451,7 @@ struct FriendsView: View {
     struct PreviewWrapper: View {
         var viewModel: FriendsViewModel = FriendsViewModel(
             firestoreManager: FirestoreManager(),
-            authManager: AuthManager(),
+            authManager: AuthManager(firestoreManager: FirestoreManager()),
             notificationManager: NotificationManager()
         )
 

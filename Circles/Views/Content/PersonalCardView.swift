@@ -120,7 +120,7 @@ struct PersonalCardView: View {
 
         var viewModel: DayPageViewModel = DayPageViewModel(
             date: Date(),
-            authManager: AuthManager(),
+            authManager: AuthManager(firestoreManager: FirestoreManager()),
             firestoreManager: FirestoreManager(),
             scrollManager: ScrollManager(),
             isEditable: true

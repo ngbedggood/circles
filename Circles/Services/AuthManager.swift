@@ -40,8 +40,8 @@ class AuthManager: AuthManagerProtocol {
 
     private(set) var firestoreManager: any FirestoreManagerProtocol
 
-    init() {
-        self.firestoreManager = FirestoreManager()
+    init(firestoreManager: any FirestoreManagerProtocol) {
+        self.firestoreManager = firestoreManager
 
         _ = Auth.auth().addStateDidChangeListener { [weak self] _, user in
             guard let self = self else { return }
@@ -63,6 +63,9 @@ class AuthManager: AuthManagerProtocol {
                 do {
                     let username = try await self.firestoreManager.fetchUsername(for: uid)
                     let userProfile = try await self.firestoreManager.fetchUserProfile(userID: uid)
+                    
+                    try await self.firestoreManager.loadPastMoods(forUserId: uid)
+                    try await self.firestoreManager.loadUserProfile(for: uid)
 
                     await MainActor.run {
                         self.currentUser = user
@@ -79,9 +82,6 @@ class AuthManager: AuthManagerProtocol {
                         print("isVerified: \(self.isVerified)")
                         print("isProfileComplete: \(self.isProfileComplete)")
 
-                        self.firestoreManager.loadPastMoods(forUserId: uid)
-                        self.firestoreManager.loadUserProfile(for: uid)
-
                         withAnimation {
                             self.isInitializing = false
                         }
@@ -95,6 +95,7 @@ class AuthManager: AuthManagerProtocol {
             }
         }
     }
+    
     func setFirestoreManager(_ firestoreManager: FirestoreManager) {
         self.firestoreManager = firestoreManager
     }
@@ -135,8 +136,8 @@ class AuthManager: AuthManagerProtocol {
         self.errorMsg = nil
 
         // Load Firestore content
-        self.firestoreManager.loadUserProfile(for: uid)
-        self.firestoreManager.loadPastMoods(forUserId: uid)
+        try await self.firestoreManager.loadUserProfile(for: uid)
+        try await self.firestoreManager.loadPastMoods(forUserId: uid)
         print("")
 
         print("User logged in: \(user.email ?? "Unknown")")

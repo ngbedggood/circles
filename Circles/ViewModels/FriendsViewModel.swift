@@ -10,6 +10,7 @@ import Combine
 import SwiftUI
 
 class FriendsViewModel: ObservableObject {
+    
     @Published var newDisplayName: String = ""
     @Published var searchQuery = ""
     @Published private(set) var newDisplayNameChangeSuccess: Bool = false
@@ -237,5 +238,10 @@ class FriendsViewModel: ObservableObject {
         } catch {
             print("FVM - Error deleting friend: \(error.localizedDescription)")
         }
+    }
+    
+    @MainActor
+    func signOut() async{
+        authManager.signOut()
     }
 }

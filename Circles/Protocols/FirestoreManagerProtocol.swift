@@ -10,7 +10,7 @@ import Foundation
 protocol FirestoreManagerProtocol: ObservableObject {
     func isUsernameAvailable(_ username: String) async throws -> Bool
     func saveUserProfile(uid: String, username: String, displayName: String) async throws
-    func loadUserProfile(for uid: String)
+    func loadUserProfile(for uid: String) async throws
     func fetchUsername(for uid: String) async throws -> String?
     func searchUsersWithRequestStatus(byUsername username: String, excludingUserID: String) async throws -> [SearchResultUser]
     func sendFriendRequest(from senderID: String, to receiverID: String) async throws
@@ -24,7 +24,7 @@ protocol FirestoreManagerProtocol: ObservableObject {
     func loadDailyMoods(forUserId userId: String)
     func deleteDailyMood(date: Date, forUserID userId: String) async throws
     @MainActor
-    func loadPastMoods(forUserId userId: String)
+    func loadPastMoods(forUserId userId: String) async throws
     func uploadFCMToken(uid: String, token: String) async throws
     func detachAllListeners()
     

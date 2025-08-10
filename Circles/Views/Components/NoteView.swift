@@ -47,7 +47,7 @@ struct NoteView: View {
     NoteView(
         viewModel: DayPageViewModel(
             date: Date(),
-            authManager: AuthManager() as (any AuthManagerProtocol),
+            authManager: AuthManager(firestoreManager: FirestoreManager()) as (any AuthManagerProtocol),
             firestoreManager: FirestoreManager(),
             scrollManager: ScrollManager(),
             isEditable: true

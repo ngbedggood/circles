@@ -27,6 +27,9 @@ struct DayPageView: View {
             .scrollIndicators(.hidden)
             .scrollDisabled(viewModel.isDayVerticalScrollDisabled)
         }
+        .task {
+            await viewModel.loadInitialData()
+        }
         .toast(
             isShown: $viewModel.showToast,
             type: viewModel.toastStyle,
@@ -41,7 +44,7 @@ struct DayPageView: View {
 
         var viewModel: DayPageViewModel = DayPageViewModel(
             date: Date(),
-            authManager: AuthManager(),
+            authManager: AuthManager(firestoreManager: FirestoreManager()),
             firestoreManager: FirestoreManager(),
             scrollManager: ScrollManager(),
             isEditable: true

@@ -32,7 +32,7 @@ struct ProfileCompletionView: View {
 #Preview {
     ProfileCompletionView(
         viewModel: LoginViewModel(
-            authManager: AuthManager()
+            authManager: AuthManager(firestoreManager: FirestoreManager())
         )
     )
 }

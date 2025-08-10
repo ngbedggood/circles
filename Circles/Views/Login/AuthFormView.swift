@@ -62,6 +62,6 @@ struct AuthFormView: View {
 
 #Preview {
     AuthFormView(
-        viewModel: LoginViewModel(authManager: AuthManager())
+        viewModel: LoginViewModel(authManager: AuthManager(firestoreManager: FirestoreManager()))
     )
 }
