@@ -159,6 +159,10 @@ class DayPageViewModel: ObservableObject {
     var someoneElseSelected: Bool {
         selectedFriend != nil && !isMeSelected
     }
+    
+    func resetSelections() {
+        selectedFriend = nil
+    }
 
     // PERSONAL VIEW METHODS
     @MainActor

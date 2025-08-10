@@ -48,6 +48,7 @@ struct SocialCardView: View {
                 if isVisible {
                     Task {
                         withAnimation {
+                            viewModel.clearSelection()
                             showPersonalCircle = true
                         }
                         await viewModel.retrieveFriendsWithMoods()
