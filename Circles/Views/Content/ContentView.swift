@@ -87,6 +87,7 @@ struct ContentView: View {
                                     .transition(.opacity)
                                     .tabViewStyle(.page(indexDisplayMode: .never))
                                     .onAppear {
+                                        print("Before creating ViewModels")
                                         horizontalIndex = pastDays - 1
                                         if dayPageViewModels.models.isEmpty {
                                             dayPageViewModels.initializeModels(
@@ -96,6 +97,7 @@ struct ContentView: View {
                                                 scrollManager: scrollManager
                                             )
                                         }
+                                        print("After creating ViewModels")
                                     }
                                     .highPriorityGesture(
                                         DragGesture(),
@@ -105,6 +107,11 @@ struct ContentView: View {
                     }
                 }
                 .animation(.easeInOut(duration: 1.5), value: firestoreManager.isLoading)
+            }
+        }
+        .onChange(of: authManager.isAuthenticated) { _, isAuthenticated in
+            if !isAuthenticated {
+                dayPageViewModels.purgeModels()
             }
         }
         .ignoresSafeArea(.keyboard)

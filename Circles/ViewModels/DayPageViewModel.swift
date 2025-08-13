@@ -40,6 +40,9 @@ class DayPageViewModel: ObservableObject {
     @Published var showToast: Bool = false
     @Published private(set) var toastMessage: String = ""
     @Published private(set) var toastStyle: ToastStyle = .success
+    
+    // Combine subscriptions
+    private var cancellables = Set<AnyCancellable>()
 
     init(
         date: Date, authManager: any AuthManagerProtocol, firestoreManager: FirestoreManager,
@@ -52,20 +55,48 @@ class DayPageViewModel: ObservableObject {
         self.scrollManager = scrollManager
         self.isEditable = isEditable
         self.me = FriendColor(name: "Me", username: "me", color: .gray, note: "Let's roll?")
+        
+        setupPastMoodsObserver()
+        
     }
+    
+    
+    func setupPastMoodsObserver() {
+        firestoreManager.$pastMoods
+            .dropFirst() // Skip the initial empty state
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] pastMoods in
+                self?.updateDataFromPastMoods(pastMoods)
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func updateDataFromPastMoods(_ pastMoods: [String: DailyMood]) {
+        let dateId = DailyMood.dateId(from: date)
+        let dailyMood = pastMoods[dateId]
+        
+        self.dailyMood = dailyMood
+        self.currentMood = dailyMood?.mood
+        self.note = dailyMood?.noteContent ?? ""
+        self.isMoodSelectionVisible = dailyMood?.mood == nil
+        self.expanded = dailyMood?.mood != nil
+        
+        setup()
+        self.isLoading = false
+        
+        //print("Updated view model for date \(dateId) with mood: \(dailyMood?.mood?.rawValue ?? "none")")
+    }
+    
+    
     
     @MainActor
         func loadInitialData() async {
             self.isLoading = true
-            let dateId = DailyMood.dateId(from: date)
-
-            let dailyMood = firestoreManager.pastMoods[dateId]
-            
-            self.dailyMood = dailyMood
-            self.currentMood = dailyMood?.mood
-            self.note = dailyMood?.noteContent ?? ""
-            self.isMoodSelectionVisible = dailyMood?.mood == nil
-            self.expanded = dailyMood?.mood != nil
+            if !firestoreManager.pastMoods.isEmpty {
+                updateDataFromPastMoods(firestoreManager.pastMoods)
+            } else {
+                print("Past moods not yet loaded, waiting for Combine observer...")
+            }
             
             setup()
             self.isLoading = false

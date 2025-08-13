@@ -242,7 +242,13 @@ class AuthManager: AuthManagerProtocol {
                 self.isVerified = false
                 self.isProfileComplete = false
             }
+            // Clear Firestore Data
             firestoreManager.detachAllListeners()
+            UserDefaults.standard.removeObject(forKey: "AuthEmail")
+            UserDefaults.standard.removeObject(forKey: "Username")
+            UserDefaults.standard.removeObject(forKey: "DisplayName")
+            UserDefaults.standard.removeObject(forKey: "hasPromptedForPush")
+            
             print("User signed out.")  // Listener handles updating isAuthenticated state
         } catch let signOutError as NSError {
             self.errorMsg = signOutError.localizedDescription

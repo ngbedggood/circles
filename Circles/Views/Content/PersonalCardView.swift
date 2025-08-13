@@ -27,7 +27,6 @@ struct PersonalCardView: View {
             let screenHeight = geometry.size.height
             let baseWidth: CGFloat = 880
             let screenScale = min(1, screenHeight / baseWidth)
-            if !viewModel.isLoading {
                 VStack {
                     ZStack {
                         BackgroundCardView(
@@ -103,7 +102,6 @@ struct PersonalCardView: View {
                         }
                     }
                 }
-            }
         }
     }
 }

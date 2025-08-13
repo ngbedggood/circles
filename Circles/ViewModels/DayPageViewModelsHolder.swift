@@ -9,6 +9,7 @@ import SwiftUI
 
 class DayPageViewModelsHolder: ObservableObject {
     @Published var models: [DayPageViewModel] = []
+    private var isInitializing = false
 
     init(pastDays: Int) {}
     
@@ -18,12 +19,15 @@ class DayPageViewModelsHolder: ObservableObject {
             firestoreManager: FirestoreManager,
             scrollManager: ScrollManager
         ) {
+            guard !isInitializing else { return }
             guard models.isEmpty else { return } // Only initialize once
+            
+            isInitializing = true
             
             let calendar = Calendar.current
             let today = calendar.startOfDay(for: Date())
             
-            models = (0..<pastDays).reversed().map { i in
+            let newModels = (0..<pastDays).reversed().map { i in
                 let date = calendar.date(byAdding: .day, value: -i, to: today)!
                 return DayPageViewModel(
                     date: date,
@@ -33,7 +37,18 @@ class DayPageViewModelsHolder: ObservableObject {
                     isEditable: Calendar.current.isDateInToday(date)
                 )
             }
+            
+            DispatchQueue.main.async {
+                self.models = newModels
+                self.isInitializing = false
+            }
         }
+    
+    func purgeModels() {
+        models.removeAll()
+        isInitializing = false
+        print("View models have been purged.")
+    }
     
     
 }

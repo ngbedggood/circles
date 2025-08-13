@@ -300,6 +300,7 @@ class FirestoreManager: FirestoreManagerProtocol {
         let isNewmood = !(existingmoodSnapshot?.exists ?? false)
 
         let moodToSave: DailyMood
+        print("creating mood")
         // Fill in new mood
         if isNewmood {
             moodToSave = DailyMood(
@@ -318,7 +319,9 @@ class FirestoreManager: FirestoreManagerProtocol {
             existingmood.noteContent = content
             existingmood.updatedAt = Date()
             moodToSave = existingmood
+            print("updated mood")
         }
+        
 
         do {
             try moodDocRef.setData(from: moodToSave)
@@ -490,9 +493,13 @@ class FirestoreManager: FirestoreManagerProtocol {
 
                 Task { @MainActor in
                     self.pastMoods = fetchedMoods
-//                    withAnimation {
-//                        self.isLoading = false
-//                    }
+                    print("[\(Date())] Loaded \(fetchedMoods.count) past moods for user \(userId)")
+                    
+                    // IMPORTANT: Set loading to false AFTER pastMoods is updated
+                    // This ensures the Combine observer fires before isLoading becomes false
+                    withAnimation {
+                        self.isLoading = false
+                    }
                 }
             }
     }
@@ -528,6 +535,9 @@ class FirestoreManager: FirestoreManagerProtocol {
     // Call this method when a user logs out to stop all Firestore real-time updates
     // and clear any data that belongs to the previous user.
     func detachAllListeners() {
+        self.userProfile = nil
+        self.errorMsg = ""
+        
         DailyMoodsListener?.remove()
         DailyMoodsListener = nil
         self.dailyMoods = []
