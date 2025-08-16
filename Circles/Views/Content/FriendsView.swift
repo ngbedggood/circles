@@ -102,6 +102,12 @@ struct FriendsView: View {
                             .background(Color.white)
                             .cornerRadius(30)
                             .shadow(radius: 4)
+                            
+                            ReminderView(
+                                selectedTime: $viewModel.selectedTime,
+                                isReminderOn: $viewModel.isReminderSet
+                            )
+                                .padding(.top, 8)
                         }
 
                         Text("Friends")
@@ -404,11 +410,10 @@ struct FriendsView: View {
                             }
                             .background(Color.white)
                             .cornerRadius(30)
-                            .padding(.bottom, 16)
+                            //.padding(.bottom, 16)
                             .shadow(radius: 4)
                         }
 
-                        Spacer()
                     }
                     .frame(maxWidth: screenWidth)
                     .padding()

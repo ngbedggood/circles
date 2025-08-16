@@ -31,6 +31,15 @@ class FriendsViewModel: ObservableObject {
     @Published var showToast: Bool = false
     @Published private(set) var toastMessage: String = ""
     @Published private(set) var toastStyle: ToastStyle = .success
+    
+    // Notification related
+    @Published var selectedTime: Date {
+        didSet { updateReminderNotification() }
+    }
+    
+    @Published var isReminderSet: Bool {
+        didSet { updateReminderNotification() }
+    }
 
     let firestoreManager: FirestoreManager
     let authManager: any AuthManagerProtocol
@@ -44,6 +53,41 @@ class FriendsViewModel: ObservableObject {
         self.authManager = authManager
         self.notificationManager = notificationManager
         self.newDisplayName = UserDefaults.standard.string(forKey: "DisplayName") ?? ""
+        
+        self.selectedTime = UserDefaults.standard.object(forKey: "reminderTime") as? Date ?? Date()
+        self.isReminderSet = UserDefaults.standard.bool(forKey: "reminderOn")
+        if isReminderSet {
+            scheduleReminderNotification()
+        }
+    }
+    
+    private func updateReminderNotification() {
+        UserDefaults.standard.set(isReminderSet, forKey: "reminderOn")
+        UserDefaults.standard.set(selectedTime, forKey: "reminderTime")
+        
+        if isReminderSet {
+            scheduleReminderNotification()
+        } else {
+            cancelReminderNotification()
+        }
+    }
+    
+    private func scheduleReminderNotification() {
+        let content = UNMutableNotificationContent()
+        content.title = "Hey there :)"
+        content.body = "Don't forget to log your mood for the day!"
+        
+        var dateComponents = Calendar.current.dateComponents([.hour, .minute], from: selectedTime)
+        dateComponents.second = 0
+        
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+        let request = UNNotificationRequest(identifier: "dailyReminder", content: content, trigger: trigger)
+        
+        UNUserNotificationCenter.current().add(request)
+    }
+    
+    private func cancelReminderNotification() {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["dailyReminder"])
     }
 
     func promptUserForNotifications() {
