@@ -119,6 +119,7 @@ struct PersonalCardView: View {
             date: Date(),
             authManager: AuthManager(firestoreManager: FirestoreManager()),
             firestoreManager: FirestoreManager(),
+            notificationManager: NotificationManager(),
             scrollManager: ScrollManager(),
             isEditable: true
         )

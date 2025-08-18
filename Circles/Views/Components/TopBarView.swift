@@ -60,6 +60,7 @@ struct TopBarView: View {
             date: Date(),
             authManager: AuthManager(firestoreManager: FirestoreManager()) as (any AuthManagerProtocol),
             firestoreManager: FirestoreManager(),
+            notificationManager: NotificationManager(),
             scrollManager: ScrollManager(),
             isEditable: true
         ),

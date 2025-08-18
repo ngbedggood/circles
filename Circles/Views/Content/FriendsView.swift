@@ -34,6 +34,7 @@ struct FriendsView: View {
                         HStack {
                             Button {
                                 withAnimation {
+                                    viewModel.updateReminderNotification()
                                     navigationManager.currentView = .dayPage
                                 }
                             } label: {
@@ -105,7 +106,7 @@ struct FriendsView: View {
                             
                             ReminderView(
                                 selectedTime: $viewModel.selectedTime,
-                                isReminderOn: $viewModel.isReminderSet
+                                isReminderOn: $viewModel.isReminderOn
                             )
                                 .padding(.top, 8)
                         }

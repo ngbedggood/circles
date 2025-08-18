@@ -29,9 +29,12 @@ class DayPageViewModel: ObservableObject {
     @Published var isDayVerticalScrollDisabled: Bool = false
 
     let date: Date
+    
     let authManager: any AuthManagerProtocol
     let firestoreManager: FirestoreManager
+    let notificationManager: NotificationManager
     private var scrollManager: ScrollManager
+    
     @Published var isEditable: Bool
 
     let me: FriendColor
@@ -45,28 +48,41 @@ class DayPageViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     init(
-        date: Date, authManager: any AuthManagerProtocol, firestoreManager: FirestoreManager,
-        scrollManager: ScrollManager, isEditable: Bool
+        date: Date,
+        authManager: any AuthManagerProtocol,
+        firestoreManager: FirestoreManager,
+        notificationManager: NotificationManager,
+        scrollManager: ScrollManager,
+        isEditable: Bool
     ) {
         self.isLoading = true
         self.date = date
         self.authManager = authManager
         self.firestoreManager = firestoreManager
+        self.notificationManager = notificationManager
         self.scrollManager = scrollManager
         self.isEditable = isEditable
         self.me = FriendColor(name: "Me", username: "me", color: .gray, note: "Let's roll?")
-        
+
         setupPastMoodsObserver()
         
     }
     
-    
+    //@MainActor
     func setupPastMoodsObserver() {
         firestoreManager.$pastMoods
             .dropFirst() // Skip the initial empty state
             .receive(on: DispatchQueue.main)
             .sink { [weak self] pastMoods in
                 self?.updateDataFromPastMoods(pastMoods)
+                
+                if let self = self, Calendar.current.isDateInToday(self.date) {
+                   
+                   let todayDateId = DailyMood.dateId(from: Date())
+                   let hasTodayMood = pastMoods[todayDateId] != nil
+                    
+                   notificationManager.syncNotificationStateWithMoodData(hasTodayMood: hasTodayMood)
+               }
             }
             .store(in: &cancellables)
     }
@@ -220,6 +236,15 @@ class DayPageViewModel: ObservableObject {
                 forUserID: userId
             )
             print("Daily entry saved successfully")
+            
+            // Cancel today's notification reminder when a mood entry is made
+            if Calendar.current.isDateInToday(date) {
+                print("About to cancel reminder notification?")
+                notificationManager.syncNotificationStateWithMoodData(hasTodayMood: true)
+                print("About to debug after cancelling reminder.")
+                notificationManager.debugPrintPendingNotifications()
+            }
+            
             if isButtonSubmit {
                 self.showToast = false
                 self.toastMessage = "Your entry has been saved successfully."
@@ -243,10 +268,11 @@ class DayPageViewModel: ObservableObject {
         do {
             try await firestoreManager.deleteDailyMood(date: date, forUserID: userId)
             print("Daily entry for \(date) deleted successfully")
-//            self.showToast = false
-//            self.toastMessage = "Daily entry deleted."
-//            self.toastStyle = .warning
-//            self.showToast = true
+            
+            // Immediately schedule a today notifcation if necessary
+            if Calendar.current.isDateInToday(date) {
+                notificationManager.syncNotificationStateWithMoodData(hasTodayMood: false)
+            }
         } catch {
             print(
                 "Error deleting daily entry: \(error.localizedDescription)"

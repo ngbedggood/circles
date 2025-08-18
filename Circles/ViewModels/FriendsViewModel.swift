@@ -33,61 +33,43 @@ class FriendsViewModel: ObservableObject {
     @Published private(set) var toastStyle: ToastStyle = .success
     
     // Notification related
-    @Published var selectedTime: Date {
-        didSet { updateReminderNotification() }
-    }
-    
-    @Published var isReminderSet: Bool {
-        didSet { updateReminderNotification() }
-    }
+//    @MainActor
+//    @Published var selectedTime: Date {
+//        didSet { notificationManager.updateReminderNotification(isReminderOn: isReminderSet, selectedTime: selectedTime) }
+//    }
+//    @MainActor
+//    @Published var isReminderSet: Bool {
+//        didSet { notificationManager.updateReminderNotification(isReminderOn: isReminderSet, selectedTime: selectedTime) }
+//    }
+    @Published var selectedTime: Date
+    @Published var isReminderOn: Bool
 
     let firestoreManager: FirestoreManager
     let authManager: any AuthManagerProtocol
     let notificationManager: NotificationManager
 
+    @MainActor
     init(
         firestoreManager: FirestoreManager, authManager: any AuthManagerProtocol,
         notificationManager: NotificationManager
-    ) {
+    ){
         self.firestoreManager = firestoreManager
         self.authManager = authManager
         self.notificationManager = notificationManager
         self.newDisplayName = UserDefaults.standard.string(forKey: "DisplayName") ?? ""
         
         self.selectedTime = UserDefaults.standard.object(forKey: "reminderTime") as? Date ?? Date()
-        self.isReminderSet = UserDefaults.standard.bool(forKey: "reminderOn")
-        if isReminderSet {
-            scheduleReminderNotification()
+        self.isReminderOn = UserDefaults.standard.bool(forKey: "reminderOn")
+        var hasMoodToday = false
+        Task {
+            let uid = authManager.currentUser?.uid ?? ""
+            hasMoodToday = (try await firestoreManager.getDailyMood(forDate: Date(), forUserId: uid)) != nil
         }
-    }
-    
-    private func updateReminderNotification() {
-        UserDefaults.standard.set(isReminderSet, forKey: "reminderOn")
-        UserDefaults.standard.set(selectedTime, forKey: "reminderTime")
-        
-        if isReminderSet {
-            scheduleReminderNotification()
-        } else {
-            cancelReminderNotification()
+        if isReminderOn {
+            notificationManager.updateReminderNotification(isReminderOn: isReminderOn, selectedTime: selectedTime)
+            notificationManager.syncNotificationStateWithMoodData(hasTodayMood: hasMoodToday)
+            print("hasMoodToday: \(hasMoodToday)")
         }
-    }
-    
-    private func scheduleReminderNotification() {
-        let content = UNMutableNotificationContent()
-        content.title = "Hey there :)"
-        content.body = "Don't forget to log your mood for the day!"
-        
-        var dateComponents = Calendar.current.dateComponents([.hour, .minute], from: selectedTime)
-        dateComponents.second = 0
-        
-        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-        let request = UNNotificationRequest(identifier: "dailyReminder", content: content, trigger: trigger)
-        
-        UNUserNotificationCenter.current().add(request)
-    }
-    
-    private func cancelReminderNotification() {
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["dailyReminder"])
     }
 
     func promptUserForNotifications() {
@@ -104,7 +86,17 @@ class FriendsViewModel: ObservableObject {
 
     func checkNotificationAuthStatus() async -> Bool {
         await notificationManager.getAuthStatus()
-        return await notificationManager.hasPermission
+        return notificationManager.hasPermission
+    }
+    
+    func updateReminderNotification() {
+        notificationManager.updateReminderNotification(isReminderOn: isReminderOn, selectedTime: selectedTime)
+        var hasMoodToday = false
+        Task {
+            hasMoodToday = try await firestoreManager.getDailyMood(forDate: Date(), forUserId: authManager.currentUser?.uid ?? "") != nil
+        }
+        print("hasMoodToday: \(hasMoodToday)")
+        notificationManager.syncNotificationStateWithMoodData(hasTodayMood: hasMoodToday)
     }
 
     @MainActor

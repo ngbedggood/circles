@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var firestoreManager: FirestoreManager
     @EnvironmentObject var scrollManager: ScrollManager
@@ -19,8 +20,6 @@ struct ContentView: View {
     @State private var verticalIndex: Int? = nil
     @State private var isLoggedIn: Bool = true
     @State private var verticalIndices = Array(repeating: 0, count: 7)
-
-    @State private var localDailyMoods: [String: DailyMood] = [:]
 
     @StateObject private var navigationManager = NavigationManager()
 
@@ -87,17 +86,16 @@ struct ContentView: View {
                                     .transition(.opacity)
                                     .tabViewStyle(.page(indexDisplayMode: .never))
                                     .onAppear {
-                                        print("Before creating ViewModels")
                                         horizontalIndex = pastDays - 1
                                         if dayPageViewModels.models.isEmpty {
                                             dayPageViewModels.initializeModels(
                                                 pastDays: pastDays,
                                                 authManager: authManager,
                                                 firestoreManager: firestoreManager,
+                                                notificationManager: notificationManager,
                                                 scrollManager: scrollManager
                                             )
                                         }
-                                        print("After creating ViewModels")
                                     }
                                     .highPriorityGesture(
                                         DragGesture(),

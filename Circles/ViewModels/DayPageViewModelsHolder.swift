@@ -17,6 +17,7 @@ class DayPageViewModelsHolder: ObservableObject {
             pastDays: Int,
             authManager: AuthManager,
             firestoreManager: FirestoreManager,
+            notificationManager: NotificationManager,
             scrollManager: ScrollManager
         ) {
             guard !isInitializing else { return }
@@ -33,6 +34,7 @@ class DayPageViewModelsHolder: ObservableObject {
                     date: date,
                     authManager: authManager,
                     firestoreManager: firestoreManager,
+                    notificationManager: notificationManager,
                     scrollManager: scrollManager,
                     isEditable: Calendar.current.isDateInToday(date)
                 )
