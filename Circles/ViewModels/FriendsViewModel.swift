@@ -246,6 +246,7 @@ class FriendsViewModel: ObservableObject {
                     group.addTask {
                         let profile = try await self.firestoreManager.fetchUserProfile(userID: uid)
                         return FriendColor(
+                            uid: uid,
                             name: profile.displayName,
                             username: profile.username,
                             color: MoodColor.none,

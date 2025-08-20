@@ -12,6 +12,7 @@ protocol FirestoreManagerProtocol: ObservableObject {
     func saveUserProfile(uid: String, username: String, displayName: String) async throws
     func loadUserProfile(for uid: String) async throws
     func fetchUsername(for uid: String) async throws -> String?
+    func usernameToUID(username: String) async throws -> String
     func searchUsersWithRequestStatus(byUsername username: String, excludingUserID: String) async throws -> [SearchResultUser]
     func sendFriendRequest(from senderID: String, to receiverID: String) async throws
     func acceptFriendRequest(requestID: String, userID: String, friendID: String) async throws

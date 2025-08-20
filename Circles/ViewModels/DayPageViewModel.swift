@@ -23,6 +23,7 @@ class DayPageViewModel: ObservableObject {
     @Published private(set) var friendsWithMoods: [FriendWithMood] = []
     @Published private(set) var socialCard: SocialCard = SocialCard(date: "", friends: [])
     @Published private(set) var isLoading: Bool
+    @Published var selectedEmote: String? = nil
 
     // Shared stuff
     @Published private(set) var dailyMood: DailyMood?
@@ -62,7 +63,7 @@ class DayPageViewModel: ObservableObject {
         self.notificationManager = notificationManager
         self.scrollManager = scrollManager
         self.isEditable = isEditable
-        self.me = FriendColor(name: "Me", username: "me", color: .gray, note: "Let's roll?")
+        self.me = FriendColor(uid: "", name: "Me", username: "me", color: .gray, note: "Let's roll?")
 
         setupPastMoodsObserver()
         
@@ -147,11 +148,15 @@ class DayPageViewModel: ObservableObject {
                         forDate: date, forUserId: uid)
                     {
                         let profile = try await firestoreManager.fetchUserProfile(userID: uid)
+                        //let reacts = try await firestoreManager.fetchMoodReactsForUserDate(date: date, userID: uid)
+                        //print(reacts)
                         let friend = FriendColor(
+                            uid: uid,
                             name: profile.displayName,
                             username: profile.username,
                             color: mood.mood,
                             note: mood.noteContent == "" ? "No note" : mood.noteContent ?? "No note"
+                            //reacts: reacts
                         )
                         results.append(friend)
                     }
@@ -175,6 +180,24 @@ class DayPageViewModel: ObservableObject {
             print("Error: \(error.localizedDescription)")
         }
     }
+    
+    func reactToFriendMood() async {
+        guard let userID = authManager.currentUser?.uid else { return }
+        guard let friend = selectedFriend else { return }
+        guard let emote = selectedEmote else { return }
+
+        do {
+            let friendID = try await firestoreManager.usernameToUID(username: friend.username)
+            try await firestoreManager.emoteReactToFriendsPost(
+                date: Date(),
+                fromUID: userID,
+                toUID: friendID,
+                emote: emote
+            )
+        } catch {
+            print("Error reacting to friend's mood:", error)
+        }
+    }
 
     // SOCIAL VIEW UI FUNCTIONALITY STUFF
     func formattedDate() -> String {
@@ -193,10 +216,6 @@ class DayPageViewModel: ObservableObject {
 
     func clearSelection() {
         selectedFriend = nil
-    }
-
-    var meAsFriend: FriendColor {
-        FriendColor(name: "Me", username: "me", color: .gray, note: "Let's roll!")
     }
 
     var isMeSelected: Bool {

@@ -9,11 +9,15 @@ import SwiftUI
 
 struct SocialCardView: View {
 
+    @EnvironmentObject var firestoreManager: FirestoreManager
+
     @ObservedObject var viewModel: DayPageViewModel
 
-    @State private var circleAppeared: [Bool] = []
-    @State private var animatingCircles: Bool = true
+    @State private var showFriendCircles: Bool = false
     @State private var showPersonalCircle: Bool = false
+    @State private var showEmotePicker: Bool = false
+    
+    private let reacts = ["🦧", "❤️", "😆", "❤️", "❤️"]
 
     let radius: CGFloat = 100
 
@@ -23,6 +27,8 @@ struct SocialCardView: View {
                 let screenHeight = geometry.size.height
                 let baseWidth: CGFloat = 650
                 let screenScale = min(1, screenHeight / baseWidth)
+                
+                
                 VStack {
                     VStack {
                         Image(systemName: "arrowshape.up.fill")
@@ -31,6 +37,10 @@ struct SocialCardView: View {
                     .padding()
 
                     ZStack {
+                        
+                        emotePicker(geometry: geometry)
+                            .zIndex(5)
+                        
                         GeometryReader { geometry in
                             friendCircles(in: geometry)
                                 .scaleEffect(screenScale)
@@ -52,19 +62,31 @@ struct SocialCardView: View {
                             showPersonalCircle = true
                         }
                         await viewModel.retrieveFriendsWithMoods()
+                        
+                        // Trigger friend circles animation after data loads
+                        withAnimation(.easeInOut(duration: 0.3).delay(0.2)) {
+                            showFriendCircles = true
+                        }
                     }
                 } else {
-                    circleAppeared = Array(
-                        repeating: false, count: viewModel.socialCard.friends.count)
+                    showFriendCircles = false
                     showPersonalCircle = false
+                    showEmotePicker = false
                 }
             }
             .onChange(of: viewModel.socialCard.friends) { _, friends in
-                circleAppeared = Array(repeating: false, count: friends.count)
-                animateCirclesInSequence()
+                // Reset and re-trigger friend circles animation when friends data changes
+                showFriendCircles = false
+                withAnimation(.easeInOut(duration: 0.3).delay(0.1)) {
+                    showFriendCircles = true
+                }
             }
             .onChange(of: viewModel.dailyMood) { _, newValue in
-                circleAppeared = Array(repeating: false, count: viewModel.socialCard.friends.count)
+                // Reset friend circles when mood changes
+                showFriendCircles = false
+                withAnimation(.easeInOut(duration: 0.3).delay(0.1)) {
+                    showFriendCircles = true
+                }
             }
             .background(
                 RoundedRectangle(cornerRadius: 20).fill(Color(red: 0.92, green: 0.88, blue: 0.84))
@@ -79,42 +101,66 @@ struct SocialCardView: View {
                     )
                 ) {
                     viewModel.clearSelection()
+                    showEmotePicker = false
                 }
             }
             .padding(24)
         }
     }
-
-    private func animateCirclesInSequence() {
-        for index in viewModel.socialCard.friends.indices {
-            // Apply a delayed spring animation to each circle.
-            withAnimation(.spring().delay(0.15 * Double(index))) {
-                if index < circleAppeared.count {
-                    circleAppeared[index] = true
-                }
-            }
+    
+    private func emotePicker(geometry: GeometryProxy) -> some View {
+        EmoteSelectionView(
+            showEmotePicker: $showEmotePicker,
+            selectedEmote: $viewModel.selectedEmote
+        ) { emote in
+            viewModel.selectedEmote = emote
+            Task { await viewModel.reactToFriendMood() }
         }
-        animatingCircles = false
+        .position(
+            x: geometry.size.width / 2,
+            y: showEmotePicker ? geometry.size.height / 2 - 240 : geometry.size.height / 2 - 120
+        )
+        .transition(.scale)
     }
 
     private func friendCircles(in geometry: GeometryProxy) -> some View {
         ZStack {
             let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
-
+            
+            
             if showPersonalCircle {
-                personalCircle(center: center)
+                PersonalCircleView(
+                    firestoreManager: firestoreManager,
+                    isMeSelected: viewModel.isMeSelected,
+                    someoneElseSelected: viewModel.someoneElseSelected,
+                    me: viewModel.me,
+                    center: center,
+                    color: viewModel.dailyMood?.mood?.color ?? .brown,
+                    note: viewModel.dailyMood?.noteContent ?? "No note.",
+                    date: viewModel.date,
+                    username: UserDefaults.standard.string(forKey: "Username") ?? "",
+                    selectedFriend: $viewModel.selectedFriend,
+                    showEmotePicker: $showEmotePicker
+                )
                     .transition(.scale)
             }
 
-            ForEach(Array(viewModel.socialCard.friends.enumerated()), id: \.element.id) {
-                index, friend in
-                if index < circleAppeared.count {
-                    socialCircle(
+            if showFriendCircles {
+                ForEach(Array(viewModel.socialCard.friends.enumerated()), id: \.element.id) {
+                    index, friend in
+                    FriendCircleView(
                         friend: friend,
                         index: index,
                         center: center,
-                        hasAppeared: circleAppeared[index]
+                        radius: radius,
+                        scale: 1.0,
+                        date: viewModel.date,
+                        totalSpots: viewModel.socialCard.friends.count,
+                        selectedFriend: $viewModel.selectedFriend,
+                        showEmotePicker: $showEmotePicker,
+                        firestoreManager: firestoreManager
                     )
+                    .transition(.scale.combined(with: .opacity))
                 }
             }
         }
@@ -154,66 +200,6 @@ struct SocialCardView: View {
             }
     }
 
-    private func socialCircle(friend: FriendColor, index: Int, center: CGPoint, hasAppeared: Bool)
-        -> some View
-    {
-        let totalSpots = viewModel.socialCard.friends.count
-        let angle = Angle(degrees: Double(index) / Double(totalSpots) * 360)
-        let isSelected = (viewModel.selectedFriend?.id == friend.id)
-        let someoneSelected = viewModel.selectedFriend?.id != nil
-        let effectiveRadius = isSelected ? 0 : (someoneSelected ? radius * 1.5 : radius)
-
-        let x = center.x + (isSelected ? 0 : effectiveRadius * CGFloat(sin(angle.radians)))
-        let y = center.y - (isSelected ? 0 : effectiveRadius * CGFloat(cos(angle.radians)))
-
-        let anotherScale = max(0.9, 1.0 - CGFloat(totalSpots - 1) * 0.05)  // Subtle scaling as more friends are shown (base scale = 1.0, min scale = 0.7)
-
-        let scale: CGFloat =
-            isSelected ? 3.0 : (someoneSelected ? 0.5 * anotherScale : 1.0 * anotherScale)
-
-        return ZStack {
-            Circle()
-                .fill(friend.color?.color ?? Color.gray)
-                .frame(width: 80 * scale, height: 80 * scale)
-                .shadow(color: .black.opacity(0.3), radius: 4)
-                .zIndex(isSelected ? 1 : 0)
-                .overlay(
-                    ZStack {
-                        Text(isSelected ? friend.note : friend.name)
-                            .lineLimit(7)
-                            .font(
-                                isSelected
-                                    ? .satoshi(size: 22, weight: .regular)
-                                    : .satoshi(size: 20, weight: .bold)
-                            )
-                            .multilineTextAlignment(.center)
-                            .minimumScaleFactor(4 / 24)
-                            .foregroundColor(.white)
-                            .padding(8)
-                        // Message icon for future chat functionality
-                        //                        if isSelected {
-                        //                            Button(action: {
-                        //
-                        //                            }) {
-                        //                                Image(systemName: "ellipsis.message.fill")
-                        //                                    .font(.system(size: 28))
-                        //                                    .foregroundColor(.white)
-                        //                            }
-                        //                            .offset(y: 88)
-                        //                        }
-                    }
-                    .transition(.scale)
-                )
-                .position(x: x, y: y)
-                .onTapGesture {
-                    withAnimation(.spring(response: 0.49, dampingFraction: 0.69)) {
-                        viewModel.selectedFriend = isSelected ? nil : friend
-                    }
-                }
-                .scaleEffect(hasAppeared ? 1 : 0)
-                .opacity(hasAppeared ? 1 : 0)
-        }
-    }
 }
 
 #Preview {

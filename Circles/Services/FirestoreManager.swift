@@ -131,7 +131,71 @@ class FirestoreManager: FirestoreManagerProtocol {
         }
     }
 
+
     // SOCIAL STUFF
+    func emoteReactToFriendsPost(date: Date, fromUID: String, toUID: String, emote: String) async throws {
+        
+        let moodId = DailyMood.dateId(from: date)
+        let reactDocRef = db
+            .collection("users")
+            .document(toUID)
+            .collection("dailyMoods")
+            .document(moodId)
+            .collection("reactions")
+            .document(fromUID)
+        
+        
+        // Check if mood exists
+        let existingReactionSnapshot = try? await reactDocRef.getDocument()
+        let isNewReact = !(existingReactionSnapshot?.exists ?? false)
+        
+        let reactToSave: Reaction
+        // Fill in new mood
+        if isNewReact {
+            reactToSave = Reaction(
+                fromUID: fromUID,
+                reaction: emote,
+                createdAt: Date(),
+                updatedAt: Date()
+            )
+        } else {
+            // Check for and then update exisiting mood
+            var existingReact =
+            try existingReactionSnapshot?.data(as: Reaction.self)
+            ?? Reaction(fromUID: "", reaction: "🦧", createdAt: Date(), updatedAt: Date())
+            existingReact.reaction = emote
+            existingReact.updatedAt = Date()
+            reactToSave = existingReact
+            print("Update emote react.")
+        }
+        
+
+        do {
+            try reactDocRef.setData(from: reactToSave)
+            print("Successfully reacted with \(emote) to: \(toUID) from: \(fromUID)")
+        } catch {
+            print("Error reacting to mood: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    func fetchMoodReactsForUserDate(date: Date, userID: String) async throws -> [String] {
+        let moodId = DailyMood.dateId(from: date)
+            let snapshot = try await db
+                .collection("users")
+                .document(userID)
+                .collection("dailyMoods")
+                .document(moodId)
+                .collection("reactions")
+                .getDocuments()
+            
+            return snapshot.documents.compactMap { doc in
+                let reaction = doc.data()["reaction"] as? String
+                    print("Found reaction: \(reaction ?? "")")
+                    return reaction
+            }
+    }
+    
     func searchUsersWithRequestStatus(byUsername username: String, excludingUserID: String)
         async throws
         -> [SearchResultUser]
