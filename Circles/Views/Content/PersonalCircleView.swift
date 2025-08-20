@@ -23,7 +23,6 @@ struct PersonalCircleView: View {
     let username: String
     
     @Binding var selectedFriend: FriendColor?
-    @Binding var showEmotePicker: Bool
     
     init(
         firestoreManager: FirestoreManager,
@@ -35,8 +34,7 @@ struct PersonalCircleView: View {
         note: String?,
         date: Date,
         username: String,
-        selectedFriend: Binding<FriendColor?>,
-        showEmotePicker: Binding<Bool>
+        selectedFriend: Binding<FriendColor?>
     ){
         self.isMeSelected = isMeSelected
         self.someoneElseSelected = someoneElseSelected
@@ -47,19 +45,19 @@ struct PersonalCircleView: View {
         self.date = date
         self.username = username
         self._selectedFriend = selectedFriend
-        self._showEmotePicker = showEmotePicker
         _viewModel = StateObject(wrappedValue: ReactionViewModel(firestoreManager: firestoreManager))
     }
     
     var body: some View {
         let meScale: CGFloat =
-            isMeSelected ? 3.0 : (someoneElseSelected ? 0.1 : 1.2)
+            isMeSelected ? 3.0 : (someoneElseSelected ? 0.01 : 1.2)
         ZStack {
             Circle()
                 .fill(color)
                 .frame(width: 80 * meScale, height: 80 * meScale)
                 .shadow(color: .black.opacity(0.2), radius: 4)
                 .zIndex(someoneElseSelected ? -1 : isMeSelected ? 1 : 0)
+                .opacity(someoneElseSelected ? 0 : 1)
                 .overlay(
                     ZStack {
                         Text(
@@ -80,6 +78,7 @@ struct PersonalCircleView: View {
                         
                         // Reactions positioned around top edge
                         CircleReactionsView(reactions: viewModel.reactions, visibleReactions: viewModel.visibleReactions)
+                            .zIndex(6)
                     }
                 )
                 .position(x: center.x, y: center.y)
@@ -87,7 +86,6 @@ struct PersonalCircleView: View {
                     withAnimation(.spring(response: 0.49, dampingFraction: 0.69)) {
                         if isMeSelected {
                             selectedFriend = nil
-                            showEmotePicker = false
                             viewModel.setSelected(false)
                         } else {
                             selectedFriend = me
@@ -100,7 +98,6 @@ struct PersonalCircleView: View {
             // Update this viewModel's selection state based on the global selection
             let shouldBeSelected = newValue?.id == me.id
             viewModel.setSelected(shouldBeSelected)
-
         }
         .onAppear {
             Task {

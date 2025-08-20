@@ -132,7 +132,7 @@ class DayPageViewModel: ObservableObject {
     @MainActor  // Ensures all property updates within this method happen on the main thread
     func retrieveFriendsWithMoods() async {
         isLoading = true  // Start loading
-
+        
         guard let userID = authManager.currentUser?.uid else {
             self.isLoading = false
             return
@@ -141,7 +141,7 @@ class DayPageViewModel: ObservableObject {
             //self.dailyMood = try await firestoreManager.getDailyMood(forDate: date, forUserId: userID)
             let friendsUID = try await firestoreManager.fetchFriends(userID: userID)
             var results: [FriendColor] = []
-
+            
             for uid in friendsUID {
                 // do-catch block for each friend stops whole retrieval process from collapsing if a single friends getDailyMood() fails
                 do {
@@ -172,40 +172,13 @@ class DayPageViewModel: ObservableObject {
                 self.toastStyle = .info
                 self.showToast = true
             }
-
+            
             let todayString = DailyMood.dateId(from: date)
             self.socialCard = SocialCard(date: todayString, friends: results)
             self.isLoading = false
         } catch {
             self.isLoading = false
             print("Error: \(error.localizedDescription)")
-        }
-    }
-    
-    func reactToFriendMood() async {
-        guard let userID = authManager.currentUser?.uid else { return }
-        guard let friend = selectedFriend else { return }
-        guard let emote = selectedEmote else { return }
-
-        if emote == "" {
-            do {
-                let friendID = try await firestoreManager.usernameToUID(username: friend.username)
-                try await firestoreManager.removeReact(fromUID: userID, toUID: friendID, date: date)
-            } catch {
-                print("Error removing reaction:", error)
-            }
-        } else {
-            do {
-                let friendID = try await firestoreManager.usernameToUID(username: friend.username)
-                try await firestoreManager.emoteReactToFriendsPost(
-                    date: Date(),
-                    fromUID: userID,
-                    toUID: friendID,
-                    emote: emote
-                )
-            } catch {
-                print("Error reacting to friend's mood:", error)
-            }
         }
     }
 

@@ -1,0 +1,34 @@
+//
+//  ReactionsOverlayView.swift
+//  Circles
+//
+//  Created by Nathaniel Bedggood on 20/08/2025.
+//
+
+import SwiftUI
+
+struct ReactionsOverlayView: View {
+    @ObservedObject var viewModel: ReactionViewModel
+    let friend: FriendColor
+    let date: Date
+    
+    var body: some View {
+        ZStack {
+            CircleReactionsView(
+                reactions: viewModel.reactions,
+                visibleReactions: viewModel.visibleReactions
+            )
+            
+            EmoteSelectionView(
+                showEmotePicker: viewModel.showEmotePicker,
+                selectedEmote: $viewModel.currentUserEmote
+            ) { emote in
+                viewModel.currentUserEmote = emote
+                Task {
+                    await viewModel.reactToFriendMood(friend: friend, date: date)
+                }
+            }
+            .offset(y: viewModel.showEmotePicker ? 210 : 60)
+        }
+    }
+}

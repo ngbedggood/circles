@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CircleReactionsView: View {
     var reactions: [Reaction]
-    var visibleReactions: Set<String> = []
+    var visibleReactions: Set<String>
 
     var body: some View {
         ZStack {

@@ -18,6 +18,7 @@ class ReactionViewModel: ObservableObject {
     @Published var currentUserEmote: String?
     @Published var reactions: [Reaction] = []
     @Published var visibleReactions: Set<String> = []
+    @Published var showEmotePicker: Bool = false
     private var isSelected: Bool = false
     private var listener: ListenerRegistration?
     
@@ -25,12 +26,40 @@ class ReactionViewModel: ObservableObject {
         self.firestoreManager = firestoreManager
     }
     
+    func reactToFriendMood(friend: FriendColor, date: Date) async {
+        guard let userID = Auth.auth().currentUser?.uid else { return }
+        guard let emote = currentUserEmote else { return }
+
+        if emote == "" {
+            do {
+                let friendID = try await firestoreManager.usernameToUID(username: friend.username)
+                try await firestoreManager.removeReact(fromUID: userID, toUID: friendID, date: date)
+            } catch {
+                print("Error removing reaction:", error)
+            }
+        } else {
+            do {
+                let friendID = try await firestoreManager.usernameToUID(username: friend.username)
+                try await firestoreManager.emoteReactToFriendsPost(
+                    date: Date(),
+                    fromUID: userID,
+                    toUID: friendID,
+                    emote: emote
+                )
+            } catch {
+                print("Error reacting to friend's mood:", error)
+            }
+        }
+    }
+    
     func setSelected(_ selected: Bool) {
         isSelected = selected
         if selected {
             animateIn(reactions)
         } else {
-            visibleReactions.removeAll()
+            withAnimation {
+                visibleReactions.removeAll()
+            }
         }
     }
         
@@ -38,7 +67,9 @@ class ReactionViewModel: ObservableObject {
         self.reactions = newReactions
         
         guard isSelected else {
-            visibleReactions.removeAll()
+            withAnimation {
+                visibleReactions.removeAll()
+            }
             return
         }
         
@@ -48,9 +79,11 @@ class ReactionViewModel: ObservableObject {
         // Added
         let added = newIDs.subtracting(oldIDs)
         for (idx, id) in added.enumerated() {
-            let delay = Double(idx) * 0.15 + 0.15
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                self.visibleReactions.insert(id)
+            let delay = Double(idx) * 0.15 + 0.45
+            withAnimation {
+                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                    self.visibleReactions.insert(id)
+                }
             }
         }
         
@@ -58,8 +91,10 @@ class ReactionViewModel: ObservableObject {
         let removed = oldIDs.subtracting(newIDs)
         for (idx, id) in removed.enumerated() {
             let delay = Double(idx) * 0.1
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                self.visibleReactions.remove(id)
+            withAnimation {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                    self.visibleReactions.remove(id)
+                }
             }
         }
     }
@@ -67,9 +102,11 @@ class ReactionViewModel: ObservableObject {
     private func animateIn(_ reactions: [Reaction]) {
         for (idx, emote) in reactions.enumerated() {
             if let id = emote.id {
-                let delay = Double(idx) * 0.15
-                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                    self.visibleReactions.insert(id)
+                let delay = Double(idx) * 0.15 + 0.45
+                withAnimation {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                        self.visibleReactions.insert(id)
+                    }
                 }
             }
         }
@@ -107,7 +144,9 @@ class ReactionViewModel: ObservableObject {
                 
                 // Update the current user's emote
                 if let myUID = Auth.auth().currentUser?.uid {
-                    self.currentUserEmote = self.reactions.first { $0.id == myUID }?.reaction
+                    withAnimation {
+                        self.currentUserEmote = self.reactions.first { $0.id == myUID }?.reaction
+                    }
                 }
             }
         
