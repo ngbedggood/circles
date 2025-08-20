@@ -23,6 +23,7 @@ class DayPageViewModel: ObservableObject {
     @Published private(set) var friendsWithMoods: [FriendWithMood] = []
     @Published private(set) var socialCard: SocialCard = SocialCard(date: "", friends: [])
     @Published private(set) var isLoading: Bool
+    
     @Published var selectedEmote: String? = nil
 
     // Shared stuff
@@ -186,16 +187,25 @@ class DayPageViewModel: ObservableObject {
         guard let friend = selectedFriend else { return }
         guard let emote = selectedEmote else { return }
 
-        do {
-            let friendID = try await firestoreManager.usernameToUID(username: friend.username)
-            try await firestoreManager.emoteReactToFriendsPost(
-                date: Date(),
-                fromUID: userID,
-                toUID: friendID,
-                emote: emote
-            )
-        } catch {
-            print("Error reacting to friend's mood:", error)
+        if emote == "" {
+            do {
+                let friendID = try await firestoreManager.usernameToUID(username: friend.username)
+                try await firestoreManager.removeReact(fromUID: userID, toUID: friendID, date: date)
+            } catch {
+                print("Error removing reaction:", error)
+            }
+        } else {
+            do {
+                let friendID = try await firestoreManager.usernameToUID(username: friend.username)
+                try await firestoreManager.emoteReactToFriendsPost(
+                    date: Date(),
+                    fromUID: userID,
+                    toUID: friendID,
+                    emote: emote
+                )
+            } catch {
+                print("Error reacting to friend's mood:", error)
+            }
         }
     }
 

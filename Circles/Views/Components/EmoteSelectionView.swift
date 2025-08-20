@@ -11,6 +11,7 @@ struct EmoteSelectionView: View {
     @Binding var showEmotePicker: Bool
     @Binding var selectedEmote: String?
     
+    
     let onSelectEmote: (String) -> Void
     
     var body: some View {
@@ -20,7 +21,11 @@ struct EmoteSelectionView: View {
             ForEach(emotes.indices, id: \.self) { index in
                 let emote = emotes[index]
                 Button(action: {
-                    onSelectEmote(emote)
+                    if selectedEmote == emote {
+                        onSelectEmote("")
+                    } else {
+                        onSelectEmote(emote)
+                    }
                     withAnimation {
                         showEmotePicker = false
                     }
@@ -36,12 +41,11 @@ struct EmoteSelectionView: View {
                         : CGFloat(index - middleIndex) * -10 // collapse to center
                 )
                 .animation(.spring(response: 0.5, dampingFraction: 0.7), value: showEmotePicker)
-                //.border(.red, width: 1)
             }
         }
         .padding(4)
         .background(
-            Color(red: 0.84, green: 0.84, blue: 0.84),
+            Color(red: 0.84, green: 0.80, blue: 0.76),
             in: Capsule()
         )
         .clipShape(Capsule())

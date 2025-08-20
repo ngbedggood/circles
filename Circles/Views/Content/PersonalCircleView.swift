@@ -85,17 +85,22 @@ struct PersonalCircleView: View {
                 .position(x: center.x, y: center.y)
                 .onTapGesture {
                     withAnimation(.spring(response: 0.49, dampingFraction: 0.69)) {
-                        selectedFriend = isMeSelected ? nil : me
-                        if selectedFriend == nil {
-                            withAnimation {
-                                showEmotePicker = false
-                                viewModel.setSelected(false)
-                            }
+                        if isMeSelected {
+                            selectedFriend = nil
+                            showEmotePicker = false
+                            viewModel.setSelected(false)
                         } else {
+                            selectedFriend = me
                             viewModel.setSelected(true)
                         }
                     }
                 }
+        }
+        .onChange(of: selectedFriend) { oldValue, newValue in
+            // Update this viewModel's selection state based on the global selection
+            let shouldBeSelected = newValue?.id == me.id
+            viewModel.setSelected(shouldBeSelected)
+
         }
         .onAppear {
             Task {

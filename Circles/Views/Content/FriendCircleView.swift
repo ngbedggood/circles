@@ -84,6 +84,7 @@ struct FriendCircleView: View {
                         
                         // Reactions positioned around top edge
                         CircleReactionsView(reactions: viewModel.reactions, visibleReactions: viewModel.visibleReactions)
+                        
                     }
                     .transition(.scale)
                 )
@@ -92,24 +93,35 @@ struct FriendCircleView: View {
                 .opacity(hasAppeared ? 1 : 0)
                 .onTapGesture {
                     withAnimation(.spring(response: 0.49, dampingFraction: 0.69)) {
-                        selectedFriend = isSelected ? nil : friend
-                        if selectedFriend == nil {
-                            withAnimation {
-                                showEmotePicker = false
-                                viewModel.setSelected(false)
-                            }
+                        if isSelected {
+                            // Deselect current friend
+                            selectedFriend = nil
+                            showEmotePicker = false
+                            viewModel.setSelected(false)
                         } else {
+                            // Select this friend
+                            selectedFriend = friend
                             viewModel.setSelected(true)
                         }
                     }
                 }
                 .onLongPressGesture {
-                    if selectedFriend != nil {
+                    if isSelected {
                         withAnimation {
                             showEmotePicker = true
                         }
                     }
                 }
+        }
+        .onChange(of: selectedFriend) { oldValue, newValue in
+            // Update this viewModel's selection state based on the global selection
+            let shouldBeSelected = newValue?.id == friend.id
+            viewModel.setSelected(shouldBeSelected)
+            
+            // If deselected, hide emote picker
+            if !shouldBeSelected {
+                showEmotePicker = false
+            }
         }
         .onAppear {
             Task {

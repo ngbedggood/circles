@@ -179,6 +179,19 @@ class FirestoreManager: FirestoreManagerProtocol {
         }
     }
     
+    func removeReact(fromUID: String, toUID: String, date: Date) async throws {
+        let moodId = DailyMood.dateId(from: date)
+        do {
+            let reactDocRef = db.collection("users").document(toUID).collection("dailyMoods")
+                .document(moodId).collection("reactions").document(fromUID)
+            try await reactDocRef.delete()
+            print("React on \(moodId) for \(toUID) by \(fromUID) successfully deleted!")
+        } catch {
+            print("Error deleting react: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
     func fetchMoodReactsForUserDate(date: Date, userID: String) async throws -> [String] {
         let moodId = DailyMood.dateId(from: date)
             let snapshot = try await db

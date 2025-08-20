@@ -39,7 +39,7 @@ struct SocialCardView: View {
                     ZStack {
                         
                         emotePicker(geometry: geometry)
-                            .zIndex(5)
+                            .zIndex(0)
                         
                         GeometryReader { geometry in
                             friendCircles(in: geometry)
@@ -118,7 +118,7 @@ struct SocialCardView: View {
         }
         .position(
             x: geometry.size.width / 2,
-            y: showEmotePicker ? geometry.size.height / 2 - 240 : geometry.size.height / 2 - 120
+            y: showEmotePicker ? geometry.size.height / 2 + 100 : geometry.size.height / 2
         )
         .transition(.scale)
     }

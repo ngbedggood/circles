@@ -8,12 +8,14 @@
 import SwiftUI
 import Foundation
 import FirebaseFirestore
+import FirebaseAuth
 
 @MainActor
 class ReactionViewModel: ObservableObject {
     
     let firestoreManager: FirestoreManager
     
+    @Published var currentUserEmote: String?
     @Published var reactions: [Reaction] = []
     @Published var visibleReactions: Set<String> = []
     private var isSelected: Bool = false
@@ -46,7 +48,7 @@ class ReactionViewModel: ObservableObject {
         // Added
         let added = newIDs.subtracting(oldIDs)
         for (idx, id) in added.enumerated() {
-            let delay = Double(idx) * 0.15
+            let delay = Double(idx) * 0.15 + 0.15
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                 self.visibleReactions.insert(id)
             }
@@ -101,6 +103,11 @@ class ReactionViewModel: ObservableObject {
                     var reaction = try? doc.data(as: Reaction.self)
                     reaction?.id = doc.documentID
                     return reaction
+                }
+                
+                // Update the current user's emote
+                if let myUID = Auth.auth().currentUser?.uid {
+                    self.currentUserEmote = self.reactions.first { $0.id == myUID }?.reaction
                 }
             }
         
