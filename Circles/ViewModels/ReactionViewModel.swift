@@ -72,41 +72,7 @@ class ReactionViewModel: ObservableObject {
         }
     }
         
-    private func handleReactionChange(newReactions: [Reaction]) {
-        self.reactions = newReactions
-        
-        guard isSelected else {
-            withAnimation {
-                visibleReactions.removeAll()
-            }
-            return
-        }
-        
-        let newIDs = Set(newReactions.compactMap { $0.id })
-        let oldIDs = visibleReactions
-        
-        // Added
-        let added = newIDs.subtracting(oldIDs)
-        for (idx, id) in added.enumerated() {
-            let delay = Double(idx) * 0.15 + 0.45
-            withAnimation {
-                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                    self.visibleReactions.insert(id)
-                }
-            }
-        }
-        
-        // Removed
-        let removed = oldIDs.subtracting(newIDs)
-        for (idx, id) in removed.enumerated() {
-            let delay = Double(idx) * 0.1
-            withAnimation {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                    self.visibleReactions.remove(id)
-                }
-            }
-        }
-    }
+    
     
     private func animateIn(_ reactions: [Reaction]) {
         for (idx, emote) in reactions.enumerated() {

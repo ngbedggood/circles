@@ -61,7 +61,6 @@ struct SocialCardView: View {
                         await viewModel.retrieveFriendsWithMoods()
                         
                         // Trigger friend circles animation after data loads
-                        try? await Task.sleep(nanoseconds: 200_000_000)
                         showFriendCircles = true
                     }
                 } else {
@@ -127,7 +126,7 @@ struct SocialCardView: View {
                 )
                 .position(x: center.x, y: center.y)
                 .transition(.scale)
-                .zIndex(viewModel.isMeSelected ? 4 : 1)
+                .zIndex(viewModel.isMeSelected ? 4 : 2)
             }
         }
     }
