@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EmoteSelectionView: View {
     let showEmotePicker: Bool
-    @Binding var selectedEmote: String?
+    @Binding var selectedEmote: String
     
     
     let onSelectEmote: (String) -> Void
@@ -53,6 +53,12 @@ struct EmoteSelectionView: View {
 }
 
 #Preview {
-    @Previewable @State var selectedEmote: String? = "🦧"
-    EmoteSelectionView(showEmotePicker: true, selectedEmote: $selectedEmote, onSelectEmote:{_ in })
+    @Previewable @State var selectedEmote: String = "🦧"
+    @Previewable @State var showEmotePicker: Bool = true
+    Button("Toggle") {
+        withAnimation {
+            showEmotePicker.toggle()
+        }
+    }
+    EmoteSelectionView(showEmotePicker: showEmotePicker, selectedEmote: $selectedEmote, onSelectEmote:{_ in })
 }

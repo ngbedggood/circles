@@ -16,7 +16,6 @@ struct PersonalCircleView: View {
     let isMeSelected: Bool
     let someoneElseSelected: Bool
     let me: FriendColor
-    let center: CGPoint
     let color: Color
     let note: String?
     let date: Date
@@ -29,7 +28,6 @@ struct PersonalCircleView: View {
         isMeSelected: Bool,
         someoneElseSelected: Bool,
         me: FriendColor,
-        center: CGPoint,
         color: Color,
         note: String?,
         date: Date,
@@ -39,7 +37,6 @@ struct PersonalCircleView: View {
         self.isMeSelected = isMeSelected
         self.someoneElseSelected = someoneElseSelected
         self.me = me
-        self.center = center
         self.color = color
         self.note = note
         self.date = date
@@ -52,52 +49,37 @@ struct PersonalCircleView: View {
         let meScale: CGFloat =
             isMeSelected ? 3.0 : (someoneElseSelected ? 0.01 : 1.2)
         ZStack {
-            Circle()
-                .fill(color)
-                .frame(width: 80 * meScale, height: 80 * meScale)
-                .shadow(color: .black.opacity(0.2), radius: 4)
+            CircleView(
+                color: color,
+                text: isMeSelected ?
+                    (note?.isEmpty == true ?
+                        "\"No note\"" : note ?? "\"No note\""
+                    )
+                : "Me",
+                font: isMeSelected ?
+                    .satoshi(size: 18, weight: .regular) :
+                        .satoshi(size: 32, weight: .bold),
+                size: 80 * meScale,
+                isSelected: isMeSelected
+            )
                 .zIndex(someoneElseSelected ? -1 : isMeSelected ? 1 : 0)
                 .opacity(someoneElseSelected ? 0 : 1)
-                .overlay(
-                    ZStack {
-                        Text(
-                            isMeSelected
-                            ? (note?.isEmpty == true
-                               ? "No note" : note ?? "No note")
-                            : "Me"
-                        )
-                        .lineLimit(7)
-                        .font(
-                            isMeSelected
-                            ? .satoshi(size: 18, weight: .regular) : .satoshi(size: 32, weight: .bold)
-                        )
-                        .multilineTextAlignment(.center)
-                        .minimumScaleFactor(2 / 20)
-                        .foregroundColor(.white)
-                        .padding(32)
-                        
-                        // Reactions positioned around top edge
-                        CircleReactionsView(reactions: viewModel.reactions, visibleReactions: viewModel.visibleReactions)
-                            .zIndex(6)
-                    }
-                )
-                .position(x: center.x, y: center.y)
                 .onTapGesture {
                     withAnimation(.spring(response: 0.49, dampingFraction: 0.69)) {
                         if isMeSelected {
                             selectedFriend = nil
-                            viewModel.setSelected(false)
+                            //viewModel.setSelected(false)
                         } else {
                             selectedFriend = me
-                            viewModel.setSelected(true)
+                            //viewModel.setSelected(true)
                         }
                     }
                 }
-        }
-        .onChange(of: selectedFriend) { oldValue, newValue in
-            // Update this viewModel's selection state based on the global selection
-            let shouldBeSelected = newValue?.id == me.id
-            viewModel.setSelected(shouldBeSelected)
+            if isMeSelected {
+                CircleReactionsView(reactions: viewModel.reactions)
+                    .transition(.opacity.combined(with: .scale))
+                    .zIndex(6)
+            }
         }
         .onAppear {
             Task {

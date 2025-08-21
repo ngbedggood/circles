@@ -9,7 +9,6 @@ import SwiftUI
 
 struct CircleReactionsView: View {
     var reactions: [Reaction]
-    var visibleReactions: Set<String>
 
     var body: some View {
         ZStack {
@@ -18,22 +17,18 @@ struct CircleReactionsView: View {
                 let reactAngle = Angle(degrees: angle)
                 let xOffset = sin(reactAngle.radians) * 120
                 let yOffset = -cos(reactAngle.radians) * 120
-                let isVisible = visibleReactions.contains(emote.id ?? "")
                 
                 Text(emote.reaction)
                     .font(.system(size: 28))
                     .offset(x: xOffset, y: yOffset)
-                    .scaleEffect(isVisible ? 1 : 0.1)
-                    .opacity(isVisible ? 1 : 0)
-                    .transition(.scale)
-                    .animation(.spring(response: 0.4, dampingFraction: 0.7), value: visibleReactions)
+                    .transition(.scale.combined(with: .opacity))
                     .shadow(color: .white, radius: 8)
             }
         }
-        .zIndex(5)
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: reactions.count)
     }
 }
 
 #Preview {
-    CircleReactionsView(reactions: [], visibleReactions: [])
+    CircleReactionsView(reactions: [])
 }

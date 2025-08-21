@@ -16,9 +16,6 @@ struct SocialCardView: View {
     @State private var showFriendCircles: Bool = false
     @State private var showPersonalCircle: Bool = false
     
-    
-    
-    private let reacts = ["🦧", "❤️", "😆", "❤️", "❤️"]
 
     let radius: CGFloat = 100
 
@@ -29,20 +26,17 @@ struct SocialCardView: View {
                 let baseWidth: CGFloat = 650
                 let screenScale = min(1, screenHeight / baseWidth)
                 
-                
                 VStack {
-                    VStack {
-                        Image(systemName: "arrowshape.up.fill")
-                            .foregroundStyle(.white)
-                    }
-                    .padding()
-
-                    ZStack {
-                        
-                        GeometryReader { geometry in
-                            friendCircles(in: geometry)
-                                .scaleEffect(screenScale)
-                        }
+                    Image(systemName: "arrowshape.up.fill")
+                        .foregroundStyle(.white)
+                        .padding()
+                
+                    
+                    GeometryReader { geometry in
+                        friendCircles(
+                            in: geometry,
+                            screenScale: screenScale
+                        )
                     }
 
                     Text("Reacting to friends moods is locked for this day")
@@ -67,28 +61,12 @@ struct SocialCardView: View {
                         await viewModel.retrieveFriendsWithMoods()
                         
                         // Trigger friend circles animation after data loads
-                        withAnimation(.easeInOut(duration: 0.3).delay(0.2)) {
-                            showFriendCircles = true
-                        }
+                        try? await Task.sleep(nanoseconds: 200_000_000)
+                        showFriendCircles = true
                     }
                 } else {
                     showFriendCircles = false
                     showPersonalCircle = false
-                    //showEmotePicker = false
-                }
-            }
-            .onChange(of: viewModel.socialCard.friends) { _, friends in
-                // Reset and re-trigger friend circles animation when friends data changes
-                showFriendCircles = false
-                withAnimation(.easeInOut(duration: 0.3).delay(0.1)) {
-                    showFriendCircles = true
-                }
-            }
-            .onChange(of: viewModel.dailyMood) { _, newValue in
-                // Reset friend circles when mood changes
-                showFriendCircles = false
-                withAnimation(.easeInOut(duration: 0.3).delay(0.1)) {
-                    showFriendCircles = true
                 }
             }
             .background(
@@ -98,20 +76,19 @@ struct SocialCardView: View {
             .onTapGesture {
                 withAnimation(
                     .spring(
-                        response: 0.55,
+                        response: 0.49,
                         dampingFraction: 0.69,
                         blendDuration: 0
                     )
                 ) {
                     viewModel.clearSelection()
-                    //showEmotePicker = false
                 }
             }
             .padding(24)
         }
     }
 
-    private func friendCircles(in geometry: GeometryProxy) -> some View {
+    private func friendCircles(in geometry: GeometryProxy, screenScale: CGFloat) -> some View {
         ZStack {
             let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
             
@@ -130,14 +107,10 @@ struct SocialCardView: View {
                         isEditable: viewModel.isEditable
                     )
                     .transition(.scale.animation(.spring()))
-                    .animation(
-                        .spring(response: 0.4, dampingFraction: 0.6)
-                        .delay(0.10 * Double(index)), // 👈 Key change is here
-                        value: showFriendCircles
-                    )
                     .zIndex(viewModel.isMeSelected ? 1 : 3)
                     .zIndex(viewModel.selectedFriend == friend ? 2 : 1)
                 }
+                .scaleEffect(screenScale)
             }
             
             if showPersonalCircle {
@@ -146,53 +119,18 @@ struct SocialCardView: View {
                     isMeSelected: viewModel.isMeSelected,
                     someoneElseSelected: viewModel.someoneElseSelected,
                     me: viewModel.me,
-                    center: center,
                     color: viewModel.dailyMood?.mood?.color ?? .brown,
                     note: viewModel.dailyMood?.noteContent ?? "No note.",
                     date: viewModel.date,
                     username: UserDefaults.standard.string(forKey: "Username") ?? "",
                     selectedFriend: $viewModel.selectedFriend
                 )
+                .position(x: center.x, y: center.y)
                 .transition(.scale)
-                .zIndex(viewModel.isMeSelected ? 3 : 1)
+                .zIndex(viewModel.isMeSelected ? 4 : 1)
             }
         }
     }
-
-    private func personalCircle(center: CGPoint) -> some View {
-        let meScale: CGFloat =
-            viewModel.isMeSelected ? 3.0 : (viewModel.someoneElseSelected ? 0.1 : 1.2)
-
-        return Circle()
-            .fill(viewModel.dailyMood?.mood?.color ?? .gray)
-            .frame(width: 80 * meScale, height: 80 * meScale)
-            .shadow(color: .black.opacity(0.2), radius: 4)
-            .zIndex(viewModel.someoneElseSelected ? -1 : viewModel.isMeSelected ? 1 : 0)
-            .overlay(
-                Text(
-                    viewModel.isMeSelected
-                        ? (viewModel.dailyMood?.noteContent?.isEmpty == true
-                            ? "No note" : viewModel.dailyMood?.noteContent ?? "No note")
-                        : "Me"
-                )
-                .lineLimit(7)
-                .font(
-                    viewModel.isMeSelected
-                        ? .satoshi(size: 22, weight: .regular) : .satoshi(size: 32, weight: .bold)
-                )
-                .multilineTextAlignment(.center)
-                .minimumScaleFactor(2 / 24)
-                .foregroundColor(.white)
-                .padding(32)
-            )
-            .position(x: center.x, y: center.y)
-            .onTapGesture {
-                withAnimation(.spring(response: 0.49, dampingFraction: 0.69)) {
-                    viewModel.selectedFriend = viewModel.isMeSelected ? nil : viewModel.me
-                }
-            }
-    }
-
 }
 
 #Preview {

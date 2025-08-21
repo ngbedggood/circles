@@ -15,7 +15,7 @@ class ReactionViewModel: ObservableObject {
     
     let firestoreManager: FirestoreManager
     
-    @Published var currentUserEmote: String?
+    @Published var currentUserEmote: String = ""
     @Published var reactions: [Reaction] = []
     @Published var visibleReactions: Set<String> = []
     @Published var showEmotePicker: Bool = false
@@ -26,9 +26,18 @@ class ReactionViewModel: ObservableObject {
         self.firestoreManager = firestoreManager
     }
     
+    func toggleSelection() {
+        isSelected.toggle()
+        if !isSelected {
+            withAnimation {
+                showEmotePicker = false
+            }
+        }
+    }
+    
     func reactToFriendMood(friend: FriendColor, date: Date) async {
         guard let userID = Auth.auth().currentUser?.uid else { return }
-        guard let emote = currentUserEmote else { return }
+        let emote = currentUserEmote
 
         if emote == "" {
             do {
@@ -145,7 +154,7 @@ class ReactionViewModel: ObservableObject {
                 // Update the current user's emote
                 if let myUID = Auth.auth().currentUser?.uid {
                     withAnimation {
-                        self.currentUserEmote = self.reactions.first { $0.id == myUID }?.reaction
+                        self.currentUserEmote = self.reactions.first { $0.id == myUID }?.reaction ?? ""
                     }
                 }
             }
