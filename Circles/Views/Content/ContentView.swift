@@ -20,6 +20,7 @@ struct ContentView: View {
     @State private var verticalIndex: Int? = nil
     @State private var isLoggedIn: Bool = true
     @State private var verticalIndices = Array(repeating: 0, count: 7)
+    @State private var shake: CGFloat = 0
 
     @StateObject private var navigationManager = NavigationManager()
 
@@ -97,6 +98,9 @@ struct ContentView: View {
                                             )
                                         }
                                     }
+                                    .onAppear {
+                                        jiggle()
+                                    }
                                     .highPriorityGesture(
                                         DragGesture(),
                                         isEnabled: scrollManager.isHorizontalScrollDisabled)
@@ -113,8 +117,45 @@ struct ContentView: View {
             }
         }
         .ignoresSafeArea(.keyboard)
+//        .edgesIgnoringSafeArea(.top)
+//        .edgesIgnoringSafeArea(.bottom)
         .font(.satoshi(.body))
+        .offset(x: shake)
     }
+    
+    private func jiggle() {
+        if UserDefaults.standard.bool(forKey: "hasJiggled") {
+            print("Has jiggled ;)")
+            return
+        }
+            
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+            withAnimation(.easeInOut(duration: 0.1)) {
+                shake = 0
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    shake = 20
+                }
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    shake = 0
+                }
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    shake = 20
+                }
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    shake = 0
+                }
+            }
+        }
+        UserDefaults.standard.set(true, forKey: "hasJiggled")
+}
 
 }
 

@@ -45,8 +45,8 @@ struct SocialCardView: View {
                         }
                     }
 
-                    Text("(Reacting to friends moods is locked for this day)")
-                        .font(.satoshi(size: 14))
+                    Text("Reacting to friends moods is locked for this day")
+                        .font(.satoshi(.caption))
                         .foregroundColor(.gray)
                         .opacity(!viewModel.isEditable ? 1 : 0)
                     
