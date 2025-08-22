@@ -22,7 +22,9 @@ struct CircleReactionsView: View {
                     .font(.system(size: 28))
                     .offset(x: xOffset, y: yOffset)
                     .transition(.scale.combined(with: .opacity))
-                    .shadow(color: .white, radius: 8)
+                    .shadow(color: .white, radius: 6)
+                    .shadow(color: .white, radius: 3)
+                    .shadow(color: .white, radius: 1)
             }
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: reactions.count)

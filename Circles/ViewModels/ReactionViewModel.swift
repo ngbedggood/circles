@@ -17,7 +17,6 @@ class ReactionViewModel: ObservableObject {
     
     @Published var currentUserEmote: String = ""
     @Published var reactions: [Reaction] = []
-    @Published var visibleReactions: Set<String> = []
     @Published var showEmotePicker: Bool = false
     private var isSelected: Bool = false
     private var listener: ListenerRegistration?
@@ -35,57 +34,49 @@ class ReactionViewModel: ObservableObject {
         }
     }
     
+    @MainActor
     func reactToFriendMood(friend: FriendColor, date: Date) async {
         guard let userID = Auth.auth().currentUser?.uid else { return }
         let emote = currentUserEmote
 
-        if emote == "" {
-            do {
-                let friendID = try await firestoreManager.usernameToUID(username: friend.username)
+        do {
+            let friendID = try await firestoreManager.usernameToUID(username: friend.username)
+
+            // If the user already has a reaction locally
+            if let oldReactionIndex = reactions.firstIndex(where: { $0.id == userID }) {
+                // Remove it locally to trigger animation
+                withAnimation {
+                    reactions.remove(at: oldReactionIndex)
+                }
+
+                // Also remove from Firestore
                 try await firestoreManager.removeReact(fromUID: userID, toUID: friendID, date: date)
-            } catch {
-                print("Error removing reaction:", error)
+
+                // Wait for animation to finish before re-adding
+                try await Task.sleep(nanoseconds: 300_000_000)
             }
-        } else {
-            do {
-                let friendID = try await firestoreManager.usernameToUID(username: friend.username)
+
+            // If the new emote isn't empty, add it both locally + remotely
+            if !emote.isEmpty {
+                //let newReaction = Reaction(id: userID, reaction: emote)
+                
+//                withAnimation {
+//                    reactions.append(newReaction)
+//                }
+
                 try await firestoreManager.emoteReactToFriendsPost(
-                    date: Date(),
+                    date: date,
                     fromUID: userID,
                     toUID: friendID,
                     emote: emote
                 )
-            } catch {
-                print("Error reacting to friend's mood:", error)
             }
+
+        } catch {
+            print("Error reacting to friend's mood:", error)
         }
     }
-    
-    func setSelected(_ selected: Bool) {
-        isSelected = selected
-        if selected {
-            animateIn(reactions)
-        } else {
-            withAnimation {
-                visibleReactions.removeAll()
-            }
-        }
-    }
-        
-    
-    
-    private func animateIn(_ reactions: [Reaction]) {
-        for (idx, emote) in reactions.enumerated() {
-            if let id = emote.id {
-                let delay = Double(idx) * 0.15 + 0.45
-                withAnimation {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                        self.visibleReactions.insert(id)
-                    }
-                }
-            }
-        }
-    }
+
     
     func listenForReactions(username: String, date: Date) async {
         stopListening()
@@ -117,14 +108,17 @@ class ReactionViewModel: ObservableObject {
                     return reaction
                 }
                 
-                // Update the current user's emote
-                if let myUID = Auth.auth().currentUser?.uid {
-                    withAnimation {
-                        self.currentUserEmote = self.reactions.first { $0.id == myUID }?.reaction ?? ""
-                    }
-                }
             }
         
+    }
+    
+    func getCurrentUserEmote() {
+        // Update the current user's emote
+        if let myUID = Auth.auth().currentUser?.uid {
+            withAnimation {
+                self.currentUserEmote = self.reactions.first { $0.id == myUID }?.reaction ?? ""
+            }
+        }
     }
     
     func stopListening() {

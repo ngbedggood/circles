@@ -22,7 +22,9 @@ struct ReactionsOverlayView: View {
                 showEmotePicker: viewModel.showEmotePicker,
                 selectedEmote: $viewModel.currentUserEmote
             ) { emote in
-                viewModel.currentUserEmote = emote
+                withAnimation {
+                    viewModel.currentUserEmote = emote
+                }
                 Task {
                     await viewModel.reactToFriendMood(friend: friend, date: date)
                 }

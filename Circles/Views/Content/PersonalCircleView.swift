@@ -60,7 +60,8 @@ struct PersonalCircleView: View {
                         Text(
                             isMeSelected
                             ? (note?.isEmpty == true
-                               ? "No note" : note ?? "No note")
+                               ? "No note"
+                               : "\"\(note ?? "")\"")
                             : "Me"
                         )
                         .lineLimit(7)

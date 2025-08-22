@@ -11,6 +11,7 @@ struct NoteView: View {
     @EnvironmentObject var scrollManager: ScrollManager
     @ObservedObject var viewModel: DayPageViewModel
     @FocusState.Binding var isFocused: Bool
+    let characterLimit: Int = 180
     let screenWidth: CGFloat
     let screenScale: CGFloat
     var body: some View {
@@ -38,6 +39,11 @@ struct NoteView: View {
         .onChange(of: isFocused) { _, focused in
             scrollManager.isHorizontalScrollDisabled = focused
             viewModel.isDayVerticalScrollDisabled = focused
+        }
+        .onChange(of: viewModel.note) { _, newValue in
+            if newValue.count > characterLimit {
+                viewModel.note = String(newValue.prefix(characterLimit))
+            }
         }
     }
 }

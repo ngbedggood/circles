@@ -30,6 +30,9 @@ struct EmoteSelectionView: View {
                     Text("\(emote)")
                         .font(.title)
                         .scaledToFit()
+                        .shadow(color: .white, radius: selectedEmote == emote ? 6 : 0)
+                        .shadow(color: .white, radius: selectedEmote == emote ? 3 : 0)
+                        .shadow(color: .white, radius: selectedEmote == emote ? 1 : 0)
                 }
                 .frame(width: showEmotePicker ? 40 : 0, height: showEmotePicker ? 40: 0)
                 .offset(
@@ -38,6 +41,7 @@ struct EmoteSelectionView: View {
                         : CGFloat(index - middleIndex) * -10 // collapse to center
                 )
                 .animation(.spring(response: 0.5, dampingFraction: 0.7), value: showEmotePicker)
+                
             }
         }
         .padding(4)

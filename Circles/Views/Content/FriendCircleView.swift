@@ -92,8 +92,12 @@ struct FriendCircleView: View {
                 }
             }
             .onLongPressGesture {
-                if isSelected && isEditable {
-                    withAnimation { viewModel.showEmotePicker.toggle() }
+                if isSelected {
+                    if isEditable {
+                        withAnimation { viewModel.showEmotePicker.toggle() }
+                    } else {
+                        print ("Show toast here perhaps!")
+                    }
                 }
             }
             .zIndex(1)
@@ -102,6 +106,9 @@ struct FriendCircleView: View {
                 ReactionsOverlayView(viewModel: viewModel, friend: friend, date: date)
                     .transition(.opacity.combined(with: .scale))
                     .zIndex(2)
+                    .onAppear {
+                        viewModel.getCurrentUserEmote()
+                    }
             }
         }
         .position(position)
@@ -109,7 +116,12 @@ struct FriendCircleView: View {
         .scaleEffect(hasAppeared ? 1 : 0)
         .onAppear {
             hasAppeared = true
-            Task { await viewModel.listenForReactions(username: friend.username, date: date) }
+            Task {
+                await viewModel.listenForReactions(
+                    username: friend.username,
+                    date: date
+                )
+            }
         }
         .onDisappear { viewModel.stopListening() }
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isSelected)

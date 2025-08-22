@@ -162,7 +162,7 @@ class FirestoreManager: FirestoreManagerProtocol {
             // Check for and then update exisiting mood
             var existingReact =
             try existingReactionSnapshot?.data(as: Reaction.self)
-            ?? Reaction(fromUID: "", reaction: "🦧", createdAt: Date(), updatedAt: Date())
+            ?? Reaction(fromUID: fromUID, reaction: emote, createdAt: Date(), updatedAt: Date())
             existingReact.reaction = emote
             existingReact.updatedAt = Date()
             reactToSave = existingReact
