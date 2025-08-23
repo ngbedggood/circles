@@ -18,7 +18,7 @@ struct FriendsView: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white)
+                .fill(.cardTint)
                 .shadow(radius: 8)
                 .onTapGesture {
                     if isFocused {

@@ -28,7 +28,7 @@ struct SocialCardView: View {
                 
                 VStack {
                     Image(systemName: "arrowshape.up.fill")
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.gray)
                         .padding()
                 
                     

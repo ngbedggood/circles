@@ -52,7 +52,10 @@ struct MoodCirclesView: View {
                             await viewModel.saveEntry(isButtonSubmit: false)
                         }
                     }
-                    .shadow(color: .black.opacity(0.2), radius: 4)
+                    .shadow(
+                        color: viewModel.expanded && viewModel.currentMood == mood.color ? .black.opacity(0.33) : .black.opacity(0.1),
+                        radius: viewModel.currentMood == nil ? 4 : 8
+                    )
             }
 
             if viewModel.currentMood == nil && viewModel.isVisible {

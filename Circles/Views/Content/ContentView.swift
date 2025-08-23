@@ -117,8 +117,8 @@ struct ContentView: View {
             }
         }
         .ignoresSafeArea(.keyboard)
-//        .edgesIgnoringSafeArea(.top)
-//        .edgesIgnoringSafeArea(.bottom)
+        .edgesIgnoringSafeArea(.top)
+        .edgesIgnoringSafeArea(.bottom)
         .font(.satoshi(.body))
         .offset(x: shake)
         .background(Color.backgroundTint)

@@ -52,7 +52,7 @@ struct PersonalCircleView: View {
             Circle()
                 .fill(color)
                 .frame(width: 80 * meScale, height: 80 * meScale)
-                .shadow(color: .black.opacity(0.2), radius: 4)
+                .shadow(radius: 4)
                 .zIndex(someoneElseSelected ? -1 : isMeSelected ? 1 : 0)
                 .opacity(someoneElseSelected ? 0 : 1)
                 .overlay(
@@ -75,7 +75,7 @@ struct PersonalCircleView: View {
                         .padding(32)
                         
 
-                        CircleReactionsView(reactions: viewModel.reactions)
+                        CircleReactionsView(reactions: viewModel.reactions, color: color)
                             .opacity(isMeSelected ? 1 : 0)
                             .scaleEffect(isMeSelected ? 1 : 0)
                             .zIndex(6)

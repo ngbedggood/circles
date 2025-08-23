@@ -33,7 +33,6 @@ struct PersonalCardView: View {
                             viewModel: viewModel,
                             isFocused: isFocused
                         )
-
                         VStack {
                             TopBarView(
                                 viewModel: viewModel,
@@ -66,26 +65,30 @@ struct PersonalCardView: View {
 
                             Spacer()
                             
-                            if viewModel.isEditable {
+                            
                                 ZStack {
-                                    Text("Select today's mood before seeing your friends below")
-                                        .font(.satoshi(.caption))
-                                        .foregroundStyle(.gray)
-                                        .opacity(viewModel.currentMood == nil ? 1.0 : 0.0)
+                                    if viewModel.isEditable {
+                                        Text("Select today's mood before seeing your friends below")
+                                            .font(.satoshi(.caption))
+                                            .foregroundStyle(.gray)
+                                            .opacity(viewModel.currentMood == nil ? 1.0 : 0.0)
+                                    }
+//                                    else {
+//                                        VStack{}
+//                                            .frame(width: 0, height: 60)
+//                                    }
                                     Image(systemName: "arrowshape.down.fill")
                                         .foregroundStyle(.white)
                                         .opacity(viewModel.currentMood != nil ? 1.0 : 0.0)
                                 }
                                 .animation(.easeInOut, value: viewModel.currentMood)
                                 .padding()
-                            } else {
-                                VStack{}
-                                    .frame(width: 0, height: 60)
-                            }
+                        
                         }
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .padding(24)
                     }
+
                     // Weird way to be able to dismiss keyboard when using axis: .vertical modifier
                     .toolbar {
                         if isFocused {

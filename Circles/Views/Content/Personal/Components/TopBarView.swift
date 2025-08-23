@@ -18,8 +18,10 @@ struct TopBarView: View {
                     navigationManager.currentView = .friends
                 }
             } label: {
-                Image(systemName: "face.smiling")
-                    .font(.system(size: 32))
+                if viewModel.isEditable {
+                    Image(systemName: "face.smiling")
+                        .font(.system(size: 32))
+                }
 
             }
             .frame(minWidth: 48)
@@ -49,6 +51,7 @@ struct TopBarView: View {
                 ? .black.opacity(0.75)
                 : viewModel.currentMood == nil ? .black.opacity(0.75) : .white
         )
+        .animation(.easeInOut.delay(0.1), value: viewModel.currentMood)
         .padding()
     }
 }

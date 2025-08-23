@@ -21,7 +21,7 @@ struct CircleActionButton: View {
             }
         ) {
             Circle()
-                .fill(.teal)
+                .fill(.moodTeal)
                 .frame(width: 80, height: 80)
                 .overlay(
                     Group {

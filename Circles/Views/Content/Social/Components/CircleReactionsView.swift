@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CircleReactionsView: View {
     var reactions: [Reaction]
+    let color: Color
 
     var body: some View {
         ZStack {
@@ -20,10 +21,15 @@ struct CircleReactionsView: View {
                 
                 Text(emote.reaction)
                     .font(.system(size: 28))
+//                    .background(
+//                        Circle()
+//                            .fill(color)
+//                            .frame(width: 48, height: 48)
+//                    )
                     .offset(x: xOffset, y: yOffset)
                     .transition(.scale.combined(with: .opacity))
                     .shadow(color: .white, radius: 6)
-                    .shadow(color: .white, radius: 3)
+                    .shadow(color: color, radius: 3)
                     .shadow(color: .white, radius: 1)
             }
         }
@@ -32,5 +38,5 @@ struct CircleReactionsView: View {
 }
 
 #Preview {
-    CircleReactionsView(reactions: [])
+    CircleReactionsView(reactions: [], color: .gray)
 }

@@ -44,14 +44,13 @@ struct EmoteSelectionView: View {
                         ? 0
                         : CGFloat(index - middleIndex) * -10 // collapse to center
                 )
-                .animation(.spring(response: 0.5, dampingFraction: 0.7), value: showEmotePicker)
                 .foregroundColor(.black)
                 
             }
         }
         .padding(4)
         .background(
-            Color(red: 0.84, green: 0.80, blue: 0.76),
+            Color(.white),
             in: Capsule()
         )
         .clipShape(Capsule())

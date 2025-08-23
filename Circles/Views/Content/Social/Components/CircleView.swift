@@ -18,7 +18,7 @@ struct CircleView: View {
         Circle()
             .fill(color)
             .frame(width: size, height: size)
-            .shadow(color: .black.opacity(0.3), radius: 4)
+            .shadow(radius: 4)
             .overlay(
                 Text(text)
                     .lineLimit(7)

@@ -15,7 +15,8 @@ struct ReactionsOverlayView: View {
     var body: some View {
         ZStack {
             CircleReactionsView(
-                reactions: viewModel.reactions
+                reactions: viewModel.reactions,
+                color: friend.color?.color ?? .white
             )
             
             EmoteSelectionView(
