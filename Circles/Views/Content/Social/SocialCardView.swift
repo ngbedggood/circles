@@ -69,7 +69,7 @@ struct SocialCardView: View {
                 }
             }
             .background(
-                RoundedRectangle(cornerRadius: 20).fill(Color(red: 0.92, green: 0.88, blue: 0.84))
+                RoundedRectangle(cornerRadius: 20).fill(Color(.clear))
                     .shadow(radius: 8)
             )
             .onTapGesture {

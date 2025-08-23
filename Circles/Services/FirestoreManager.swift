@@ -7,6 +7,7 @@
 
 // The purpose of the FirestoreManager is to communicate with the Firestore database to complete CRUD operations. Methods are laid out for use by the app's logic.
 
+
 import FirebaseFirestore
 import Foundation
 import SwiftUI
@@ -101,6 +102,14 @@ class FirestoreManager: FirestoreManagerProtocol {
             }
         }
     }
+    
+    func saveUserTimezone(for uid: String) async throws {
+        let tzIdentifier = TimeZone.current.identifier
+            
+        try await db.collection("users").document(uid).setData([
+            "timezone": tzIdentifier
+        ], merge: true)
+    }
 
     func fetchUsername(for uid: String) async throws -> String? {
 
@@ -130,12 +139,43 @@ class FirestoreManager: FirestoreManagerProtocol {
             return nil
         }
     }
+    
+    func userTZToMoodId(uid: String, date: Date) async throws -> String {
+        let friendDoc = try await db
+            .collection("users")
+            .document(uid)
+            .getDocument()
+
+        guard let friendData = friendDoc.data() else {
+            throw URLError(.badServerResponse)
+        }
+
+        let tzIdentifier = friendData["timezone"] as? String ?? TimeZone.current.identifier
+        guard let friendTimeZone = TimeZone(identifier: tzIdentifier) else {
+            throw URLError(.badURL)
+        }
+
+        // Create calendar in friend's timezone
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = friendTimeZone
+        
+        // Get the current moment and find what "today" is in the friend's timezone
+        let now = Date() // Current moment
+        let friendStartOfDay = cal.startOfDay(for: now)
+        
+        let moodId = DailyMood.dateId(from: friendStartOfDay, timeZone: friendTimeZone)
+        //print("[userTZToMoodId]: Mood ID for \(now) in (\(tzIdentifier)) is \(moodId)")
+        return moodId
+    }
 
 
     // SOCIAL STUFF
     func emoteReactToFriendsPost(date: Date, fromUID: String, toUID: String, emote: String) async throws {
         
-        let moodId = DailyMood.dateId(from: date)
+
+        let moodId = try await userTZToMoodId(uid: toUID, date: date)
+
+        
         let reactDocRef = db
             .collection("users")
             .document(toUID)
@@ -156,19 +196,20 @@ class FirestoreManager: FirestoreManagerProtocol {
                 fromUID: fromUID,
                 reaction: emote,
                 createdAt: Date(),
-                updatedAt: Date()
+                updatedAt: Date(),
+                removed: false
             )
         } else {
             // Check for and then update exisiting mood
             var existingReact =
             try existingReactionSnapshot?.data(as: Reaction.self)
-            ?? Reaction(fromUID: fromUID, reaction: emote, createdAt: Date(), updatedAt: Date())
+            ?? Reaction(fromUID: fromUID, reaction: emote, createdAt: Date(), updatedAt: Date(), removed: false)
             existingReact.reaction = emote
             existingReact.updatedAt = Date()
+            existingReact.removed = false
             reactToSave = existingReact
             print("Update emote react.")
         }
-        
 
         do {
             try reactDocRef.setData(from: reactToSave)
@@ -180,7 +221,7 @@ class FirestoreManager: FirestoreManagerProtocol {
     }
     
     func removeReact(fromUID: String, toUID: String, date: Date) async throws {
-        let moodId = DailyMood.dateId(from: date)
+        let moodId = try await userTZToMoodId(uid: toUID, date: date)
         do {
             let reactDocRef = db.collection("users").document(toUID).collection("dailyMoods")
                 .document(moodId).collection("reactions").document(fromUID)
@@ -189,6 +230,25 @@ class FirestoreManager: FirestoreManagerProtocol {
         } catch {
             print("Error deleting react: \(error.localizedDescription)")
             throw error
+        }
+    }
+    
+    func softRemoveReact(fromUID: String, toUID: String, date: Date) async throws {
+        do {
+            let moodId = try await userTZToMoodId(uid: toUID, date: date)
+            
+            let reactDocRef = db
+                .collection("users")
+                .document(toUID)
+                .collection("dailyMoods")
+                .document(moodId)
+                .collection("reactions")
+                .document(fromUID)
+            
+            try await reactDocRef.updateData([
+                "removed": true,
+                "updatedAt": Date()
+            ])
         }
     }
     

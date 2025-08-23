@@ -21,10 +21,14 @@ struct EmoteSelectionView: View {
             ForEach(emotes.indices, id: \.self) { index in
                 let emote = emotes[index]
                 Button(action: {
-                    if selectedEmote == emote {
-                        onSelectEmote("")
+                    if emote == "+" {
+                        print("Additional emote selecting is WIP!")
                     } else {
-                        onSelectEmote(emote)
+                        if selectedEmote == emote {
+                            onSelectEmote("")
+                        } else {
+                            onSelectEmote(emote)
+                        }
                     }
                 }) {
                     Text("\(emote)")
@@ -41,6 +45,7 @@ struct EmoteSelectionView: View {
                         : CGFloat(index - middleIndex) * -10 // collapse to center
                 )
                 .animation(.spring(response: 0.5, dampingFraction: 0.7), value: showEmotePicker)
+                .foregroundColor(.black)
                 
             }
         }

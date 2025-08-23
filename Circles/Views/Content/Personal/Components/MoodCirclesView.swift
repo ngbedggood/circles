@@ -24,7 +24,7 @@ struct MoodCirclesView: View {
                 let offsetY =
                     (viewModel.expanded ? mood.offsetY : 0) * screenScale
                 Circle()
-                    .fill(mood.fill)
+                    .fill(mood.color.color)
                     .frame(width: width, height: height)
                     .scaleEffect(viewModel.currentMood == mood.color ? 16 : 1)
                     .animation(
@@ -48,9 +48,6 @@ struct MoodCirclesView: View {
                         isFront = Array(
                             repeating: false, count: isFront.count)
                         isFront[mood.index] = true  // Keep last selected colour at front
-                        print(
-                            "Mood index is: \(mood.index) and isFront is: \(isFront[mood.index])"
-                        )
                         Task {
                             await viewModel.saveEntry(isButtonSubmit: false)
                         }

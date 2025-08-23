@@ -14,9 +14,18 @@ struct BackgroundCardView: View {
         RoundedRectangle(cornerRadius: 20)
             .fill(
                 viewModel.showFriends
-                    ? Color(red: 0.92, green: 0.88, blue: 0.84)
+                ? Color(.clear)
                     : viewModel.currentMood?.color
-                        ?? Color(red: 0.92, green: 0.88, blue: 0.84)
+                        ?? Color(.clear)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .strokeBorder(
+                        viewModel.currentMood != nil ? Color.clear :
+                        Color.gray,
+                        style: StrokeStyle(lineWidth: 2, dash: [4, 6])
+                        // dash = [dash length, gap length]
+                    )
             )
             .zIndex(-1)
             .animation(.easeInOut.speed(0.8), value: viewModel.currentMood)

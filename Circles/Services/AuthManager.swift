@@ -66,6 +66,7 @@ class AuthManager: AuthManagerProtocol {
                     
                     try await self.firestoreManager.loadPastMoods(forUserId: uid)
                     try await self.firestoreManager.loadUserProfile(for: uid)
+                    try await self.firestoreManager.saveUserTimezone(for: uid)
 
                     await MainActor.run {
                         self.currentUser = user

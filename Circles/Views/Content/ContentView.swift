@@ -121,6 +121,7 @@ struct ContentView: View {
 //        .edgesIgnoringSafeArea(.bottom)
         .font(.satoshi(.body))
         .offset(x: shake)
+        .background(Color.backgroundTint)
     }
     
     private func jiggle() {

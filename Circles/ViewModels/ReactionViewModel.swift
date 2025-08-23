@@ -50,7 +50,7 @@ class ReactionViewModel: ObservableObject {
                 }
 
                 // Also remove from Firestore
-                try await firestoreManager.removeReact(fromUID: userID, toUID: friendID, date: date)
+                try await firestoreManager.softRemoveReact(fromUID: userID, toUID: friendID, date: date)
 
                 // Wait for animation to finish before re-adding
                 try await Task.sleep(nanoseconds: 300_000_000)
@@ -85,8 +85,14 @@ class ReactionViewModel: ObservableObject {
             print("Failed to get UID")
             return
         }
+        let moodId: String
+        do {
+            moodId = try await firestoreManager.userTZToMoodId(uid: userID, date: date)
+        } catch {
+            print(error.localizedDescription)
+            return
+        }
         
-        let moodId = DailyMood.dateId(from: date)
         guard !moodId.isEmpty else {
             print("Mood ID is empty")
             return
@@ -99,6 +105,7 @@ class ReactionViewModel: ObservableObject {
             .collection("dailyMoods")
             .document(moodId)
             .collection("reactions")
+            .whereField("removed", isEqualTo: false) // only active reactions
             .addSnapshotListener { [weak self] snapshot, error in
                 guard let self, let docs = snapshot?.documents else { return }
                 

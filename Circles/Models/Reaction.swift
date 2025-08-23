@@ -14,4 +14,5 @@ struct Reaction: Codable, Identifiable {
     var reaction: String
     var createdAt: Date
     var updatedAt: Date
+    var removed: Bool
 }

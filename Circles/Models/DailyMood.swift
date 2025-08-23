@@ -23,12 +23,18 @@ enum MoodColor: String, Codable, CaseIterable, Identifiable {
 
     var color: Color {
         switch self {
-            case .teal: return .teal
-            case .green: return .green
-            case .yellow: return .yellow
-            case .orange: return .orange
-            case .gray: return .gray
-            case .none: return .brown.opacity(0.5)
+        case .teal:
+            return Color("moodTeal")   // custom from Assets
+        case .green:
+            return Color("moodGreen") // custom from Assets
+        case .yellow:
+            return Color("moodYellow")
+        case .orange:
+            return Color("moodOrange")
+        case .gray:
+            return Color("moodGray")
+        case .none:
+            return .brown.opacity(0.5) // fallback
         }
     }
 }
@@ -61,10 +67,10 @@ struct DailyMood: Codable, Identifiable, Equatable {
 
     // swift date back to ID date (YYYY-MM-DD)
     // will be used for Firestore document IDs
-    static func dateId(from date: Date) -> String {
+    static func dateId(from date: Date, timeZone: TimeZone = TimeZone.current) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
-        formatter.timeZone = TimeZone.current
+        formatter.timeZone = timeZone
         return formatter.string(from: date)
     }
 
