@@ -96,16 +96,16 @@ struct FriendCircleView: View {
                     if isEditable {
                         withAnimation { viewModel.showEmotePicker.toggle() }
                     } else {
-                        print ("Show toast here perhaps!")
+                        viewModel.showLockedToast()
                     }
                 }
             }
-            .zIndex(1)
+            .zIndex(2)
 
             if isSelected {
                 ReactionsOverlayView(viewModel: viewModel, friend: friend, date: date)
                     .transition(.opacity.combined(with: .scale))
-                    .zIndex(2)
+                    .zIndex(1)
                     .onAppear {
                         viewModel.getCurrentUserEmote()
                     }

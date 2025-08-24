@@ -34,11 +34,12 @@ struct EmoteSelectionView: View {
                     Text("\(emote)")
                         .font(.title)
                         .scaledToFit()
-                        .shadow(color: .white, radius: selectedEmote == emote ? 6 : 0)
-                        .shadow(color: .white, radius: selectedEmote == emote ? 3 : 0)
-                        .shadow(color: .white, radius: selectedEmote == emote ? 1 : 0)
+                        .scaleEffect(selectedEmote == emote ? 1.4 : 1.0)
+//                        .shadow(color: .black, radius: selectedEmote == emote ? 6 : 0)
+//                        .shadow(color: .black, radius: selectedEmote == emote ? 3 : 0)
+//                        .shadow(color: .black, radius: selectedEmote == emote ? 1 : 0)
                 }
-                .frame(width: showEmotePicker ? 40 : 0, height: showEmotePicker ? 40: 0)
+                .frame(width: showEmotePicker ? 40 : 1, height: showEmotePicker ? 40: 1)
                 .offset(
                     x: showEmotePicker
                         ? 0
@@ -50,12 +51,15 @@ struct EmoteSelectionView: View {
         }
         .padding(4)
         .background(
-            Color(.white),
-            in: Capsule()
+            Capsule()
+                .strokeBorder(
+                    Color.black.opacity(0.75),
+                    style: StrokeStyle(lineWidth: 2)
+                    // [dash length, gap length]
+                )
         )
         .clipShape(Capsule())
         .opacity(showEmotePicker ? 1 : 0)
-        .shadow(radius: 8)
         .zIndex(6)
     }
 }

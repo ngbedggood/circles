@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 
 struct CircleReactionsView: View {
     var reactions: [Reaction]
     let color: Color
+    let uid = Auth.auth().currentUser?.uid ?? ""
 
     var body: some View {
         ZStack {
@@ -21,6 +23,7 @@ struct CircleReactionsView: View {
                 
                 Text(emote.reaction)
                     .font(.system(size: 28))
+                    .scaleEffect(emote.fromUID == uid ? 1.4 : 1)
 //                    .background(
 //                        Circle()
 //                            .fill(color)
@@ -31,6 +34,7 @@ struct CircleReactionsView: View {
                     .shadow(color: .white, radius: 6)
                     .shadow(color: color, radius: 3)
                     .shadow(color: .white, radius: 1)
+
             }
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: reactions.count)

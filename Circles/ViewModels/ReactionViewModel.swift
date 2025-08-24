@@ -21,6 +21,11 @@ class ReactionViewModel: ObservableObject {
     private var isSelected: Bool = false
     private var listener: ListenerRegistration?
     
+    // Toast related
+    @Published var showToast: Bool = false
+    @Published private(set) var toastMessage: String = ""
+    @Published private(set) var toastStyle: ToastStyle = .success
+    
     init(firestoreManager: FirestoreManager) {
         self.firestoreManager = firestoreManager
     }
@@ -32,6 +37,14 @@ class ReactionViewModel: ObservableObject {
                 showEmotePicker = false
             }
         }
+    }
+    
+    @MainActor
+    func showLockedToast() {
+        self.showToast = false
+        self.toastMessage = "Reacting to past mood entries is locked."
+        self.toastStyle = .warning
+        self.showToast = true
     }
     
     @MainActor
@@ -80,28 +93,24 @@ class ReactionViewModel: ObservableObject {
     
     func listenForReactions(username: String, date: Date) async {
         stopListening()
-        
-        guard let userID = try? await firestoreManager.usernameToUID(username: username), !userID.isEmpty else {
+            
+        guard let friendUID = try? await firestoreManager.usernameToUID(username: username) else {
             print("Failed to get UID")
             return
         }
-        let moodId: String
-        do {
-            moodId = try await firestoreManager.userTZToMoodId(uid: userID, date: date)
-        } catch {
-            print(error.localizedDescription)
+        
+        guard let moodId = try? await firestoreManager.findFriendMoodDocumentID(forViewerDate: date, friendUID: friendUID) else {
+            print("No mood document found for \(username) on \(date) from the viewer's perspective.")
+            // Clear out any existing reactions since there's no mood to react to.
+            self.reactions = []
             return
         }
         
-        guard !moodId.isEmpty else {
-            print("Mood ID is empty")
-            return
-        }
         let db = Firestore.firestore()
-        
+
         listener = db
             .collection("users")
-            .document(userID)
+            .document(friendUID)
             .collection("dailyMoods")
             .document(moodId)
             .collection("reactions")
@@ -116,6 +125,8 @@ class ReactionViewModel: ObservableObject {
                 }
                 
             }
+        
+        print("For user \(username) on \(date), started listening for reactions. Mood ID is \(moodId)")
         
     }
     
@@ -132,4 +143,6 @@ class ReactionViewModel: ObservableObject {
         listener?.remove()
         listener = nil
     }
+    
+    
 }

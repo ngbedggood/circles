@@ -82,24 +82,14 @@ class FirestoreManager: FirestoreManagerProtocol {
         })
     }
 
-    func loadUserProfile(for uid: String) async throws {
+    @MainActor
+    func loadUserProfile(for uid: String) async {
         let userRef = db.collection("users").document(uid)
-        userRef.getDocument { [weak self] snapshot, error in
-            guard let self = self else { return }
-
-            if let error = error {
-                print("Error fetching user profile: \(error.localizedDescription)")
-                return
-            }
-
-            do {
-                if let snapshot = snapshot, snapshot.exists {
-                    self.userProfile = try snapshot.data(as: UserProfile.self)
-                    print("Loaded user profile: \(self.userProfile?.username ?? "nil")")
-                }
-            } catch {
-                print("Error decoding user profile: \(error.localizedDescription)")
-            }
+        do {
+            self.userProfile = try await userRef.getDocument(as: UserProfile.self)
+            print("Successfully loaded user profile: \(self.userProfile?.username ?? "N/A")")
+        } catch {
+            print("Error loading or decoding user profile: \(error.localizedDescription)")
         }
     }
     
@@ -160,12 +150,29 @@ class FirestoreManager: FirestoreManagerProtocol {
         cal.timeZone = friendTimeZone
         
         // Get the current moment and find what "today" is in the friend's timezone
-        let now = Date() // Current moment
-        let friendStartOfDay = cal.startOfDay(for: now)
+        let friendStartOfDay = cal.startOfDay(for: date)
         
         let moodId = DailyMood.dateId(from: friendStartOfDay, timeZone: friendTimeZone)
-        //print("[userTZToMoodId]: Mood ID for \(now) in (\(tzIdentifier)) is \(moodId)")
+        print("[userTZToMoodId]: Mood ID for \(date) in (\(tzIdentifier)) is \(moodId)")
         return moodId
+    }
+    
+    func findFriendMoodDocumentID(forViewerDate: Date, friendUID: String) async throws -> String? {
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone.current
+
+        let startOfDay = calendar.startOfDay(for: forViewerDate)
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else {
+            return nil
+        }
+
+        let query = db.collection("users").document(friendUID).collection("dailyMoods")
+            .whereField("createdAt", isGreaterThanOrEqualTo: startOfDay)
+            .whereField("createdAt", isLessThan: endOfDay)
+            .limit(to: 1)
+
+        let snapshot = try await query.getDocuments()
+        return snapshot.documents.first?.documentID
     }
 
 
@@ -173,7 +180,10 @@ class FirestoreManager: FirestoreManagerProtocol {
     func emoteReactToFriendsPost(date: Date, fromUID: String, toUID: String, emote: String) async throws {
         
 
-        let moodId = try await userTZToMoodId(uid: toUID, date: date)
+        guard let moodId = try await findFriendMoodDocumentID(forViewerDate: date, friendUID: toUID) else {
+            print("Couldn't find friend mood ID")
+            return
+        }
 
         
         let reactDocRef = db
@@ -213,7 +223,7 @@ class FirestoreManager: FirestoreManagerProtocol {
 
         do {
             try reactDocRef.setData(from: reactToSave)
-            print("Successfully reacted with \(emote) to: \(toUID) from: \(fromUID)")
+            print("Successfully reacted with \(emote) to: \(toUID) on their mood ID: \(moodId)")
         } catch {
             print("Error reacting to mood: \(error.localizedDescription)")
             throw error
@@ -221,7 +231,10 @@ class FirestoreManager: FirestoreManagerProtocol {
     }
     
     func removeReact(fromUID: String, toUID: String, date: Date) async throws {
-        let moodId = try await userTZToMoodId(uid: toUID, date: date)
+        guard let moodId = try await findFriendMoodDocumentID(forViewerDate: date, friendUID: toUID) else {
+            print("Couldn't find friend mood ID")
+            return
+        }
         do {
             let reactDocRef = db.collection("users").document(toUID).collection("dailyMoods")
                 .document(moodId).collection("reactions").document(fromUID)
@@ -235,7 +248,11 @@ class FirestoreManager: FirestoreManagerProtocol {
     
     func softRemoveReact(fromUID: String, toUID: String, date: Date) async throws {
         do {
-            let moodId = try await userTZToMoodId(uid: toUID, date: date)
+            
+            guard let moodId = try await findFriendMoodDocumentID(forViewerDate: date, friendUID: toUID) else {
+                print("Couldn't find friend mood ID")
+                return
+            }
             
             let reactDocRef = db
                 .collection("users")
@@ -495,29 +512,33 @@ class FirestoreManager: FirestoreManagerProtocol {
         forDate viewerDate: Date,
         forUserId userId: String
     ) async throws -> DailyMood? {
-        
-        var cal = Calendar(identifier: .gregorian)
-        cal.timeZone = TimeZone.current // viewer's local time zone
-        
-        let start = cal.startOfDay(for: viewerDate)
-        let end = cal.date(byAdding: .day, value: 1, to: start)!
-        
-        // Convert to UTC for query
-        let utcStart = start.convertToUTC(from: TimeZone.current)
-        let utcEnd = end.convertToUTC(from: TimeZone.current)
-        
-        let query = db.collection("users")
-            .document(userId)
-            .collection("dailyMoods")
-            .whereField("createdAt", isGreaterThanOrEqualTo: Timestamp(date: utcStart))
-            .whereField("createdAt", isLessThan: Timestamp(date: utcEnd))
-            .limit(to: 1)
-        
-        let snapshot = try await query.getDocuments()
-        if let doc = snapshot.documents.first {
-            return try doc.data(as: DailyMood.self)
+        // 1. Use the current user's calendar to define the 24-hour window.
+        var calendar = Calendar.current // This uses the viewer's local timezone
+        calendar.timeZone = TimeZone.current
+
+        // 2. Get the start and end of the day from the viewer's perspective.
+        let startOfDay = calendar.startOfDay(for: viewerDate)
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else {
+            throw NSError(domain: "DateError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Could not calculate end of day."])
         }
-        return nil
+
+        // `startOfDay` and `endOfDay` are now absolute UTC timestamps marking the viewer's local day.
+        
+        // 3. Query the friend's moods collection using a UTC time range.
+        let query = db.collection("users").document(userId).collection("dailyMoods")
+            .whereField("createdAt", isGreaterThanOrEqualTo: startOfDay)
+            .whereField("createdAt", isLessThan: endOfDay)
+            .limit(to: 1) // There should only be one mood per day.
+
+        let snapshot = try await query.getDocuments()
+
+        // 4. Decode and return the first document found.
+        // using `compactMap` is a safe way to handle potential decoding errors.
+        let dailyMood = snapshot.documents.compactMap { document -> DailyMood? in
+            try? document.data(as: DailyMood.self)
+        }.first
+
+        return dailyMood
     }
     
 

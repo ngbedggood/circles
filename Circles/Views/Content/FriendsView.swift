@@ -416,6 +416,7 @@ struct FriendsView: View {
                         }
 
                     }
+                    
                     .frame(maxWidth: screenWidth)
                     .padding()
                     .task {
@@ -427,6 +428,8 @@ struct FriendsView: View {
                 }
             }
         }
+        .padding(.top, 47)
+        .padding(.bottom, 34)
         .padding(24)
         .toast(
             isShown: $viewModel.showToast,

@@ -17,7 +17,7 @@ struct LoadingView: View {
                 .offset(y: 240)
                 .opacity(showLoading ? 1 : 0)
         }
-        .background(.white)
+        .background(.backgroundTint)
         .onAppear {
             Task {
                 try? await Task.sleep(nanoseconds: UInt64(delayInSeconds) * 1_000_000_000) // 6 seconds

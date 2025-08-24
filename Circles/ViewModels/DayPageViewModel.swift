@@ -149,7 +149,6 @@ class DayPageViewModel: ObservableObject {
                         forDate: date, forUserId: uid)
                     {
                         let profile = try await firestoreManager.fetchUserProfile(userID: uid)
-                        //let reacts = try await firestoreManager.fetchMoodReactsForUserDate(date: date, userID: uid)
                         //print(reacts)
                         let friend = FriendColor(
                             uid: uid,
@@ -168,7 +167,7 @@ class DayPageViewModel: ObservableObject {
             
             if results.isEmpty {
                 self.showToast = false
-                self.toastMessage = "None of your friends have posted a mood yet."
+                self.toastMessage = "None of your friends have posted a mood this day."
                 self.toastStyle = .info
                 self.showToast = true
             }

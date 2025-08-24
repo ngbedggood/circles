@@ -21,6 +21,7 @@ struct ContentView: View {
     @State private var isLoggedIn: Bool = true
     @State private var verticalIndices = Array(repeating: 0, count: 7)
     @State private var shake: CGFloat = 0
+    @State private var verticalOffset: CGFloat = 0
 
     @StateObject private var navigationManager = NavigationManager()
 
@@ -32,17 +33,11 @@ struct ContentView: View {
     }
 
     var datesToDisplay: [Date] {
-        var dates: [Date] = []
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
-        dates.append(today)
-
-        for i in 0..<pastDays - 1 {
-            if let pastDate = calendar.date(byAdding: .day, value: -(i + 1), to: today) {
-                dates.insert(pastDate, at: 0)
-            }
-        }
-        return dates.sorted()
+        return (0..<pastDays).compactMap { offset in
+            calendar.date(byAdding: .day, value: -offset, to: today)
+        }.reversed()
     }
 
     var body: some View {
@@ -79,11 +74,15 @@ struct ContentView: View {
                                 if !firestoreManager.isLoading {
                                     TabView(selection: $horizontalIndex) {
                                         ForEach(Array(dayPageViewModels.models.enumerated()), id: \.offset) { index, viewModel in
-                                            DayPageView(viewModel: viewModel)
+                                            DayPageView(
+                                                viewModel: viewModel,
+                                                verticalOffset: $verticalOffset
+                                            )
                                                 .environmentObject(navigationManager)
                                                 .tag(index)
                                         }
                                     }
+                                    .zIndex(2)
                                     .transition(.opacity)
                                     .tabViewStyle(.page(indexDisplayMode: .never))
                                     .onAppear {
@@ -103,7 +102,11 @@ struct ContentView: View {
                                     }
                                     .highPriorityGesture(
                                         DragGesture(),
-                                        isEnabled: scrollManager.isHorizontalScrollDisabled)
+                                        isEnabled: scrollManager.isHorizontalScrollDisabled
+                                    )
+                                    TabIndicatorView(index: horizontalIndex, numTabs: pastDays)
+                                        .offset(y: verticalOffset)
+                                        .zIndex(0)
                                 }
                         }
                     }

@@ -20,6 +20,9 @@ struct PersonalCardView: View {
     @State private var showFriends: Bool = false
 
     @FocusState private var isFocused: Bool
+    
+    // Callback to navigate DayPageView with buttons
+    var onDown: () -> Void
 
     var body: some View {
         GeometryReader { geometry in
@@ -67,19 +70,26 @@ struct PersonalCardView: View {
                             
                             
                                 ZStack {
-                                    if viewModel.isEditable {
+                                    if viewModel.currentMood == nil && viewModel.isEditable {
                                         Text("Select today's mood before seeing your friends below")
                                             .font(.satoshi(.caption))
                                             .foregroundStyle(.gray)
                                             .opacity(viewModel.currentMood == nil ? 1.0 : 0.0)
+                                    } else {
+                                        if viewModel.currentMood == nil {
+                                            Image(systemName: "lock.fill")
+                                                .foregroundColor(.black.opacity(0.75))
+                                                .font(.system(size: 24))
+                                        } else {
+                                            Button {
+                                                onDown()
+                                            } label: {
+                                                Image(systemName: "arrowshape.down.fill")
+                                                    .foregroundStyle(.backgroundTint)
+                                            }
+                                        }
                                     }
-//                                    else {
-//                                        VStack{}
-//                                            .frame(width: 0, height: 60)
-//                                    }
-                                    Image(systemName: "arrowshape.down.fill")
-                                        .foregroundStyle(.white)
-                                        .opacity(viewModel.currentMood != nil ? 1.0 : 0.0)
+                                
                                 }
                                 .animation(.easeInOut, value: viewModel.currentMood)
                                 .padding()
@@ -131,7 +141,8 @@ struct PersonalCardView: View {
 
         var body: some View {
             PersonalCardView(
-                viewModel: viewModel
+                viewModel: viewModel,
+                onDown: {}
             )
         }
     }

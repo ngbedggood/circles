@@ -18,6 +18,8 @@ struct SocialCardView: View {
     
 
     let radius: CGFloat = 100
+    
+    var onUp: () -> Void
 
     var body: some View {
         ZStack {
@@ -27,9 +29,17 @@ struct SocialCardView: View {
                 let screenScale = min(1, screenHeight / baseWidth)
                 
                 VStack {
-                    Image(systemName: "arrowshape.up.fill")
-                        .foregroundStyle(.gray)
-                        .padding()
+                    Button {
+                        onUp()
+                    } label: {
+                        Text("Friends Circles")
+                            .font(.satoshi(.title, weight: 700))
+                            .foregroundColor(.black.opacity(0.75))
+                            .padding()
+                    }
+//                    Image(systemName: "arrowshape.up.fill")
+//                        .foregroundStyle(.gray)
+//                        .padding()
                 
                     
                     GeometryReader { geometry in
@@ -39,7 +49,7 @@ struct SocialCardView: View {
                         )
                     }
 
-                    Text("Reacting to friends moods is locked for this day")
+                    Text("Reacting to friends moods for past days is locked.")
                         .font(.satoshi(.caption))
                         .foregroundColor(.gray)
                         .opacity(!viewModel.isEditable ? 1 : 0)
@@ -71,6 +81,14 @@ struct SocialCardView: View {
             .background(
                 RoundedRectangle(cornerRadius: 20).fill(Color(.clear))
                     .shadow(radius: 8)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .strokeBorder(
+                        Color.black.opacity(0.75),
+                        style: StrokeStyle(lineWidth: 2)
+                        // [dash length, gap length]
+                    )
             )
             .onTapGesture {
                 withAnimation(
@@ -152,7 +170,8 @@ struct SocialCardView: View {
 
         var body: some View {
             SocialCardView(
-                viewModel: viewModel
+                viewModel: viewModel,
+                onUp: {}
             )
         }
     }
