@@ -79,28 +79,30 @@ struct SocialCardView: View {
                 }
             }
             .background(
-                RoundedRectangle(cornerRadius: 20).fill(Color(.clear))
+                RoundedRectangle(cornerRadius: 20).fill(.backgroundTint)
                     .shadow(radius: 8)
+                    .onTapGesture {
+                        withAnimation(
+                            .spring(
+                                response: 0.49,
+                                dampingFraction: 0.69,
+                                blendDuration: 0
+                            )
+                        ) {
+                            withAnimation {
+                                viewModel.clearSelection()
+                            }
+                        }
+                    }
+                    
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
                     .strokeBorder(
                         Color.black.opacity(0.75),
                         style: StrokeStyle(lineWidth: 2)
-                        // [dash length, gap length]
                     )
             )
-            .onTapGesture {
-                withAnimation(
-                    .spring(
-                        response: 0.49,
-                        dampingFraction: 0.69,
-                        blendDuration: 0
-                    )
-                ) {
-                    viewModel.clearSelection()
-                }
-            }
             .padding(24)
         }
     }

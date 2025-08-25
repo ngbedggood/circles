@@ -76,6 +76,8 @@ struct FriendCircleView: View {
             isSelected: isSelected,
             someoneSelected: selectedFriend != nil
         )
+        
+        let hasReacted = UserDefaults.standard.bool(forKey: "hasReacted")
 
         ZStack {
             CircleView(
@@ -83,8 +85,9 @@ struct FriendCircleView: View {
                 text: isSelected ? "\"\(friend.note)\"" : friend.name,
                 font: isSelected ? .satoshi(size: 18, weight: .regular) : .satoshi(size: 20, weight: .bold),
                 size: 80 * scale,
-                isSelected: isSelected
-            ) 
+                isSelected: isSelected,
+                hasReacted: hasReacted
+            )
             .onTapGesture {
                 withAnimation(.spring(response: 0.49, dampingFraction: 0.69)) {
                     selectedFriend = isSelected ? nil : friend
@@ -105,7 +108,7 @@ struct FriendCircleView: View {
             if isSelected {
                 ReactionsOverlayView(viewModel: viewModel, friend: friend, date: date)
                     .transition(.opacity.combined(with: .scale))
-                    .zIndex(1)
+                    .zIndex(3)
                     .onAppear {
                         viewModel.getCurrentUserEmote()
                     }

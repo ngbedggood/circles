@@ -13,21 +13,30 @@ struct CircleView: View {
     let font: Font
     let size: CGFloat
     let isSelected: Bool
+    let hasReacted: Bool
     
     var body: some View {
-        Circle()
-            .fill(color)
-            .frame(width: size, height: size)
-            .shadow(radius: 4)
-            .overlay(
-                Text(text)
-                    .lineLimit(7)
-                    .font(font)
-                    .multilineTextAlignment(.center)
-                    .minimumScaleFactor(4 / 24)
-                    .foregroundColor(.white)
-                    .padding(8)
-            )
-            .zIndex(isSelected ? 1 : 0)
+        ZStack {
+            Circle()
+                .fill(color)
+                .frame(width: size, height: size)
+                .shadow(radius: 4)
+                .overlay(
+                    Text(text)
+                        .lineLimit(7)
+                        .font(font)
+                        .multilineTextAlignment(.center)
+                        .minimumScaleFactor(4 / 24)
+                        .foregroundColor(.white)
+                        .padding(8)
+                )
+                .zIndex(isSelected ? 1 : 0)
+            Text("Hold down to\nadd an emote")
+                .font(.satoshi(size: 10))
+                .foregroundColor(.white)
+                .opacity(isSelected && !hasReacted ? 1 : 0)
+                .offset(y: 90)
+                .zIndex(2)
+        }
     }
 }

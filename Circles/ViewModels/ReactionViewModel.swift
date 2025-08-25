@@ -49,6 +49,14 @@ class ReactionViewModel: ObservableObject {
     
     @MainActor
     func reactToFriendMood(friend: FriendColor, date: Date) async {
+        
+        // Set flag that user has seen how to react prompt
+        if UserDefaults.standard.bool(forKey: "hasReacted") == false {
+            withAnimation {
+                UserDefaults.standard.set(true, forKey: "hasReacted")
+            }
+        }
+        
         guard let userID = Auth.auth().currentUser?.uid else { return }
         let emote = currentUserEmote
 
