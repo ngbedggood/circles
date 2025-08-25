@@ -64,7 +64,7 @@ class DayPageViewModel: ObservableObject {
         self.notificationManager = notificationManager
         self.scrollManager = scrollManager
         self.isEditable = isEditable
-        self.me = FriendColor(uid: "", name: "Me", username: "me", color: .gray, note: "Let's roll?")
+        self.me = FriendColor(uid: "", name: "Me", username: "me", color: .gray, note: "Let's roll?", time: Date())
 
         setupPastMoodsObserver()
         
@@ -155,7 +155,8 @@ class DayPageViewModel: ObservableObject {
                             name: profile.displayName,
                             username: profile.username,
                             color: mood.mood,
-                            note: mood.noteContent == "" ? "No note" : mood.noteContent ?? "No note"
+                            note: mood.noteContent == "" ? "No note" : mood.noteContent ?? "No note",
+                            time: mood.createdAt > mood.updatedAt ? mood.createdAt : mood.updatedAt
                             //reacts: reacts
                         )
                         results.append(friend)

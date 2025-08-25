@@ -14,6 +14,7 @@ struct CircleView: View {
     let size: CGFloat
     let isSelected: Bool
     let hasReacted: Bool
+    let timeAgo: String
     
     var body: some View {
         ZStack {
@@ -35,6 +36,12 @@ struct CircleView: View {
                 .font(.satoshi(size: 10))
                 .foregroundColor(.white)
                 .opacity(isSelected && !hasReacted ? 1 : 0)
+                .offset(y: 90)
+                .zIndex(2)
+            Text(timeAgo)
+                .font(.satoshi(size: 10))
+                .foregroundColor(.white)
+                .opacity(isSelected && hasReacted ? 1 : 0)
                 .offset(y: 90)
                 .zIndex(2)
         }

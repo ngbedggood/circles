@@ -66,7 +66,7 @@ class ReactionViewModel: ObservableObject {
             // If the user already has a reaction locally
             if let oldReactionIndex = reactions.firstIndex(where: { $0.id == userID }) {
                 // Remove it locally to trigger animation
-                withAnimation {
+               _ = withAnimation {
                     reactions.remove(at: oldReactionIndex)
                 }
 
@@ -150,6 +150,20 @@ class ReactionViewModel: ObservableObject {
     func stopListening() {
         listener?.remove()
         listener = nil
+    }
+    
+    func timeAgo(from date: Date) -> String? {
+        let now = Date()
+        let secondsAgo = now.timeIntervalSince(date)
+        
+        // Only show if updated within the last 24 hours
+        guard secondsAgo < 24 * 60 * 60 else {
+            return nil
+        }
+        
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short   // can be .short or .abbreviated
+        return formatter.localizedString(for: date, relativeTo: Date())
     }
     
     

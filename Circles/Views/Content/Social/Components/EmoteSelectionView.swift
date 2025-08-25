@@ -34,7 +34,7 @@ struct EmoteSelectionView: View {
                     Text("\(emote)")
                         .font(.title)
                         .scaledToFit()
-                        .scaleEffect(selectedEmote == emote ? 1.4 : 1.0)
+                        .scaleEffect(selectedEmote == emote ? 1.3 : 0.95)
 //                        .shadow(color: .black, radius: selectedEmote == emote ? 6 : 0)
 //                        .shadow(color: .black, radius: selectedEmote == emote ? 3 : 0)
 //                        .shadow(color: .black, radius: selectedEmote == emote ? 1 : 0)

@@ -78,6 +78,7 @@ struct FriendCircleView: View {
         )
         
         let hasReacted = UserDefaults.standard.bool(forKey: "hasReacted")
+        let timeAgo = viewModel.timeAgo(from: friend.time)
 
         ZStack {
             CircleView(
@@ -86,7 +87,8 @@ struct FriendCircleView: View {
                 font: isSelected ? .satoshi(size: 18, weight: .regular) : .satoshi(size: 20, weight: .bold),
                 size: 80 * scale,
                 isSelected: isSelected,
-                hasReacted: hasReacted
+                hasReacted: hasReacted,
+                timeAgo: timeAgo ?? ""
             )
             .onTapGesture {
                 withAnimation(.spring(response: 0.49, dampingFraction: 0.69)) {

@@ -20,6 +20,7 @@ struct PersonalCircleView: View {
     let note: String?
     let date: Date
     let username: String
+    let postedTime: Date
     
     @Binding var selectedFriend: FriendColor?
     
@@ -32,7 +33,8 @@ struct PersonalCircleView: View {
         note: String?,
         date: Date,
         username: String,
-        selectedFriend: Binding<FriendColor?>
+        selectedFriend: Binding<FriendColor?>,
+        postedTime: Date
     ){
         self.isMeSelected = isMeSelected
         self.someoneElseSelected = someoneElseSelected
@@ -43,11 +45,13 @@ struct PersonalCircleView: View {
         self.username = username
         self._selectedFriend = selectedFriend
         _viewModel = StateObject(wrappedValue: ReactionViewModel(firestoreManager: firestoreManager))
+        self.postedTime = postedTime
     }
     
     var body: some View {
         let meScale: CGFloat =
             isMeSelected ? 3.0 : (someoneElseSelected ? 0.01 : 1.2)
+        let timeAgo = viewModel.timeAgo(from: postedTime)
         ZStack {
             Circle()
                 .fill(color)
@@ -74,11 +78,19 @@ struct PersonalCircleView: View {
                         .foregroundColor(.white)
                         .padding(32)
                         
+                        Text(timeAgo ?? "")
+                            .font(.satoshi(size: 10))
+                            .foregroundColor(.white)
+                            .opacity(isMeSelected ? 1 : 0)
+                            .offset(y: 90)
+                            .zIndex(2)
+                        
 
                         CircleReactionsView(reactions: viewModel.reactions, color: color)
                             .opacity(isMeSelected ? 1 : 0)
                             .scaleEffect(isMeSelected ? 1 : 0)
                             .zIndex(6)
+                        
                     }
                 )
                 .onTapGesture {

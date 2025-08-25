@@ -250,7 +250,8 @@ class FriendsViewModel: ObservableObject {
                             name: profile.displayName,
                             username: profile.username,
                             color: MoodColor.none,
-                            note: ""
+                            note: "",
+                            time: Date()
                         )
                     }
                 }

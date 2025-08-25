@@ -80,7 +80,6 @@ struct SocialCardView: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 20).fill(.backgroundTint)
-                    .shadow(radius: 8)
                     .onTapGesture {
                         withAnimation(
                             .spring(
@@ -110,7 +109,7 @@ struct SocialCardView: View {
     private func friendCircles(in geometry: GeometryProxy, screenScale: CGFloat) -> some View {
         ZStack {
             let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
-            
+            let postedTime = viewModel.dailyMood?.updatedAt ?? viewModel.dailyMood?.createdAt ?? Date()
             if showFriendCircles {
                 ForEach(Array(viewModel.socialCard.friends.enumerated()), id: \.element.id) {
                     index, friend in
@@ -142,7 +141,8 @@ struct SocialCardView: View {
                     note: viewModel.dailyMood?.noteContent ?? "No note.",
                     date: viewModel.date,
                     username: UserDefaults.standard.string(forKey: "Username") ?? "",
-                    selectedFriend: $viewModel.selectedFriend
+                    selectedFriend: $viewModel.selectedFriend,
+                    postedTime: postedTime
                 )
                 .position(x: center.x, y: center.y)
                 .transition(.scale)

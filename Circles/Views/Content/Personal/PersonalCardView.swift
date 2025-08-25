@@ -87,6 +87,7 @@ struct PersonalCardView: View {
                                                 Image(systemName: "arrowshape.down.fill")
                                                     .foregroundStyle(.backgroundTint)
                                             }
+                                            .frame(width: 80, height: 80) 
                                         }
                                     }
                                 

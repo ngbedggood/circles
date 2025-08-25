@@ -14,7 +14,7 @@ struct TabIndicatorView: View {
         VStack {
             Spacer()
             HStack {
-                ForEach (0..<numTabs) { index in
+                ForEach (0..<numTabs, id: \.self) { index in
                     Circle()
                         .fill(index == self.index ? Color.black.opacity(1) : Color.clear)
                         .strokeBorder(Color.black.opacity(0.75), lineWidth: 2)

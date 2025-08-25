@@ -37,6 +37,7 @@ struct FriendColor: Identifiable, Equatable{
     var username: String
     var color: MoodColor?
     var note: String
+    var time: Date
 }
 
 struct SocialCard: Identifiable {
