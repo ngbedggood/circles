@@ -12,6 +12,7 @@ struct CircleView: View {
     let text: String
     let font: Font
     let size: CGFloat
+    let padding: CGFloat
     let isSelected: Bool
     let hasReacted: Bool
     let timeAgo: String
@@ -27,9 +28,9 @@ struct CircleView: View {
                         .lineLimit(7)
                         .font(font)
                         .multilineTextAlignment(.center)
-                        .minimumScaleFactor(4 / 24)
+                        .minimumScaleFactor(2 / 20)
                         .foregroundColor(.white)
-                        .padding(8)
+                        .padding(padding)
                 )
                 .zIndex(isSelected ? 1 : 0)
             Text("Hold down to\nadd an emote")

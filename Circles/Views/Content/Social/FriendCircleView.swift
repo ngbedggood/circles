@@ -84,8 +84,9 @@ struct FriendCircleView: View {
             CircleView(
                 color: friend.color?.color ?? .gray,
                 text: isSelected ? "\"\(friend.note)\"" : friend.name,
-                font: isSelected ? .satoshi(size: 18, weight: .regular) : .satoshi(size: 20, weight: .bold),
+                font: isSelected ? .satoshi(size: 18, weight: .regular) : .satoshi(size: 32, weight: .bold),
                 size: 80 * scale,
+                padding: isSelected ? 32 : 8,
                 isSelected: isSelected,
                 hasReacted: hasReacted,
                 timeAgo: timeAgo ?? ""
