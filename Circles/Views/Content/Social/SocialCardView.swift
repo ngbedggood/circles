@@ -110,6 +110,26 @@ struct SocialCardView: View {
         ZStack {
             let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
             let postedTime = viewModel.dailyMood?.updatedAt ?? viewModel.dailyMood?.createdAt ?? Date()
+//            if showPersonalCircle {
+//                ForEach(Array(viewModel.socialCard.friends.enumerated()), id: \.element.id) {
+//                    index, friend in
+//                    EmptyCircleView(
+//                        friend: friend,
+//                        index: index,
+//                        center: center,
+//                        radius: radius,
+//                        date: viewModel.date,
+//                        totalSpots: viewModel.socialCard.friends.count,
+//                        selectedFriend: $viewModel.selectedFriend,
+//                        firestoreManager: firestoreManager,
+//                        isEditable: viewModel.isEditable
+//                    )
+//                    .transition(.scale.animation(.spring()))
+//                    .zIndex(viewModel.isMeSelected ? 1 : 3)
+//                    .zIndex(viewModel.selectedFriend == friend ? 2 : 1)
+//                }
+//                .scaleEffect(screenScale)
+//            }
             if showFriendCircles {
                 ForEach(Array(viewModel.socialCard.friends.enumerated()), id: \.element.id) {
                     index, friend in

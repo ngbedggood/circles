@@ -25,6 +25,7 @@ class DayPageViewModel: ObservableObject {
     @Published private(set) var socialCard: SocialCard = SocialCard(date: "", friends: [])
     @Published private(set) var isLoading: Bool
     
+    
     @Published var selectedEmote: String? = nil
 
     // Shared stuff
@@ -69,6 +70,7 @@ class DayPageViewModel: ObservableObject {
         self.me = FriendColor(uid: "", name: "Me", username: "me", color: .gray, note: "Let's roll?", time: Date())
 
         setupPastMoodsObserver()
+        
         
     }
     

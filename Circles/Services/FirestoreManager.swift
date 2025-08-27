@@ -358,6 +358,12 @@ class FirestoreManager: FirestoreManagerProtocol {
 
         return snapshot.documents.map { $0.documentID }  // Return documentID (friend's UID) from array of QueryDocumentSnapshot
     }
+    
+    func fetchFriendCount(userID: String) async throws -> Int {
+        let friendsDocRef = db.collection("users").document(userID).collection("friends")
+        let snapshot = try await friendsDocRef.getDocuments()
+        return snapshot.documents.count
+    }
 
     func deleteFriend(userID: String, friendID: String) async throws {
         let currentUserFriendRef = db.collection("users").document(userID)
