@@ -81,40 +81,57 @@ struct FriendCircleView: View {
         let timeAgo = viewModel.timeAgo(from: friend.time)
 
         ZStack {
-            CircleView(
-                color: friend.color?.color ?? .gray,
-                text: isSelected ? "\"\(friend.note)\"" : friend.name,
-                font: isSelected ? .satoshi(size: 18, weight: .regular) : .satoshi(size: 32, weight: .bold),
-                size: 80 * scale,
-                padding: isSelected ? 32 : 8,
-                isSelected: isSelected,
-                hasReacted: hasReacted,
-                timeAgo: timeAgo ?? ""
-            )
-            .onTapGesture {
-                withAnimation(.spring(response: 0.49, dampingFraction: 0.69)) {
-                    selectedFriend = isSelected ? nil : friend
-                    viewModel.toggleSelection()
+            if friend.color?.color == nil {
+                Circle()
+                    .fill(Color.clear)
+                    .strokeBorder(Color.gray, style: StrokeStyle(lineWidth: 2, dash: [4, 6]))
+                    .frame(width: 80, height: 80)
+                    .overlay(
+                        Text(friend.name)
+                            .lineLimit(7)
+                            .font(.satoshi(size: 32, weight: .bold))
+                            .multilineTextAlignment(.center)
+                            .minimumScaleFactor(2 / 20)
+                            .foregroundColor(.gray)
+                            .padding(8)
+                    )
+                    .scaleEffect(scale)
+            } else {
+                CircleView(
+                    color: friend.color?.color ?? .gray,
+                    text: isSelected ? "\"\(friend.note)\"" : friend.name,
+                    font: isSelected ? .satoshi(size: 18, weight: .regular) : .satoshi(size: 32, weight: .bold),
+                    size: 80 * scale,
+                    padding: isSelected ? 32 : 8,
+                    isSelected: isSelected,
+                    hasReacted: hasReacted,
+                    timeAgo: timeAgo ?? ""
+                )
+                .onTapGesture {
+                    withAnimation(.spring(response: 0.49, dampingFraction: 0.69)) {
+                        selectedFriend = isSelected ? nil : friend
+                        viewModel.toggleSelection()
+                    }
                 }
-            }
-            .onLongPressGesture {
+                .onLongPressGesture {
+                    if isSelected {
+                        if isEditable {
+                            withAnimation { viewModel.showEmotePicker.toggle() }
+                        } else {
+                            viewModel.showLockedToast()
+                        }
+                    }
+                }
+                .zIndex(2)
+                
                 if isSelected {
-                    if isEditable {
-                        withAnimation { viewModel.showEmotePicker.toggle() }
-                    } else {
-                        viewModel.showLockedToast()
-                    }
+                    ReactionsOverlayView(viewModel: viewModel, friend: friend, date: date)
+                        .transition(.opacity.combined(with: .scale))
+                        .zIndex(3)
+                        .onAppear {
+                            viewModel.getCurrentUserEmote()
+                        }
                 }
-            }
-            .zIndex(2)
-
-            if isSelected {
-                ReactionsOverlayView(viewModel: viewModel, friend: friend, date: date)
-                    .transition(.opacity.combined(with: .scale))
-                    .zIndex(3)
-                    .onAppear {
-                        viewModel.getCurrentUserEmote()
-                    }
             }
         }
         .position(position)

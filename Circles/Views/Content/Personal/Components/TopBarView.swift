@@ -34,6 +34,7 @@ struct TopBarView: View {
                             )
                             .offset(x: -15, y: -15)
                             .opacity(viewModel.hasAlert ? 1 : 0)
+                            .animation(.easeInOut, value: viewModel.hasAlert)
                     }
                 }
 

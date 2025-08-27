@@ -112,13 +112,7 @@ class DayPageViewModel: ObservableObject {
         guard let userID = authManager.currentUser?.uid else { return }
         do {
             let requests = try await firestoreManager.fetchPendingFriendRequests(for: userID)
-            withAnimation {
-                if !requests.isEmpty {
-                    self.hasAlert = true
-                } else {
-                    self.hasAlert = false
-                }
-            }
+            self.hasAlert = !requests.isEmpty
         } catch {
             print(error.localizedDescription)
         }
@@ -175,6 +169,19 @@ class DayPageViewModel: ObservableObject {
                             color: mood.mood,
                             note: mood.noteContent == "" ? "No note" : mood.noteContent ?? "No note",
                             time: mood.createdAt > mood.updatedAt ? mood.createdAt : mood.updatedAt
+                            //reacts: reacts
+                        )
+                        results.append(friend)
+                    } else {
+                        let profile = try await firestoreManager.fetchUserProfile(userID: uid)
+                        //print(reacts)
+                        let friend = FriendColor(
+                            uid: uid,
+                            name: profile.displayName,
+                            username: profile.username,
+                            color: nil,
+                            note: "",
+                            time: Date()
                             //reacts: reacts
                         )
                         results.append(friend)

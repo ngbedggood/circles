@@ -92,7 +92,8 @@ struct PersonalCardView: View {
                                             } label: {
                                                 Image(systemName: "arrowshape.down.fill")
                                                     .foregroundStyle(.backgroundTint)
-                                                    .frame(width: 80, height: 80) 
+                                                    .frame(width: 80, height: 80)
+                                                    .offset(y:30)
                                             }
                                             
                                         }
