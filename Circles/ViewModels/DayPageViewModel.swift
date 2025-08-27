@@ -7,6 +7,7 @@
 
 import Combine
 import Foundation
+import SwiftUI
 
 class DayPageViewModel: ObservableObject {
 
@@ -38,6 +39,7 @@ class DayPageViewModel: ObservableObject {
     private var scrollManager: ScrollManager
     
     @Published var isEditable: Bool
+    @Published var hasAlert: Bool = false
 
     let me: FriendColor
     
@@ -105,7 +107,23 @@ class DayPageViewModel: ObservableObject {
         //print("Updated view model for date \(dateId) with mood: \(dailyMood?.mood?.rawValue ?? "none")")
     }
     
-    
+    @MainActor
+    func checkForAlerts() async {
+        guard let userID = authManager.currentUser?.uid else { return }
+        do {
+            let requests = try await firestoreManager.fetchPendingFriendRequests(for: userID)
+            withAnimation {
+                if !requests.isEmpty {
+                    self.hasAlert = true
+                } else {
+                    self.hasAlert = false
+                }
+            }
+        } catch {
+            print(error.localizedDescription)
+        }
+            
+    }
     
     @MainActor
         func loadInitialData() async {

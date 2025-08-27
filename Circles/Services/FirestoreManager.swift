@@ -130,33 +130,6 @@ class FirestoreManager: FirestoreManagerProtocol {
         }
     }
     
-    func userTZToMoodId(uid: String, date: Date) async throws -> String {
-        let friendDoc = try await db
-            .collection("users")
-            .document(uid)
-            .getDocument()
-
-        guard let friendData = friendDoc.data() else {
-            throw URLError(.badServerResponse)
-        }
-
-        let tzIdentifier = friendData["timezone"] as? String ?? TimeZone.current.identifier
-        guard let friendTimeZone = TimeZone(identifier: tzIdentifier) else {
-            throw URLError(.badURL)
-        }
-
-        // Create calendar in friend's timezone
-        var cal = Calendar(identifier: .gregorian)
-        cal.timeZone = friendTimeZone
-        
-        // Get the current moment and find what "today" is in the friend's timezone
-        let friendStartOfDay = cal.startOfDay(for: date)
-        
-        let moodId = DailyMood.dateId(from: friendStartOfDay, timeZone: friendTimeZone)
-        print("[userTZToMoodId]: Mood ID for \(date) in (\(tzIdentifier)) is \(moodId)")
-        return moodId
-    }
-    
     func findFriendMoodDocumentID(forViewerDate: Date, friendUID: String) async throws -> String? {
         var calendar = Calendar.current
         calendar.timeZone = TimeZone.current
@@ -267,23 +240,6 @@ class FirestoreManager: FirestoreManagerProtocol {
                 "updatedAt": Date()
             ])
         }
-    }
-    
-    func fetchMoodReactsForUserDate(date: Date, userID: String) async throws -> [String] {
-        let moodId = DailyMood.dateId(from: date)
-            let snapshot = try await db
-                .collection("users")
-                .document(userID)
-                .collection("dailyMoods")
-                .document(moodId)
-                .collection("reactions")
-                .getDocuments()
-            
-            return snapshot.documents.compactMap { doc in
-                let reaction = doc.data()["reaction"] as? String
-                    print("Found reaction: \(reaction ?? "")")
-                    return reaction
-            }
     }
     
     func searchUsersWithRequestStatus(byUsername username: String, excludingUserID: String)

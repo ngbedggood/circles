@@ -19,8 +19,22 @@ struct TopBarView: View {
                 }
             } label: {
                 if viewModel.isEditable {
-                    Image(systemName: "face.smiling")
-                        .font(.system(size: 32))
+                    ZStack {
+                        Image(systemName: "face.smiling")
+                            .font(.system(size: 32))
+                        Circle()
+                            .fill(Color.red)
+                            .frame(width: 10, height: 10)
+                            .overlay(
+                                Text(
+                                    "" // keep this for potential labelling in future
+                                )
+                                .font(.satoshi(size: 8, weight: .bold))
+                                .foregroundColor(.white)
+                            )
+                            .offset(x: -15, y: -15)
+                            .opacity(viewModel.hasAlert ? 1 : 0)
+                    }
                 }
 
             }

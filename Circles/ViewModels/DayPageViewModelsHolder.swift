@@ -40,7 +40,7 @@ class DayPageViewModelsHolder: ObservableObject {
                 )
             }
             
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 self.models = newModels
                 self.isInitializing = false
             }
