@@ -124,6 +124,14 @@ struct FriendCircleView: View {
                 }
                 .zIndex(2)
                 
+                if friend.streakCount > 1 {
+                    StreakView(streakCount: friend.streakCount, isSelected: isSelected)
+                        .scaleEffect(selectedFriend==nil ? 1 : 0)
+                        .scaleEffect(!isSelected ? 1 : 0)
+                        .zIndex(4)
+                }
+
+                
                 if isSelected {
                     ReactionsOverlayView(viewModel: viewModel, friend: friend, date: date)
                         .transition(.opacity.combined(with: .scale))

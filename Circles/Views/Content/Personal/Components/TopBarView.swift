@@ -71,17 +71,3 @@ struct TopBarView: View {
     }
 }
 
-#Preview {
-    @Previewable @FocusState var isFocused
-    TopBarView(
-        viewModel: DayPageViewModel(
-            date: Date(),
-            authManager: AuthManager(firestoreManager: FirestoreManager()) as (any AuthManagerProtocol),
-            firestoreManager: FirestoreManager(),
-            notificationManager: NotificationManager(),
-            scrollManager: ScrollManager(),
-            isEditable: true
-        ),
-        isFocused: $isFocused
-    )
-}

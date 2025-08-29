@@ -21,6 +21,7 @@ struct PersonalCircleView: View {
     let date: Date
     let username: String
     let postedTime: Date
+    let streakCount: Int
     
     @Binding var selectedFriend: FriendColor?
     
@@ -34,7 +35,8 @@ struct PersonalCircleView: View {
         date: Date,
         username: String,
         selectedFriend: Binding<FriendColor?>,
-        postedTime: Date
+        postedTime: Date,
+        streakCount: Int
     ){
         self.isMeSelected = isMeSelected
         self.someoneElseSelected = someoneElseSelected
@@ -46,6 +48,7 @@ struct PersonalCircleView: View {
         self._selectedFriend = selectedFriend
         _viewModel = StateObject(wrappedValue: ReactionViewModel(firestoreManager: firestoreManager))
         self.postedTime = postedTime
+        self.streakCount = streakCount
     }
     
     var body: some View {
@@ -85,6 +88,10 @@ struct PersonalCircleView: View {
                             .offset(y: 90)
                             .zIndex(2)
                         
+                        if streakCount > 1 {
+                            StreakView(streakCount: streakCount, isSelected: isMeSelected)
+                                .scaleEffect(!isMeSelected ? 1 : 0)
+                        }
 
                         CircleReactionsView(reactions: viewModel.reactions, color: color)
                             .opacity(isMeSelected ? 1 : 0)

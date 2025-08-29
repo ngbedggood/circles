@@ -251,7 +251,8 @@ class FriendsViewModel: ObservableObject {
                             username: profile.username,
                             color: MoodColor.none,
                             note: "",
-                            time: Date()
+                            time: Date(),
+                            streakCount: 0
                         )
                     }
                 }

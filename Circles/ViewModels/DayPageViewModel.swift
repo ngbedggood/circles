@@ -36,6 +36,7 @@ class DayPageViewModel: ObservableObject {
     
     let authManager: any AuthManagerProtocol
     let firestoreManager: FirestoreManager
+    let streakManager: StreakManager
     let notificationManager: NotificationManager
     private var scrollManager: ScrollManager
     
@@ -56,6 +57,7 @@ class DayPageViewModel: ObservableObject {
         date: Date,
         authManager: any AuthManagerProtocol,
         firestoreManager: FirestoreManager,
+        streakManager: StreakManager,
         notificationManager: NotificationManager,
         scrollManager: ScrollManager,
         isEditable: Bool
@@ -64,10 +66,11 @@ class DayPageViewModel: ObservableObject {
         self.date = date
         self.authManager = authManager
         self.firestoreManager = firestoreManager
+        self.streakManager = streakManager
         self.notificationManager = notificationManager
         self.scrollManager = scrollManager
         self.isEditable = isEditable
-        self.me = FriendColor(uid: "", name: "Me", username: "me", color: .gray, note: "Let's roll?", time: Date())
+        self.me = FriendColor(uid: "", name: "Me", username: "me", color: .gray, note: "Let's roll?", time: Date(), streakCount: 21)
 
         setupPastMoodsObserver()
         
@@ -163,14 +166,28 @@ class DayPageViewModel: ObservableObject {
                         forDate: date, forUserId: uid)
                     {
                         let profile = try await firestoreManager.fetchUserProfile(userID: uid)
-                        //print(reacts)
+                        
+                        var streak: Int = 0
+                        
+                        do {
+                            let data = try await firestoreManager.fetchUserData(userId: uid)
+                            if let fetchedStreak = data["streakCount"] as? Int {
+                                streak = fetchedStreak
+                            } else {
+                                print("No streak count found for user \(uid). Using 0.")
+                            }
+                        } catch {
+                            print("No user data found for user \(uid). Using 0.")
+                        }
+                        
                         let friend = FriendColor(
                             uid: uid,
                             name: profile.displayName,
                             username: profile.username,
                             color: mood.mood,
                             note: mood.noteContent == "" ? "No note" : mood.noteContent ?? "No note",
-                            time: mood.createdAt > mood.updatedAt ? mood.createdAt : mood.updatedAt
+                            time: mood.createdAt > mood.updatedAt ? mood.createdAt : mood.updatedAt,
+                            streakCount: streak
                             //reacts: reacts
                         )
                         results.append(friend)
@@ -183,7 +200,8 @@ class DayPageViewModel: ObservableObject {
                             username: profile.username,
                             color: nil,
                             note: "",
-                            time: Date()
+                            time: Date(),
+                            streakCount: 0
                             //reacts: reacts
                         )
                         results.append(friend)
@@ -265,6 +283,10 @@ class DayPageViewModel: ObservableObject {
                 forUserID: userId
             )
             print("Daily entry saved successfully")
+            
+            // Manage streak
+            await streakManager.manageStreak(isNewEntry: true)
+            print("Streak updated via new entry.")
             
             // Cancel today's notification reminder when a mood entry is made
             if Calendar.current.isDateInToday(date) {

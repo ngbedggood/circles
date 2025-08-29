@@ -80,10 +80,13 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
 
 @main
 struct CirclesApp: App {
+    
+    @Environment(\.scenePhase) var scenePhase
 
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject var authManager: AuthManager
     @StateObject var firestoreManager: FirestoreManager
+    @StateObject var streakManager: StreakManager
     @StateObject var scrollManager = ScrollManager()
     @StateObject var notificationManager = NotificationManager()
 
@@ -93,8 +96,10 @@ struct CirclesApp: App {
         UILabel.appearance().font = UIFont(name: "Satoshi Variable", size: 17)
         let firestore = FirestoreManager()
         let auth = AuthManager(firestoreManager: firestore)
+        let streak = StreakManager(authManager: auth, firestoreManager: firestore)
         _firestoreManager = StateObject(wrappedValue: firestore)
         _authManager = StateObject(wrappedValue: auth)
+        _streakManager = StateObject(wrappedValue: streak)
         delegate.authManager = auth
     }
 
@@ -103,12 +108,21 @@ struct CirclesApp: App {
             ContentView()
                 .environmentObject(authManager)
                 .environmentObject(firestoreManager)
+                .environmentObject(streakManager)
                 .environmentObject(scrollManager)
                 .environmentObject(notificationManager)
                 .font(.satoshi(.body))
                 .onOpenURL { url in
                     Task { await authManager.handleIncomingURL(url: url) }
                 }
+                .onChange(of: scenePhase) { phase in
+                if phase == .active {
+                    Task {
+                        await streakManager.manageStreak(isNewEntry: false)
+                        print("Checking streak in background...")
+                    }
+                }
+            }
         }
     }
 }

@@ -29,10 +29,7 @@ struct ReminderView: View {
 #Preview {
     @Previewable @State var selectedTime: Date = Date()
     @Previewable @State var isReminderOn: Bool = false
-    
-    let viewModel = DayPageViewModel(date: Date(), authManager: AuthManager(firestoreManager: FirestoreManager()), firestoreManager: FirestoreManager(), notificationManager: NotificationManager(), scrollManager: ScrollManager(), isEditable: false)
     ZStack {
-        BackgroundCardView(viewModel: viewModel, isFocused: false)
         ReminderView(selectedTime: $selectedTime, isReminderOn: $isReminderOn)
             //.frame(width: 300)
     }

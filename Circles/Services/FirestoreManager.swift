@@ -34,6 +34,19 @@ class FirestoreManager: FirestoreManagerProtocol {
     init() {
         db = Firestore.firestore()
     }
+    
+    // Used by StreakManager class
+    func fetchUserData(userId: String) async throws -> [String: Any] {
+        let document = try await db.collection("users").document(userId).getDocument()
+        guard let data = document.data() else {
+            throw NSError(domain: "FirestoreError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Document data was empty."])
+        }
+        return data
+    }
+
+    func updateUserData(userId: String, fields: [String: Any]) async throws {
+        try await db.collection("users").document(userId).updateData(fields)
+    }
 
     // USER SIGNUP RELATED METHODS
     func isUsernameAvailable(_ username: String) async throws -> Bool {

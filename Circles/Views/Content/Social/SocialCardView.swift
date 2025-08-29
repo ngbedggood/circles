@@ -162,7 +162,8 @@ struct SocialCardView: View {
                     date: viewModel.date,
                     username: UserDefaults.standard.string(forKey: "Username") ?? "",
                     selectedFriend: $viewModel.selectedFriend,
-                    postedTime: postedTime
+                    postedTime: postedTime,
+                    streakCount: viewModel.streakManager.currentStreakCount
                 )
                 .position(x: center.x, y: center.y)
                 .transition(.scale)
@@ -185,6 +186,9 @@ struct SocialCardView: View {
             date: Date(),
             authManager: AuthManager(firestoreManager: FirestoreManager()),
             firestoreManager: FirestoreManager(),
+            streakManager: StreakManager(
+                authManager: AuthManager(firestoreManager: FirestoreManager()) as (any AuthManagerProtocol),
+                firestoreManager: FirestoreManager()),
             notificationManager: NotificationManager(),
             scrollManager: ScrollManager(),
             isEditable: true

@@ -13,6 +13,7 @@ struct ContentView: View {
     @EnvironmentObject var firestoreManager: FirestoreManager
     @EnvironmentObject var scrollManager: ScrollManager
     @EnvironmentObject var notificationManager: NotificationManager
+    @EnvironmentObject var streakManager: StreakManager
 
     @StateObject private var dayPageViewModels: DayPageViewModelsHolder
 
@@ -82,6 +83,9 @@ struct ContentView: View {
                                                 .tag(index)
                                         }
                                     }
+                                    .task {
+                                        await streakManager.manageStreak(isNewEntry: false)
+                                    }
                                     .zIndex(2)
                                     .transition(.opacity)
                                     .tabViewStyle(.page(indexDisplayMode: .never))
@@ -92,6 +96,7 @@ struct ContentView: View {
                                                 pastDays: pastDays,
                                                 authManager: authManager,
                                                 firestoreManager: firestoreManager,
+                                                streakManager: streakManager,
                                                 notificationManager: notificationManager,
                                                 scrollManager: scrollManager
                                             )
@@ -107,6 +112,7 @@ struct ContentView: View {
                                     TabIndicatorView(index: horizontalIndex, numTabs: pastDays)
                                         .offset(y: verticalOffset)
                                         .zIndex(0)
+                                    
                                 }
                         }
                     }
