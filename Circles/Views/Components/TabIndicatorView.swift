@@ -17,7 +17,7 @@ struct TabIndicatorView: View {
                 ForEach (0..<numTabs, id: \.self) { index in
                     Circle()
                         .fill(index == self.index ? Color.black.opacity(1) : Color.clear)
-                        .strokeBorder(Color.black.opacity(0.75), lineWidth: 2)
+                        .strokeBorder(.fakeBlack, lineWidth: 2)
                         .frame(width: 8, height: 8)
                 }
             }

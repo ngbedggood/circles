@@ -13,15 +13,20 @@ struct ReminderView: View {
     @Binding var isReminderOn: Bool
     
     var body: some View {
-        HStack{
-            DatePicker(
-                "Set Notification:",
-                selection: $selectedTime,
-                displayedComponents: .hourAndMinute
-            )
-            .fixedSize()
-            Toggle("", isOn: $isReminderOn)
+        VStack{
+            HStack{
+                DatePicker(
+                    "Set Notification:",
+                    selection: $selectedTime,
+                    displayedComponents: .hourAndMinute
+                )
                 .fixedSize()
+                Toggle("", isOn: $isReminderOn)
+                    .fixedSize()
+            }
+            Text("(Reminders will start tomorrow.)")
+                .font(.satoshi(size: 12))
+                .foregroundColor(.gray)
         }
     }
 }

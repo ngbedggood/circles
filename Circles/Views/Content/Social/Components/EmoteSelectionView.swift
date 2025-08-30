@@ -53,7 +53,7 @@ struct EmoteSelectionView: View {
         .background(
             Capsule()
                 .strokeBorder(
-                    Color.black.opacity(0.75),
+                    .fakeBlack,
                     style: StrokeStyle(lineWidth: 2)
                     // [dash length, gap length]
                 )

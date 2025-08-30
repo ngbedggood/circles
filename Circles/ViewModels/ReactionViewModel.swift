@@ -98,7 +98,7 @@ class ReactionViewModel: ObservableObject {
         }
         
         guard let moodId = try? await firestoreManager.findFriendMoodDocumentID(forViewerDate: date, friendUID: friendUID) else {
-            print("No mood document found for \(username) on \(date) from the viewer's perspective.")
+            //print("No mood document found for \(username) on \(date) from the viewer's perspective.")
             // Clear out any existing reactions since there's no mood to react to.
             self.reactions = []
             return
@@ -124,7 +124,7 @@ class ReactionViewModel: ObservableObject {
                 
             }
         
-        print("For user \(username) on \(date), started listening for reactions. Mood ID is \(moodId)")
+        //print("For user \(username) on \(date), started listening for reactions. Mood ID is \(moodId)")
         
     }
     

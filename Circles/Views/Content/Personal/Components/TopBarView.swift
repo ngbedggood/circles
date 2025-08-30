@@ -63,8 +63,8 @@ struct TopBarView: View {
         .zIndex(5)
         .foregroundColor(
             viewModel.showFriends
-                ? .black.opacity(0.75)
-                : viewModel.currentMood == nil ? .black.opacity(0.75) : .white
+                ? .fakeBlack
+                : viewModel.currentMood == nil ? .fakeBlack : .white
         )
         .animation(.easeInOut.delay(0.1), value: viewModel.currentMood)
         .padding()

@@ -14,7 +14,7 @@ struct DisplayNameField: View {
         TextField("Display Name", text: $displayName)
             .focused($focusedField, equals: .displayname)
         .disableAutocorrection(true)
-        .foregroundColor(.black.opacity(0.75))
+        .foregroundColor(.fakeBlack)
         .padding(18)
         .frame(height: 60)
         .background(Color.white)

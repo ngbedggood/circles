@@ -15,7 +15,7 @@ struct StreakView: View {
     var body: some View {
             Text("\(streakCount) 🔥")
                 .font(.system(size: 12, weight: .bold))
-                .foregroundColor(.black.opacity(0.8))
+                .foregroundColor(.fakeBlack)
                 .padding(.horizontal, 4)
                 .frame(height: 20)
                 .background(

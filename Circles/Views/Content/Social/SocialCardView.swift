@@ -34,7 +34,7 @@ struct SocialCardView: View {
                     } label: {
                         Text("Friends Circles")
                             .font(.satoshi(.title, weight: 700))
-                            .foregroundColor(.black.opacity(0.75))
+                            .foregroundColor(.fakeBlack)
                             .padding()
                     }
 //                    Image(systemName: "arrowshape.up.fill")
@@ -57,7 +57,7 @@ struct SocialCardView: View {
                     Text(viewModel.formattedDate())
                         .font(.satoshi(.title, weight: .bold))
                         .zIndex(1)
-                        .foregroundColor(.black.opacity(0.75))
+                        .foregroundColor(.fakeBlack)
                         .padding()
                 }
             }
@@ -98,7 +98,7 @@ struct SocialCardView: View {
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
                     .strokeBorder(
-                        Color.black.opacity(0.75),
+                        .fakeBlack,
                         style: StrokeStyle(lineWidth: 2)
                     )
             )

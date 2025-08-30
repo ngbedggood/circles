@@ -84,7 +84,7 @@ struct PersonalCardView: View {
                                     } else {
                                         if viewModel.currentMood == nil {
                                             Image(systemName: "lock.fill")
-                                                .foregroundColor(.black.opacity(0.75))
+                                                .foregroundColor(.fakeBlack)
                                                 .font(.system(size: 24))
                                         } else {
                                             Button {

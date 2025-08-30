@@ -89,7 +89,7 @@ class DayPageViewModel: ObservableObject {
                    let todayDateId = DailyMood.dateId(from: Date())
                    let hasTodayMood = pastMoods[todayDateId] != nil
                     
-                   notificationManager.syncNotificationStateWithMoodData(hasTodayMood: hasTodayMood)
+                  // notificationManager.syncNotificationStateWithMoodData(hasTodayMood: hasTodayMood)
                }
             }
             .store(in: &cancellables)
@@ -111,6 +111,7 @@ class DayPageViewModel: ObservableObject {
         //print("Updated view model for date \(dateId) with mood: \(dailyMood?.mood?.rawValue ?? "none")")
     }
     
+    // This is for the red dot marker
     @MainActor
     func checkForAlerts() async {
         guard let userID = authManager.currentUser?.uid else { return }
@@ -283,17 +284,14 @@ class DayPageViewModel: ObservableObject {
             )
             print("Daily entry saved successfully")
             
+            
+            notificationManager.scheduleNextBatchOfReminders(
+                forTime: UserDefaults.standard.object(forKey: "reminderTime") as? Date ?? Date()
+            )
+            
             // Manage streak
             await streakManager.manageStreak(isNewEntry: true)
             print("Streak updated via new entry.")
-            
-            // Cancel today's notification reminder when a mood entry is made
-            if Calendar.current.isDateInToday(date) {
-                print("About to cancel reminder notification?")
-                notificationManager.syncNotificationStateWithMoodData(hasTodayMood: true)
-                print("About to debug after cancelling reminder.")
-                notificationManager.debugPrintPendingNotifications()
-            }
             
             if isButtonSubmit {
                 self.showToast = false
@@ -319,10 +317,6 @@ class DayPageViewModel: ObservableObject {
             try await firestoreManager.deleteDailyMood(date: date, forUserID: userId)
             print("Daily entry for \(date) deleted successfully")
             
-            // Immediately schedule a today notifcation if necessary
-            if Calendar.current.isDateInToday(date) {
-                notificationManager.syncNotificationStateWithMoodData(hasTodayMood: false)
-            }
         } catch {
             print(
                 "Error deleting daily entry: \(error.localizedDescription)"

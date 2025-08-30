@@ -43,7 +43,7 @@ struct ChatView: View {
 
                     } label: {
                         Image(systemName: "trash.circle")
-                            .foregroundColor(.black.opacity(0.75))
+                            .foregroundColor(.fakeBlack)
                     }
                     .frame(minWidth: 48)
                 }
@@ -52,7 +52,7 @@ struct ChatView: View {
                 .font(.title)
                 .fontWeight(.bold)
                 .zIndex(5)
-                .foregroundColor(.black.opacity(0.75))
+                .foregroundColor(.fakeBlack)
 
                 Spacer()
 

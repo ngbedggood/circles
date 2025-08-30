@@ -16,7 +16,7 @@ struct EmailField: View {
             .keyboardType(.emailAddress)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled(true)
-            .foregroundColor(.black.opacity(0.75))
+            .foregroundColor(.fakeBlack)
             .padding(18)
             .background(Color.white)
             .cornerRadius(30)

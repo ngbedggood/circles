@@ -42,6 +42,8 @@ class FriendsViewModel: ObservableObject {
 //    }
     @Published var selectedTime: Date
     @Published var isReminderOn: Bool
+    var lastSelectedTime: Date?
+    var lastReminderState: Bool?
 
     let firestoreManager: FirestoreManager
     let authManager: any AuthManagerProtocol
@@ -64,10 +66,8 @@ class FriendsViewModel: ObservableObject {
             let uid = authManager.currentUser?.uid ?? ""
             hasMoodToday = (try await firestoreManager.getDailyMood(forDate: Date(), forUserId: uid)) != nil
         }
-        if isReminderOn {
-            notificationManager.updateReminderNotification(isReminderOn: isReminderOn, selectedTime: selectedTime)
-            notificationManager.syncNotificationStateWithMoodData(hasTodayMood: hasMoodToday)
-            print("hasMoodToday: \(hasMoodToday)")
+        if hasMoodToday {
+            notificationManager.scheduleNextBatchOfReminders(forTime: selectedTime)
         }
     }
 
@@ -88,14 +88,14 @@ class FriendsViewModel: ObservableObject {
         return notificationManager.hasPermission
     }
     
+    // Reminder related notifications
     func updateReminderNotification() {
-        notificationManager.updateReminderNotification(isReminderOn: isReminderOn, selectedTime: selectedTime)
-        var hasMoodToday = false
-        Task {
-            hasMoodToday = try await firestoreManager.getDailyMood(forDate: Date(), forUserId: authManager.currentUser?.uid ?? "") != nil
+        // Track the previous state to avoid unecessary method calls when navigating around
+        if selectedTime != lastSelectedTime || isReminderOn != lastReminderState {
+            notificationManager.updateReminderNotification(isReminderOn: isReminderOn, selectedTime: selectedTime)
+            lastSelectedTime = selectedTime
+            lastReminderState = isReminderOn
         }
-        print("hasMoodToday: \(hasMoodToday)")
-        notificationManager.syncNotificationStateWithMoodData(hasTodayMood: hasMoodToday)
     }
 
     @MainActor

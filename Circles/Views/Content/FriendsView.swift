@@ -54,16 +54,16 @@ struct FriendsView: View {
                         .font(.satoshi(.body, weight: .regular))
                         .zIndex(5)
                         .foregroundColor(
-                            .black.opacity(0.75))
+                            .fakeBlack)
                         VStack {
                             Text("Profile")
                                 .font(.satoshi(.title, weight: 700))
-                                .foregroundColor(.black.opacity(0.75))
+                                .foregroundColor(.fakeBlack)
                             HStack {
                                 TextField("New Display Name", text: $viewModel.newDisplayName)
                                     .autocapitalization(.none)
                                     .disableAutocorrection(true)
-                                    .foregroundColor(.black.opacity(0.75))
+                                    .foregroundColor(.fakeBlack)
                                     .padding(18)
                                     .focused($isFocused)
                                     .submitLabel(.done)
@@ -103,7 +103,7 @@ struct FriendsView: View {
 
                         Text("Friends")
                             .font(.satoshi(.title2, weight: 600))
-                            .foregroundColor(.black.opacity(0.75))
+                            .foregroundColor(.fakeBlack)
                             .padding(.top, 16)
                         VStack(spacing: 24) {
                             VStack {
@@ -111,7 +111,7 @@ struct FriendsView: View {
                                     TextField("Search Username", text: $viewModel.searchQuery)
                                         .autocapitalization(.none)
                                         .disableAutocorrection(true)
-                                        .foregroundColor(.black.opacity(0.75))
+                                        .foregroundColor(.fakeBlack)
                                         .padding(18)
                                         .focused($isFocused)
                                         .submitLabel(.search)
@@ -202,7 +202,7 @@ struct FriendsView: View {
                             VStack {
                                 HStack {
                                     Text("Pending Requests")
-                                        .foregroundColor(.black.opacity(0.75))
+                                        .foregroundColor(.fakeBlack)
                                         .padding(18)
                                     Spacer()
                                     if viewModel.isLoadingPendingRequests {
@@ -317,7 +317,7 @@ struct FriendsView: View {
                             VStack {
                                 HStack {
                                     Text("Friends List")
-                                        .foregroundColor(.black.opacity(0.75))
+                                        .foregroundColor(.fakeBlack)
                                         .padding(18)
                                     Spacer()
                                     if viewModel.isLoadingFriendsList {
@@ -411,7 +411,7 @@ struct FriendsView: View {
                         RoundedRectangle(cornerRadius: 20)
                             .fill(.clear)
                             .strokeBorder(
-                                Color.black.opacity(0.75),
+                                .fakeBlack,
                                 style: StrokeStyle(lineWidth: 2)
                             )
                             .onTapGesture {

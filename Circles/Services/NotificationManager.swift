@@ -11,9 +11,7 @@ import UserNotifications
 //@MainActor
 class NotificationManager: ObservableObject{
     @Published private(set) var hasPermission = false
-    
-    private let dailyReminderIdentifier = "dailyReminder"
-    private let tomorrowOnlyReminderIdentifier = "dailyReminder_tomorrow"
+    private let reminderIdentifierPrefix = "daily-mood-reminder"
     private var hasMood: Bool = false
     
     init() {
@@ -46,111 +44,60 @@ class NotificationManager: ObservableObject{
     func updateReminderNotification(isReminderOn: Bool, selectedTime: Date) {
         UserDefaults.standard.set(isReminderOn, forKey: "reminderOn")
         UserDefaults.standard.set(selectedTime, forKey: "reminderTime")
-        
         if isReminderOn {
-            scheduleRepeatingReminder(selectedTime: selectedTime)
+            scheduleNextBatchOfReminders(forTime: selectedTime)
         } else {
-            cancelAllReminders()
+            cancelAllMoodReminders()
         }
     }
     
-    private func cancelReminderNotification() {
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [dailyReminderIdentifier])
-        print("Cancelled daily reminder notifications")
-    }
-    
-    // Method to call when saving and deleting entries to ensure notifications are in sync with mood being present
-    //@MainActor
-    func syncNotificationStateWithMoodData(hasTodayMood: Bool) {
-        let isReminderOn = UserDefaults.standard.bool(forKey: "reminderOn")
-        
-        guard isReminderOn else {
-            cancelReminderNotification()
-            return
-        }
-        
-        guard let reminderTime = UserDefaults.standard.object(forKey: "reminderTime") as? Date else {
-            print("No reminder time set")
-            return
-        }
-        
-        if hasTodayMood {
-            // User has mood today - check if we need to cancel today's notification
-            print("[Notification Manager]: Cancelling today notifcation.")
-            scheduleTomorrowOnlyNotification(selectedTime: reminderTime)
-        } else {
-            // User doesn't have mood - ensure recurring reminder is active
-            scheduleRepeatingReminder(selectedTime: reminderTime)
-            print("[Notification Manager]: Keeping active scheduled reminder.")
-        }
-    }
-    
-    private func scheduleRepeatingReminder(selectedTime: Date) {
-        cancelAllReminders()
-        
-        guard hasPermission else {
-            print("No notification permission")
-            return
-        }
-        
+    func scheduleNextBatchOfReminders(forTime date: Date, forNext days: Int = 3) {
+        // Cancel first
+        cancelAllMoodReminders()
+
         let content = UNMutableNotificationContent()
         content.title = "Hey there :)"
-        content.body = "Don't forget to log your mood for the day!"
-        
-        var dateComponents = Calendar.current.dateComponents([.hour, .minute], from: selectedTime)
-        dateComponents.second = 0
-        
-        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-        let request = UNNotificationRequest(identifier: dailyReminderIdentifier, content: content, trigger: trigger)
-        
-        UNUserNotificationCenter.current().add(request)
-        print("Scheduled repeating daily reminder at \(selectedTime)")
-    }
-    
-    private func scheduleTomorrowOnlyNotification(selectedTime: Date) {
-        cancelAllReminders()
-        
-        guard hasPermission else {
-            print("No notification permission")
-            return
-        }
-        
+        content.body = "Don't forget to log your mood for the day."
+        content.sound = .default
+
         let calendar = Calendar.current
-        let now = Date()
-        let hour = calendar.component(.hour, from: selectedTime)
-        let minute = calendar.component(.minute, from: selectedTime)
+        let timeComponents = calendar.dateComponents([.hour, .minute], from: date)
         
-        guard let tomorrow = calendar.date(byAdding: .day, value: 1, to: now),
-              let tomorrowReminderTime = calendar.date(
-                bySettingHour: hour,
-                minute: minute,
-                second: 0,
-                of: tomorrow
-              ) else {
-            print("Failed to compute tomorrow reminder time")
-            return
+        // Create notifications for next however many days
+        for i in 1...days {
+            guard let date = calendar.date(byAdding: .day, value: i, to: Date()) else { continue }
+            
+            var dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
+            dateComponents.hour = timeComponents.hour
+            dateComponents.minute = timeComponents.minute
+            
+            let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+            
+            let identifier = "\(reminderIdentifierPrefix)-\(date.timeIntervalSince1970)"
+            let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+            
+            UNUserNotificationCenter.current().add(request) { error in
+                if let error = error {
+                    print("Error scheduling notification for day \(i): \(error.localizedDescription)")
+                }
+            }
         }
-        
-        let content = UNMutableNotificationContent()
-        content.title = "Hey there :)"
-        content.body = "Don't forget to log your mood for the day!"
-        content.userInfo = ["type": "tomorrowOnly"] // so delegate knows
-        
-        var tomorrowComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: tomorrowReminderTime)
-        tomorrowComponents.second = 0
-        
-        let trigger = UNCalendarNotificationTrigger(dateMatching: tomorrowComponents, repeats: false)
-        let request = UNNotificationRequest(identifier: tomorrowOnlyReminderIdentifier, content: content, trigger: trigger)
-        
-        UNUserNotificationCenter.current().add(request)
-        debugPrintPendingNotifications()
-        print("Scheduled one-off reminder for tomorrow at \(tomorrowReminderTime)")
+        print("\(days) reminders have been scheduled starting from tomorrow.")
     }
     
-    private func cancelAllReminders() {
-        UNUserNotificationCenter.current().removePendingNotificationRequests(
-            withIdentifiers: [dailyReminderIdentifier, tomorrowOnlyReminderIdentifier]
-        )
+    func cancelAllMoodReminders() {
+        let center = UNUserNotificationCenter.current()
+        // Find and cancel all pending notificationsa
+        center.getPendingNotificationRequests { requests in
+            let identifiersToCancel = requests
+                .filter { $0.identifier.hasPrefix(self.reminderIdentifierPrefix) }
+                .map { $0.identifier }
+            
+            if !identifiersToCancel.isEmpty {
+                center.removePendingNotificationRequests(withIdentifiers: identifiersToCancel)
+                print("Cancelled \(identifiersToCancel.count) pending mood reminders.")
+            }
+        }
     }
     
     func debugPrintPendingNotifications() {

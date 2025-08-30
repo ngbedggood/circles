@@ -41,7 +41,7 @@ struct HistoryView: View {
 
                     } label: {
                         Image(systemName: "trash.circle")
-                            .foregroundColor(.black.opacity(0.75))
+                            .foregroundColor(.fakeBlack )
                     }
                     .frame(minWidth: 48)
                 }

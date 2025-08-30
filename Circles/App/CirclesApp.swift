@@ -63,19 +63,6 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.banner, .sound])
     }
-        
-    func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                didReceive response: UNNotificationResponse,
-                                withCompletionHandler completionHandler: @escaping () -> Void) {
-        let userInfo = response.notification.request.content.userInfo
-        if userInfo["type"] as? String == "tomorrowOnly" {
-            // Tomorrow notification fired → schedule repeating from now on
-            if let reminderTime = UserDefaults.standard.object(forKey: "reminderTime") as? Date {
-                NotificationManager().updateReminderNotification(isReminderOn: true, selectedTime: reminderTime)
-            }
-        }
-        completionHandler()
-    }
 }
 
 @main
