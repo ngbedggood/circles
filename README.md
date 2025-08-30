@@ -9,6 +9,9 @@
   <p align="center">Users can log daily moods, view past entries, and interact with friends moods through reactions.
 </p>
 
+  <p align="center"> Just give me a follow if you'd like the link to test out the app!
+</p>
+
 ## Core features:
 
 - **Mood Tracking** — log your daily mood with colors + optional notes
@@ -26,6 +29,12 @@ The app follows the **MVVM pattern**:
 - **ViewModels**: Business logic and state management (`DayPageViewModel`, `FriendsViewModel`)
 - **Models**: Plain Swift structs for moods, users, etc.
 - **Services**: Firebase integration (`FirestoreManager`, `AuthManager`)
+
+## Firebase Backend Features
+- **Authentication**: Handles user sign up and authentication through out the app
+- **Firestore Database**: Database of choice to store user data with the appropriate database rules
+- **Cloud Functions**: Listeners used for detecting database changes to trigger external notifications
+- **Hosting**: Configured to enable deep link functionality for email verification
 
 ## Screenshots (WIP)
 
