@@ -30,6 +30,8 @@ struct ReactionsOverlayView: View {
                     await viewModel.reactToFriendMood(friend: friend, date: date)
                 }
             }
+            .foregroundColor(.fakeBlack)
+            .opacity(viewModel.showEmotePicker ? 1 : 0)
             .offset(y: viewModel.showEmotePicker ? 210 : 60)
         }
     }

@@ -15,13 +15,13 @@ struct EmoteSelectionView: View {
     let onSelectEmote: (String) -> Void
     
     var body: some View {
-        let emotes = ["❤️","🙌","🤗","😤","😢","🦧","+"]
+        let emotes = ["❤️","🙌","🤗","😤","😢","🦧","➕"]
         let middleIndex = emotes.count / 2
         HStack(spacing: 0){
             ForEach(emotes.indices, id: \.self) { index in
                 let emote = emotes[index]
                 Button(action: {
-                    if emote == "+" {
+                    if emote == "➕" {
                         print("Additional emote selecting is WIP!")
                     } else {
                         if selectedEmote == emote {
@@ -33,11 +33,9 @@ struct EmoteSelectionView: View {
                 }) {
                     Text("\(emote)")
                         .font(.title)
+                        .foregroundColor(.fakeBlack)
                         .scaledToFit()
                         .scaleEffect(selectedEmote == emote ? 1.3 : 0.95)
-//                        .shadow(color: .black, radius: selectedEmote == emote ? 6 : 0)
-//                        .shadow(color: .black, radius: selectedEmote == emote ? 3 : 0)
-//                        .shadow(color: .black, radius: selectedEmote == emote ? 1 : 0)
                 }
                 .frame(width: showEmotePicker ? 40 : 1, height: showEmotePicker ? 40: 1)
                 .offset(
@@ -45,7 +43,6 @@ struct EmoteSelectionView: View {
                         ? 0
                         : CGFloat(index - middleIndex) * -10 // collapse to center
                 )
-                .foregroundColor(.black)
                 
             }
         }
@@ -59,7 +56,7 @@ struct EmoteSelectionView: View {
                 )
         )
         .clipShape(Capsule())
-        .opacity(showEmotePicker ? 1 : 0)
+        //.opacity(showEmotePicker ? 1 : 0)
         .zIndex(6)
     }
 }

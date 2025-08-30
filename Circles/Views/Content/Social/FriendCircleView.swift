@@ -107,6 +107,7 @@ struct FriendCircleView: View {
                     hasReacted: hasReacted,
                     timeAgo: timeAgo ?? ""
                 )
+                .scaleEffect(selectedFriend == nil ? scale : 1)
                 .onTapGesture {
                     withAnimation(.spring(response: 0.49, dampingFraction: 0.69)) {
                         selectedFriend = isSelected ? nil : friend
@@ -128,6 +129,8 @@ struct FriendCircleView: View {
                     StreakView(streakCount: friend.streakCount, isSelected: isSelected)
                         .scaleEffect(selectedFriend==nil ? 1 : 0)
                         .scaleEffect(!isSelected ? 1 : 0)
+                        .opacity(selectedFriend==nil ? 1 : 0)
+                        .opacity(!isSelected ? 1 : 0)
                         .zIndex(4)
                 }
 

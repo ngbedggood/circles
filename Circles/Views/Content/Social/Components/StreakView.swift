@@ -22,7 +22,7 @@ struct StreakView: View {
                     Capsule()
                         .fill(Color.white)
                 )
-                .shadow(radius: 1)
+                //.shadow(radius: 1)
                 .offset(x: 30, y: 30)
                 .scaleEffect(isSelected ? 0 : 1)
     }

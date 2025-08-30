@@ -68,6 +68,7 @@ struct PersonalCardView: View {
                                     Text(viewModel.note.isEmpty ? "No note was left." :"\"\(viewModel.note)\"")
                                         .foregroundColor(viewModel.dailyMood == nil ? .black : .white)
                                         .font(.satoshi(size: 20, weight: .regular))
+                                        .multilineTextAlignment(.center)
                                         .padding(24)
                                 }
                             }

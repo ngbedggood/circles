@@ -87,7 +87,7 @@ class DayPageViewModel: ObservableObject {
                 if let self = self, Calendar.current.isDateInToday(self.date) {
                    
                    let todayDateId = DailyMood.dateId(from: Date())
-                   let hasTodayMood = pastMoods[todayDateId] != nil
+                   //let hasTodayMood = pastMoods[todayDateId] != nil
                     
                   // notificationManager.syncNotificationStateWithMoodData(hasTodayMood: hasTodayMood)
                }
