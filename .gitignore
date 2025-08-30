@@ -4,6 +4,7 @@
 
 *.xcodeproj/
 *.xctestplan
+Circles/Resources/GoogleService-Info.plist
 *.plist
 
 .firebase/
