@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct FriendsView: View {
+    
     @StateObject var viewModel: FriendsViewModel
     @EnvironmentObject var navigationManager: NavigationManager
     @State var expandPendingRequests: Bool = false
@@ -16,20 +17,9 @@ struct FriendsView: View {
     @FocusState var isFocused: Bool
 
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 20)
-                .fill(.cardTint)
-                .shadow(radius: 8)
-                .onTapGesture {
-                    if isFocused {
-                        UIApplication.shared.sendAction(
-                            #selector(UIResponder.resignFirstResponder), to: nil, from: nil,
-                            for: nil)
-                    }
-                }
-            GeometryReader { geometry in
-                let screenWidth = geometry.size.width
+        VStack {
                 ZStack {
+                    
                     VStack {
                         HStack {
                             Button {
@@ -411,26 +401,38 @@ struct FriendsView: View {
                             }
                             .background(Color.white)
                             .cornerRadius(30)
-                            //.padding(.bottom, 16)
                             .shadow(radius: 4)
                         }
 
                     }
-                    
-                    .frame(maxWidth: screenWidth)
+                    .frame(maxHeight: .infinity, alignment: .top)
                     .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(.clear)
+                            .strokeBorder(
+                                Color.black.opacity(0.75),
+                                style: StrokeStyle(lineWidth: 2)
+                            )
+                            .onTapGesture {
+                                if isFocused {
+                                    UIApplication.shared.sendAction(
+                                        #selector(UIResponder.resignFirstResponder), to: nil, from: nil,
+                                        for: nil)
+                                }
+                            }
+                    )
                     .task {
                         Task {
                             await viewModel.fetchFriendRequests()
                             await viewModel.fetchFriendList()
                         }
                     }
+                    
                 }
-            }
+                .padding(24)
         }
-        .padding(.top, 47)
-        .padding(.bottom, 34)
-        .padding(24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .toast(
             isShown: $viewModel.showToast,
             type: viewModel.toastStyle,

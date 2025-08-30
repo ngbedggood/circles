@@ -115,7 +115,7 @@ struct CirclesApp: App {
                 .onOpenURL { url in
                     Task { await authManager.handleIncomingURL(url: url) }
                 }
-                .onChange(of: scenePhase) { phase in
+                .onChange(of: scenePhase) { _, phase in
                 if phase == .active {
                     Task {
                         await streakManager.manageStreak(isNewEntry: false)

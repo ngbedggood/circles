@@ -9,6 +9,12 @@ import Foundation
 @testable import Circles
 
 class MockFirestoreManager: FirestoreManagerProtocol {
+    func saveUserTimezone(for uid: String) async throws {}
+    func fetchUsername(for uid: String) async throws -> String? {return ""}
+    func usernameToUID(username: String) async throws -> String {return ""}
+    func searchUsersWithRequestStatus(byUsername username: String, excludingUserID: String) async throws -> [Circles.SearchResultUser] {return []}
+    func getDailyMoodForViewerLocalDate(forDate viewerDate: Date, forUserId userId: String) async throws -> Circles.DailyMood? {return nil}
+    func uploadFCMToken(uid: String, token: String) async throws {}
     func isUsernameAvailable(_ username: String) async throws -> Bool {return true}
     func saveUserProfile(uid: String, username: String, displayName: String) async throws {}
     func loadUserProfile(for uid: String) {}

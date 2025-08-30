@@ -73,45 +73,49 @@ struct ContentView: View {
                                 .environmentObject(navigationManager)
                             case .dayPage:
                                 if !firestoreManager.isLoading {
-                                    TabView(selection: $horizontalIndex) {
-                                        ForEach(Array(dayPageViewModels.models.enumerated()), id: \.offset) { index, viewModel in
-                                            DayPageView(
-                                                viewModel: viewModel,
-                                                verticalOffset: $verticalOffset
-                                            )
+                                    ZStack {
+                                        TabView(selection: $horizontalIndex) {
+                                            ForEach(Array(dayPageViewModels.models.enumerated()), id: \.offset) { index, viewModel in
+                                                DayPageView(
+                                                    viewModel: viewModel,
+                                                    verticalOffset: $verticalOffset
+                                                )
                                                 .environmentObject(navigationManager)
                                                 .tag(index)
+                                            }
                                         }
-                                    }
-                                    .task {
-                                        await streakManager.manageStreak(isNewEntry: false)
-                                    }
-                                    .zIndex(2)
-                                    .transition(.opacity)
-                                    .tabViewStyle(.page(indexDisplayMode: .never))
-                                    .onAppear {
-                                        horizontalIndex = pastDays - 1
-                                        if dayPageViewModels.models.isEmpty {
-                                            dayPageViewModels.initializeModels(
-                                                pastDays: pastDays,
-                                                authManager: authManager,
-                                                firestoreManager: firestoreManager,
-                                                streakManager: streakManager,
-                                                notificationManager: notificationManager,
-                                                scrollManager: scrollManager
-                                            )
+                                        .task {
+                                            await streakManager.manageStreak(isNewEntry: false)
                                         }
+                                        .zIndex(2)
+                                        .transition(.opacity)
+                                        .tabViewStyle(.page(indexDisplayMode: .never))
+                                        .onAppear {
+                                            horizontalIndex = pastDays - 1
+                                            if dayPageViewModels.models.isEmpty {
+                                                dayPageViewModels.initializeModels(
+                                                    pastDays: pastDays,
+                                                    authManager: authManager,
+                                                    firestoreManager: firestoreManager,
+                                                    streakManager: streakManager,
+                                                    notificationManager: notificationManager,
+                                                    scrollManager: scrollManager
+                                                )
+                                            }
+                                        }
+                                        .onAppear {
+                                            jiggle()
+                                        }
+                                        .highPriorityGesture(
+                                            DragGesture(),
+                                            isEnabled: scrollManager.isHorizontalScrollDisabled
+                                        )
+                                        TabIndicatorView(index: horizontalIndex, numTabs: pastDays)
+                                            .offset(y: verticalOffset)
+                                            .zIndex(0)
                                     }
-                                    .onAppear {
-                                        jiggle()
-                                    }
-                                    .highPriorityGesture(
-                                        DragGesture(),
-                                        isEnabled: scrollManager.isHorizontalScrollDisabled
-                                    )
-                                    TabIndicatorView(index: horizontalIndex, numTabs: pastDays)
-                                        .offset(y: verticalOffset)
-                                        .zIndex(0)
+                                    .edgesIgnoringSafeArea(.top)
+                                    .edgesIgnoringSafeArea(.bottom)
                                     
                                 }
                         }
@@ -126,8 +130,6 @@ struct ContentView: View {
             }
         }
         .ignoresSafeArea(.keyboard)
-        .edgesIgnoringSafeArea(.top)
-        .edgesIgnoringSafeArea(.bottom)
         .font(.satoshi(.body))
         .offset(x: shake)
         .background(Color.backgroundTint)

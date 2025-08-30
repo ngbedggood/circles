@@ -60,9 +60,6 @@ struct EmptyCircleView: View {
             isSelected: isSelected,
             someoneSelected: selectedFriend != nil
         )
-        
-        let hasReacted = UserDefaults.standard.bool(forKey: "hasReacted")
-        let timeAgo = viewModel.timeAgo(from: friend.time)
 
         ZStack {
             Circle()

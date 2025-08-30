@@ -7,7 +7,6 @@
 
 import Combine
 import Foundation
-import SwiftUI
 
 class FriendsViewModel: ObservableObject {
 
@@ -126,9 +125,7 @@ class FriendsViewModel: ObservableObject {
 
     @MainActor
     func searchUsers() async {
-        withAnimation {
-            hasSearched = false
-        }
+        hasSearched = false
         guard !searchQuery.isEmpty else {
             return
         }
@@ -138,10 +135,9 @@ class FriendsViewModel: ObservableObject {
                 byUsername: searchQuery.lowercased(),
                 excludingUserID: currentUserID
             )
-            withAnimation {
-                self.searchResults = results
-                hasSearched = true
-            }
+
+            self.searchResults = results
+            hasSearched = true
         } catch {
             self.error = error.localizedDescription
         }
@@ -163,9 +159,7 @@ class FriendsViewModel: ObservableObject {
 
         try? await firestoreManager.sendFriendRequest(from: fromID, to: toID)
         if let index = searchResults.firstIndex(where: { $0.user.uid == user.uid }) {
-            withAnimation {
-                searchResults[index].requestSent = true
-            }
+            searchResults[index].requestSent = true
         }
         self.showToast = false
         self.toastMessage = "A friend request has been sent"
@@ -218,9 +212,7 @@ class FriendsViewModel: ObservableObject {
             pendingRequests.remove(at: index)
         }
         if let index = pendingRequestsWithUsers.firstIndex(where: { $0.id == request.id }) {
-            _ = withAnimation {
-                pendingRequestsWithUsers.remove(at: index)
-            }
+            pendingRequestsWithUsers.remove(at: index)
         }
         //self.pendingRequests.removeAll { $0.id == request.id }
         self.showToast = false
@@ -292,9 +284,7 @@ class FriendsViewModel: ObservableObject {
             let friendID = try await firestoreManager.usernameToUID(username: friendUsername)
             try await firestoreManager.deleteFriend(userID: userID, friendID: friendID)
             if let index = friendsList.firstIndex(where: { $0.username == friendUsername }) {
-                _ = withAnimation {
-                    friendsList.remove(at: index)
-                }
+                friendsList.remove(at: index)
             }
             self.showToast = false
             self.toastMessage = "Deleted friend!"

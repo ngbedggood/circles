@@ -5,7 +5,6 @@
 //  Created by Nathaniel Bedggood on 19/08/2025.
 //
 
-import SwiftUI
 import Foundation
 import FirebaseFirestore
 import FirebaseAuth
@@ -33,9 +32,7 @@ class ReactionViewModel: ObservableObject {
     func toggleSelection() {
         isSelected.toggle()
         if !isSelected {
-            withAnimation {
-                showEmotePicker = false
-            }
+            showEmotePicker = false
         }
     }
     
@@ -52,9 +49,7 @@ class ReactionViewModel: ObservableObject {
         
         // Set flag that user has seen how to react prompt
         if UserDefaults.standard.bool(forKey: "hasReacted") == false {
-            withAnimation {
-                UserDefaults.standard.set(true, forKey: "hasReacted")
-            }
+            UserDefaults.standard.set(true, forKey: "hasReacted")
         }
         
         guard let userID = Auth.auth().currentUser?.uid else { return }
@@ -66,9 +61,7 @@ class ReactionViewModel: ObservableObject {
             // If the user already has a reaction locally
             if let oldReactionIndex = reactions.firstIndex(where: { $0.id == userID }) {
                 // Remove it locally to trigger animation
-               _ = withAnimation {
-                    reactions.remove(at: oldReactionIndex)
-                }
+                reactions.remove(at: oldReactionIndex)
 
                 // Also remove from Firestore
                 try await firestoreManager.softRemoveReact(fromUID: userID, toUID: friendID, date: date)
@@ -79,11 +72,8 @@ class ReactionViewModel: ObservableObject {
 
             // If the new emote isn't empty, add it both locally + remotely
             if !emote.isEmpty {
-                //let newReaction = Reaction(id: userID, reaction: emote)
-                
-//                withAnimation {
-//                    reactions.append(newReaction)
-//                }
+//              let newReaction = Reaction(id: userID, reaction: emote)
+//              reactions.append(newReaction)
 
                 try await firestoreManager.emoteReactToFriendsPost(
                     date: date,
@@ -141,9 +131,7 @@ class ReactionViewModel: ObservableObject {
     func getCurrentUserEmote() {
         // Update the current user's emote
         if let myUID = Auth.auth().currentUser?.uid {
-            withAnimation {
-                self.currentUserEmote = self.reactions.first { $0.id == myUID }?.reaction ?? ""
-            }
+            self.currentUserEmote = self.reactions.first { $0.id == myUID }?.reaction ?? ""
         }
     }
     
