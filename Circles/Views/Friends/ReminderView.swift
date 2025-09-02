@@ -24,7 +24,7 @@ struct ReminderView: View {
                 Toggle("", isOn: $isReminderOn)
                     .fixedSize()
             }
-            Text("(Reminders will start tomorrow.)")
+            Text("(Reminders start from tomorrow)")
                 .font(.satoshi(size: 12))
                 .foregroundColor(.gray)
         }

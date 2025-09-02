@@ -20,7 +20,7 @@ protocol FirestoreManagerProtocol: ObservableObject {
     func fetchPendingFriendRequests(for userID: String) async throws -> [FriendRequest]
     func fetchUserProfile(userID: String) async throws -> UserProfile
     func fetchFriends(userID: String) async throws -> [String]
-    func saveDailyMood(date: Date, mood: MoodColor, content: String?, forUserID userId: String) async throws 
+    func saveDailyMood(date: Date, mood: MoodColor, content: String?, forUserID userId: String) async throws -> Bool
     func getDailyMood(forDate date: Date, forUserId userId: String) async throws  -> DailyMood?
     func getDailyMoodForViewerLocalDate(forDate viewerDate: Date, forUserId userId: String) async throws -> DailyMood?
     func loadDailyMoods(forUserId userId: String)

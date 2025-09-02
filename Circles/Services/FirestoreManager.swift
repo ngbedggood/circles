@@ -417,7 +417,7 @@ class FirestoreManager: FirestoreManagerProtocol {
 
     // DAILY MOOD RELATED METHODS
     func saveDailyMood(date: Date, mood: MoodColor, content: String?, forUserID userId: String)
-        async throws
+        async throws -> Bool
     {
         // Convert date to string
         let moodId = DailyMood.dateId(from: date)
@@ -459,6 +459,8 @@ class FirestoreManager: FirestoreManagerProtocol {
             print("Error saving daily mood: \(error.localizedDescription)")
             throw error
         }
+        
+        return isNewmood
     }
 
     // Fetch a daily mood from a specific date

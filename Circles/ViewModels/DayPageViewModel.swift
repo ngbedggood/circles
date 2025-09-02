@@ -276,7 +276,7 @@ class DayPageViewModel: ObservableObject {
 
         let newNote = note
         do {
-            try await firestoreManager.saveDailyMood(
+            let isFirstEntry = try await firestoreManager.saveDailyMood(
                 date: date,
                 mood: currentMood ?? MoodColor.none,
                 content: newNote.isEmpty ? nil : newNote,
@@ -290,7 +290,7 @@ class DayPageViewModel: ObservableObject {
             )
             
             // Manage streak
-            await streakManager.manageStreak(isNewEntry: true)
+            await streakManager.manageStreak(isNewEntry: isFirstEntry)
             print("Streak updated via new entry.")
             
             if isButtonSubmit {

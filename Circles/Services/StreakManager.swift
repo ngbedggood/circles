@@ -31,39 +31,46 @@ class StreakManager: ObservableObject {
             let data = try await firestoreManager.fetchUserData(userId: userId)
             let currentStreak = data["streakCount"] as? Int ?? 0
             let lastEntryDate = (data["lastEntry"] as? Timestamp)?.dateValue()
-
-            // Check if is new streak
-            let newStreak = calculateNewStreak(
-                currentStreak: currentStreak,
-                lastEntry: lastEntryDate,
-                today: Date() // Pass the current date
-            )
-
+            
             var fieldsToUpdate: [String: Any] = [:]
+            var finalStreak = currentStreak
 
-            // Update stored streak count if the calculated one is off
-            if newStreak != currentStreak {
+            if isNewEntry {
+                // New entry checking and updating
+                let newStreak = calculateNewStreak(
+                    currentStreak: currentStreak,
+                    lastEntry: lastEntryDate,
+                    today: Date()
+                )
                 fieldsToUpdate["streakCount"] = newStreak
-                // If the streak was lost, show a message
-                if newStreak == 0 && currentStreak > 0 {
-                    showStreakLostToast = true
+                fieldsToUpdate["lastEntry"] = Timestamp(date: Date())
+                finalStreak = newStreak
+            } else {
+                // Checking
+                let calendar = Calendar.current
+                let today = Date()
+                let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+
+                if let lastEntry = lastEntryDate {
+                    if !calendar.isDate(lastEntry, inSameDayAs: today) && !calendar.isDate(lastEntry, inSameDayAs: yesterday) {
+                        if currentStreak > 0 {
+                            fieldsToUpdate["streakCount"] = 0
+                            showStreakLostToast = true
+                        }
+                        finalStreak = 0
+                    }
                 }
             }
-
-            // Update time stamp for new entries
-            if isNewEntry {
-                fieldsToUpdate["lastEntry"] = Timestamp(date: Date())
-            }
             
+            // Update Firestore if there are changes
             if !fieldsToUpdate.isEmpty {
                 try await firestoreManager.updateUserData(userId: userId, fields: fieldsToUpdate)
             }
             
-            self.currentStreakCount = newStreak
+            self.currentStreakCount = finalStreak
 
         } catch {
             print("Error managing streak: \(error.localizedDescription)")
-            return
         }
     }
     

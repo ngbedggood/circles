@@ -17,7 +17,7 @@ struct FriendsView: View {
     @FocusState var isFocused: Bool
 
     var body: some View {
-        VStack {
+        ZStack {
                 ZStack {
                     
                     VStack {
@@ -421,6 +421,17 @@ struct FriendsView: View {
                     
                 }
                 .padding(24)
+            VStack{
+                Spacer()
+                HStack(spacing: 0) {
+                    Text("Made with ")
+                        .font(.satoshi(size: 8))
+                    Text("♥")
+                        .font(.satoshi(size: 6))
+                        
+                }
+                .foregroundColor(.gray)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .toast(
