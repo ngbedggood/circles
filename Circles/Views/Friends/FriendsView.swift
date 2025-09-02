@@ -107,35 +107,17 @@ struct FriendsView: View {
                             .padding(.top, 16)
                         VStack(spacing: 24) {
                             VStack {
-                                HStack {
-                                    TextField("Search Username", text: $viewModel.searchQuery)
-                                        .autocapitalization(.none)
-                                        .disableAutocorrection(true)
-                                        .foregroundColor(.fakeBlack)
-                                        .padding(18)
-                                        .focused($isFocused)
-                                        .submitLabel(.search)
-                                        .onSubmit {
-                                            Task {
-                                                await viewModel.searchUsers()
-                                            }
-                                        }
-                                    //.background(.white)
-
-                                    Button(action: {
+                                
+                                UsernameSearchField(
+                                    searchQuery: $viewModel.searchQuery,
+                                    onSubmit: {
                                         Task {
-                                            isFocused = false
                                             await viewModel.searchUsers()
                                         }
-                                    }) {
-                                        Image(systemName: "magnifyingglass.circle.fill")
-                                            .font(.system(size: 32))
-                                            .foregroundColor(
-                                                Color(red: 0.75, green: 0.75, blue: 0.75)
-                                            )
-                                            .padding(.horizontal, 12)
-                                    }
-                                }
+                                    },
+                                    isFocused: $isFocused
+                                )
+                                
                                 if !viewModel.searchResults.isEmpty {
                                     VStack(spacing: 12) {
                                         ForEach(viewModel.searchResults) { user in
