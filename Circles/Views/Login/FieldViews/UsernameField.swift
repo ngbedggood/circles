@@ -13,16 +13,24 @@ struct UsernameField: View {
     var body: some View {
         TextField(
             "Username",
-            text: Binding(
-                get: { username },
-                set: { newValue in
-                    username = newValue.lowercased()
-                }
-            )
+            text: $username
         )
         .focused($focusedField, equals: .username)
-        .autocapitalization(.none)
+        .textInputAutocapitalization(.never)
         .disableAutocorrection(true)
+        .onChange(of: username) { _, newValue in
+            var filtered = newValue
+                .lowercased()
+                .filter { ($0.isLetter && $0.isLowercase) || $0 == "_" }
+            
+            if filtered.count > 16 {
+                filtered = String(filtered.prefix(16))
+            }
+            
+            if filtered != newValue {
+                username = filtered
+            }
+        }
         .foregroundColor(.fakeBlack)
         .padding(18)
         .frame(height: 60)
