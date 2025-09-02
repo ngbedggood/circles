@@ -45,6 +45,10 @@ The app follows the **MVVM pattern**:
 
 ### Social View:
 
+<img src="screenshots/social-portrait.png" alt="Social view screenshot" width="200"/>
+
 ### Settings and Friend Management:
+
+<img src="screenshots/settings-portrait.png" alt="Settings view screenshot" width="200"/>
 
 ## Notes/Personal Reflections
