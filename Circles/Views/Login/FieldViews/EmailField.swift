@@ -19,6 +19,10 @@ struct EmailField: View {
             .foregroundColor(.fakeBlack)
             .padding(18)
             .background(Color.white)
+            .overlay(
+                RoundedRectangle(cornerRadius: 30)
+                    .stroke(Color.fakeBlack, lineWidth: 2)
+            )
             .cornerRadius(30)
             .shadow(radius: 4)
     }

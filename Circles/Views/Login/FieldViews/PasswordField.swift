@@ -39,13 +39,17 @@ struct PasswordField: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 30, height: 30)
-                    .foregroundColor(.gray)
+                    .foregroundColor(.fakeBlack)
                     .frame(width: 44, height: 44)
             }
         }
         .padding(.horizontal, 12)
         .frame(height: 60)
         .background(Color.white)
+        .overlay(
+            RoundedRectangle(cornerRadius: 30)
+                .stroke(Color.fakeBlack, lineWidth: 2)
+        )
         .cornerRadius(30)
         .shadow(radius: 4)
     }
