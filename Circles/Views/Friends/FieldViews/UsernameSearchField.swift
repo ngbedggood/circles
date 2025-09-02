@@ -47,9 +47,7 @@ struct UsernameSearchField: View {
             }) {
                 Image(systemName: "magnifyingglass.circle.fill")
                     .font(.system(size: 32))
-                    .foregroundColor(
-                        Color(red: 0.75, green: 0.75, blue: 0.75)
-                    )
+                    .foregroundColor(.fakeBlack)
                     .padding(.horizontal, 12)
             }
         }

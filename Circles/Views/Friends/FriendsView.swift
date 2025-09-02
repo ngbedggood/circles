@@ -85,12 +85,16 @@ struct FriendsView: View {
                                         .padding(8)
                                         .background(
                                             RoundedRectangle(cornerRadius: 30)
-                                                .fill(Color(red: 0.75, green: 0.75, blue: 0.75))
+                                                .fill(.fakeBlack)
                                         )
                                         .padding(.horizontal, 12)
                                 }
                             }
                             .background(Color.white)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 30)
+                                    .stroke(Color.fakeBlack, lineWidth: 2)
+                            )
                             .cornerRadius(30)
                             .shadow(radius: 4)
                             
@@ -178,6 +182,10 @@ struct FriendsView: View {
                                 }
                             }
                             .background(Color.white)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 30)
+                                    .stroke(Color.fakeBlack, lineWidth: 2)
+                            )
                             .cornerRadius(30)
                             .shadow(radius: 4)
 
@@ -190,9 +198,7 @@ struct FriendsView: View {
                                     if viewModel.isLoadingPendingRequests {
                                         Image(systemName: "hourglass.circle.fill")
                                             .font(.system(size: 32))
-                                            .foregroundColor(
-                                                Color(red: 0.75, green: 0.75, blue: 0.75)
-                                            )
+                                            .foregroundColor(.fakeBlack)
                                             .padding(.horizontal, 12)
                                     } else {
                                         ZStack {
@@ -203,9 +209,7 @@ struct FriendsView: View {
                                             }) {
                                                 Image(systemName: "arrowshape.down.circle.fill")
                                                     .font(.system(size: 32))
-                                                    .foregroundColor(
-                                                        Color(red: 0.75, green: 0.75, blue: 0.75)
-                                                    )
+                                                    .foregroundColor(.fakeBlack)
                                                     .padding(.horizontal, 12)
                                                     .rotationEffect(
                                                         .degrees(expandPendingRequests ? 180 : 0)
@@ -293,6 +297,10 @@ struct FriendsView: View {
 
                             }
                             .background(Color.white)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 30)
+                                    .stroke(Color.fakeBlack, lineWidth: 2)
+                            )
                             .cornerRadius(30)
                             .shadow(radius: 4)
 
@@ -305,9 +313,7 @@ struct FriendsView: View {
                                     if viewModel.isLoadingFriendsList {
                                         Image(systemName: "hourglass.circle.fill")
                                             .font(.system(size: 32))
-                                            .foregroundColor(
-                                                Color(red: 0.75, green: 0.75, blue: 0.75)
-                                            )
+                                            .foregroundColor(.fakeBlack)
                                             .padding(.horizontal, 12)
                                     } else {
                                         Button(action: {
@@ -317,9 +323,7 @@ struct FriendsView: View {
                                         }) {
                                             Image(systemName: "arrowshape.down.circle.fill")
                                                 .font(.system(size: 32))
-                                                .foregroundColor(
-                                                    Color(red: 0.75, green: 0.75, blue: 0.75)
-                                                )
+                                                .foregroundColor(.fakeBlack)
                                                 .padding(.horizontal, 12)
                                                 .rotationEffect(
                                                     .degrees(expandFriendsList ? 180 : 0))
@@ -382,6 +386,10 @@ struct FriendsView: View {
                                 }
                             }
                             .background(Color.white)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 30)
+                                    .stroke(Color.fakeBlack, lineWidth: 2)
+                            )
                             .cornerRadius(30)
                             .shadow(radius: 4)
                         }
