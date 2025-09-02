@@ -41,6 +41,8 @@ The app follows the **MVVM pattern**:
 
 ### Personal Mood Entry:
 
+<img src="screenshots/personal.gif" alt="Personal view gif" width="200"/>
+
 ### Past Mood Entries:
 
 ### Social View:
