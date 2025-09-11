@@ -39,6 +39,13 @@ struct FriendCircleView: View {
     @State private var hasAppeared = false
 
     private var isSelected: Bool { selectedFriend?.id == friend.id }
+    
+    // Spam tap to notify friend related
+    @State private var tapCount = 0
+    @State private var animate = false
+    let tapCountThreshold = 5
+    let onComplete: (String) -> Void
+    @State private var tapScale: CGFloat = 1.0
 
     init(friend: FriendColor,
          index: Int,
@@ -48,7 +55,9 @@ struct FriendCircleView: View {
          totalSpots: Int,
          selectedFriend: Binding<FriendColor?>,
          firestoreManager: FirestoreManager,
-         isEditable: Bool) {
+         isEditable: Bool,
+         onComplete: @escaping (String) -> Void
+    ) {
         self.friend = friend
         self.index = index
         self.center = center
@@ -57,6 +66,7 @@ struct FriendCircleView: View {
         self.totalSpots = totalSpots
         self._selectedFriend = selectedFriend
         self.isEditable = isEditable
+        self.onComplete = onComplete
         _viewModel = StateObject(wrappedValue: ReactionViewModel(
             firestoreManager: firestoreManager
         ))
@@ -96,6 +106,29 @@ struct FriendCircleView: View {
                             .padding(8)
                     )
                     .scaleEffect(scale)
+                    .scaleEffect(tapScale)
+                    .onTapGesture {
+                        tapCount += 1
+                        
+                        // Animate pop
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
+                            tapScale = 1.2   // expand
+                        }
+
+                        // Return to normal after short delay
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
+                                tapScale = 1.0
+                            }
+                        }
+
+                        // Trigger completion if threshold reached
+                        if tapCount >= tapCountThreshold {
+                            onComplete(friend.uid)
+                            tapCount = 0
+                        }
+                    }
+                    
             } else {
                 CircleView(
                     color: friend.color?.color ?? .gray,

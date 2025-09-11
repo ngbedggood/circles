@@ -10,6 +10,12 @@ import SwiftUI
 struct EmptyCircleView: View {
     @EnvironmentObject var firestoreManager: FirestoreManager
     @StateObject var viewModel: ReactionViewModel
+    
+    // Spam tap to notify friend related
+    @State private var tapCount = 0
+    @State private var animate = false
+    let tapCountThreshold = 5
+    let onComplete: (String) -> Void
 
     let friend: FriendColor
     let index: Int
@@ -32,7 +38,9 @@ struct EmptyCircleView: View {
          totalSpots: Int,
          selectedFriend: Binding<FriendColor?>,
          firestoreManager: FirestoreManager,
-         isEditable: Bool) {
+         isEditable: Bool,
+         onComplete: @escaping (String) -> Void
+    ) {
         self.friend = friend
         self.index = index
         self.center = center
@@ -41,6 +49,7 @@ struct EmptyCircleView: View {
         self.totalSpots = totalSpots
         self._selectedFriend = selectedFriend
         self.isEditable = isEditable
+        self.onComplete = onComplete
         _viewModel = StateObject(wrappedValue: ReactionViewModel(
             firestoreManager: firestoreManager
         ))
@@ -91,5 +100,25 @@ struct EmptyCircleView: View {
         }
         .onDisappear { viewModel.stopListening() }
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isSelected)
+        .scaleEffect(animate ? 1.2 : 1.0)
+        .opacity(animate ? 0.8 : 1.0)
+        .animation(.spring(response: 0.3, dampingFraction: 0.5), value: animate)
+        .onTapGesture {
+            tapCount += 1
+            
+            // Animate feedback
+            animate.toggle()
+            
+            // Check threshold
+            if tapCount >= tapCountThreshold {
+                onComplete(friend.uid)
+                tapCount = 0
+            }
+        }
+        .overlay(
+            Text("\(tapCount)")
+                .font(.title)
+                .foregroundColor(.white)
+        )
     }
 }

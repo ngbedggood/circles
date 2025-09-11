@@ -143,7 +143,9 @@ struct SocialCardView: View {
                         selectedFriend: $viewModel.selectedFriend,
                         firestoreManager: firestoreManager,
                         isEditable: viewModel.isEditable
-                    )
+                    ) { friendUID in
+                        print("About to send a reminder notifcation to friend \(friendUID)")
+                    }
                     .transition(.scale.animation(.spring()))
                     .zIndex(viewModel.isMeSelected ? 1 : 3)
                     .zIndex(viewModel.selectedFriend == friend ? 2 : 1)
