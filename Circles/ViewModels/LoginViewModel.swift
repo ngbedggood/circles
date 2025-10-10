@@ -49,7 +49,7 @@ class LoginViewModel: ObservableObject {
             )
             await MainActor.run {
                 self.showToast = false
-                self.errorMessage = "A verfication email was sent"
+                self.errorMessage = "A verfication email was sent (check your spam inbox)"
                 self.toastMessage = self.errorMessage ?? "An error occurred!"
                 self.toastStyle = .success
                 self.showToast = true
